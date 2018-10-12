@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel='stylesheet' href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css'>
+    <link rel='stylesheet' href='css/login.css'>
+</head>
+<body>
+    <form th:action="@{/registration}" method="get">
+        <button class="btn btn-md btn-warning btn-block" type="Submit">Go To Registration Page</button>
+    </form>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-offset-3 col-md-6">
+                <form class="form-horizontal" th:action="@{/login}" method="POST">
+                    <span class="heading" th:text="#{login.welcome}">Login</span>
+                    <div class="form-group">
+                        <input type="input" class="form-control" name="username" id="username" th:placeholder="#{username}">
+                        <i class="fa fa-user"></i>
+                    </div>
+                    <div class="form-group help">
+                        <input type="password" class="form-control" name="password" id="password" th:placeholder="#{password}">
+                        <i class="fa fa-lock"></i>
+                        <a href="#" class="fa fa-question-circle"></a>
+                    </div>
+                    <div class="form-group">
+                        <div class="main-checkbox">
+                            <input type="checkbox" value="None" id="checkbox1" name="check"/>
+                            <label for="checkbox1"></label>
+                        </div>
+                        <span class="text">Remember me</span>
+                        <button type="submit" class="btn btn-default" th:text="#{login.submit}">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

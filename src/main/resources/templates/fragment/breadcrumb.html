@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://coreui.io/license)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta charset="UTF-8">
+<title>Web site Top(main) navigation template</title>
+</head>
+<body>
+  <ol class="breadcrumb" th:fragment="breadcrumb">
+    <li class="breadcrumb-item">Home</li>
+    <li class="breadcrumb-item">
+      <a href="#">Admin</a>
+    </li>
+    <li class="breadcrumb-item active">Dashboard</li>
+    <!-- Breadcrumb Menu-->
+    <li class="breadcrumb-menu d-md-down-none">
+      <div class="btn-group" role="group" aria-label="Button group">
+        <a class="btn" href="#">
+          <i class="icon-speech"></i>
+        </a>
+        <a class="btn" href="./">
+          <i class="icon-graph"></i>  Dashboard</a>
+        <a class="btn" href="#">
+          <i class="icon-settings"></i>  Settings</a>
+      </div>
+    </li>
+  </ol>
+
+</body>
+</html>

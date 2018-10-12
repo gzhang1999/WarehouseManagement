@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://coreui.io/license)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="common-head">
+
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="application/x-javascript; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta name="description" content="CoreUI - Open Source Bootstrap Admin Template">
+    <meta name="author" content="Łukasz Holeczek">
+    <meta name="keyword" content="Bootstrap,Admin,Template,Open,Source,jQuery,CSS,HTML,RWD,Dashboard">
+    <title th:text="#{global.title}">Warehouse Management System</title>
+    <!-- Icons-->
+    <link th:href="@{/js/node_modules/@coreui/icons/css/coreui-icons.min.css}" rel="stylesheet">
+    <link th:href="@{/js/node_modules/flag-icon-css/css/flag-icon.min.css}" rel="stylesheet">
+    <link th:href="@{/js/node_modules/font-awesome/css/font-awesome.min.css}" rel="stylesheet">
+    <link th:href="@{/js/node_modules/simple-line-icons/css/simple-line-icons.css}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{https://cdn.datatables.net/v/dt/dt-1.10.18/datatables.min.css}"/>
+
+
+    <!-- Main styles for this application-->
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+
+    <link th:href="@{/css/vendors/pace-progress/css/pace.min.css}" rel="stylesheet">
+
+    <!-- Global site tag (gtag.js) - Google Analytics-->
+    <script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-118965717-3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      // Shared ID
+      gtag('config', 'UA-118965717-3');
+      // Bootstrap ID
+      gtag('config', 'UA-118965717-5');
+    </script>
+
+</head>
+<body>
+<div>This works as a template to include the JS and CSS for all the web pages.</div>
+</body>
+</html>

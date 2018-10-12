@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://coreui.io/license)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta charset="UTF-8">
+<title>Web site left(main) navigation template</title>
+</head>
+<body>
+    <div class="sidebar" th:fragment="sidebar">
+      <nav class="sidebar-nav">
+        <ul class="nav">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">
+              <i class="nav-icon icon-speedometer"></i> Dashboard
+              <span class="badge badge-primary">NEW</span>
+            </a>
+          </li>
+
+          <li class="nav-item nav-dropdown" th:if="${not #lists.isEmpty(session.parentMenuItemList)}" th:each="parentMenuItem : ${session.parentMenuItemList}">
+            <a class="nav-link nav-dropdown-toggle" href="#">
+              <i class="nav-icon" th:classappend="${parentMenuItem.iconClass}"></i>
+              <span  th:text="${parentMenuItem.multiLanguageSupportID}"></span>
+            </a>
+
+            <ul class="nav-dropdown-items" style="margin-left:10px;">
+              <li class="nav-item" th:if="${not #lists.isEmpty(parentMenuItem.childMenuList)}" th:each="childMenuItem : ${parentMenuItem.childMenuList}">
+                <a class="nav-link" th:href="@{${childMenuItem.url}}">
+                  <i class="nav-icon" th:classappend="${childMenuItem.iconClass}"></i>
+                  <span th:text="${childMenuItem.multiLanguageSupportID}"></span>
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <button class="sidebar-minimizer brand-minimizer" type="button"></button>
+    </div>
+
+</body>
+</html>

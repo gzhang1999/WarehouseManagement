@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+
+                <div class="card">
+                    <div class="card-body">
+                        <form class="form-inline" id="menu_query" data-display="menuTable" th:action="@{/ws/menu/list}">
+                            <div class="form-group">
+                                <label for="queryMenuGroup" class="col-form-label" th:text="#{menuGroup}">Menu Group:</label>
+                                <select class="form-control  mx-sm-4" id="queryMenuGroup" name="menuGroup" data-variable="menuGroup"></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="queryMenuName" class="col-form-label" th:text="#{menuName}">Menu Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryMenuName" name="name" >
+                            </div>
+                            <div class="form-group">
+                                <label for="queryMenuMLS" class="col-form-label" th:text="#{menuMLS}">Multi Language Display:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryMenuMLS" name="multiLanguageSupportID" >
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="menu_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                    </div>
+
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-1"></div>
+                            <div class="col-md-10">
+                                <table id = "menuTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true">
+                                    <thead>
+                                        <tr>
+                                            <td th:text="#{menuID}">Menu ID</td>
+                                            <td th:text="#{menuGroup}">Menu Group</td>
+                                            <td th:text="#{menuName}">Menu Name</td>
+                                            <td th:text="#{menuIcon}">Menu Icon</td>
+                                            <td th:text="#{menuMLS}">Multi Language Display</td>
+                                            <td th:text="#{menuSequence}">Sequence</td>
+                                            <td th:text="#{menuURL}">URL</td>
+                                            <td></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="assignedMenuItem : ${assignedMenuList}">
+                                            <td th:text="${assignedMenuItem.id}" th:id="'menuID-' + ${assignedMenuItem.id}"></td>
+                                            <td th:text="${assignedMenuItem.parentMenuName}" th:id="'parentMenuName-' + ${assignedMenuItem.id}"></td>
+                                            <td th:text="${assignedMenuItem.name}" th:id="'menuName-' + ${assignedMenuItem.id}"></td>
+                                            <td><i class="nav-icon" th:classappend="${assignedMenuItem.iconClass}" th:id="'menuIconClass-' + ${assignedMenuItem.id}"></i></td>
+                                            <td th:text="${assignedMenuItem.multiLanguageSupportID}"  th:id="'menuMLS-' + ${assignedMenuItem.id}"></td>
+                                            <td th:text="${assignedMenuItem.sequence}" th:id="'menuSequence-' + ${assignedMenuItem.id}"></td>
+                                            <td th:text="${assignedMenuItem.url}" th:id="'menuURL-' + ${assignedMenuItem.id}"></td>
+                                            <td>
+                                                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editModal" th:text="#{edit}" th:data-menuid="${assignedMenuItem.id}" th:data-menuname="${assignedMenuItem.name}">Edit</button>
+                                                <button th:if="${currentLoginUser.roleManager == true}" class="btn btn-warning" type="button" data-toggle="modal" data-target="#assignMenuModal" th:text="#{menu.assign}" th:data-menuid="${assignedMenuItem.id}" th:data-menuname="${assignedMenuItem.name}">Assign Menu</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-1"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel" th:text="#{menu.editmodel.title}">Edit Menu</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="editModalErrorMessage"></div>
+                    <form>
+                        <div class="form-group">
+                            <label for="editMenuID" class="col-form-label" th:text="#{menuID}">Menu ID:</label>
+                            <input type="text" class="form-control" id="editMenuID" name="menuID" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="menuGroup" class="col-form-label" th:text="#{menuGroup}">Menu Group:</label>
+                            <select id="menuGroup" data-variable="menuGroup"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editMenuName" class="col-form-label" th:text="#{menuName}">Menu Name:</label>
+                            <input type="text" class="form-control" id="editMenuName" name="menuName">
+                        </div>
+                        <div class="form-group">
+                            <label for="editMenuIcon" class="col-form-label" th:text="#{menuIcon}">Menu Icon:</label>
+                            <input type="text" class="form-control" id="editMenuIcon" name="menuIcon">
+                        </div>
+                        <div class="form-group">
+                            <label for="editMenuMLS" class="col-form-label" th:text="#{menuMLS}">Multi Language Display:</label>
+                            <input type="text" class="form-control" id="editMenuMLS" name="menuMLS">
+                        </div>
+                        <div class="form-group">
+                            <label for="editMenuSequence" class="col-form-label" th:text="#{menuSequence}">Menu Sequence:</label>
+                            <input type="text" class="form-control" id="editMenuSequence" name="menuSequence">
+                        </div>
+                        <div class="form-group">
+                            <label for="editMenuURL" class="col-form-label" th:text="#{menuURL}">Menu URL:</label>
+                            <input type="text" class="form-control" id="editMenuURL" name="menuURL">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="menuEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal for assign menu to the role -->
+    <div class="modal fade" id="assignMenuModal" tabindex="-1" role="dialog" aria-labelledby="assignMenuModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignMenuModalLabel" th:text="#{menu.assign}">Assign Menu</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <span th:text="#{menuName}">Menu Name</span> :
+                        <span class="menuName"></span>
+                    </div>
+                    <div class="row" id="assignMenuModalErrorMessage"></div>
+                    <table id = "menuAssignTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true">
+                        <thead>
+                            <tr>
+                                <td th:text="#{roleID}">Role ID</td>
+                                <td th:text="#{roleName}">Role Name</td>
+                                <td th:text="#{roleDescription}">Role Description</td>
+                                <td th:text="#{menuAssigned}">Menu Assigned</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+    <script>
+    // Function to render table
+    // This function will be called by the javascript from query_form.js
+    // It works as a stub function that after we get content from
+    // query_form.js, this function will render the datatable
+    var renderTable = function(tableID, data, customField) {
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            $.each(data, function(index, menu){
+                var htmlData =
+                    "<tr>" +
+                    "   <td id='menuID-" +  menu.id + "'>" + menu.id + "</td>" +
+                    "   <td id='parentMenuName-" +  menu.id + "'>" + (menu.parentMenuName == undefined ? "" : menu.parentMenuName) + "</td>" +
+                    "   <td id='menuName-" +  menu.id + "'>" + menu.name + "</td>" +
+                    "   <td>" +
+                    "       <i class='nav-icon " + menu.iconClass + "' id='menuIconClass-" +  menu.id + "'></i></td>" +
+                    "   <td id='menuMLS-" +  menu.id + "'>" + menu.multiLanguageSupportID + "</td>" +
+                    "   <td id='menuSequence-" +  menu.id + "'>" + menu.sequence + "</td>" +
+                    "   <td id='menuURL-" +  menu.id + "'>" + menu.url + "</td>" +
+                    "   <td>" +
+                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-menuid='" + menu.id + "' data-menuname='" + menu.name+ "'>Edit</button>" +
+                    (customField.isRoleManager == true ?
+                        "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#assignMenu' text='assign' data-menuid='" + menu.id + "' data-menuname='" + menu.name+ "'>Assign Menu</button>"
+                        : ""
+                    ) +
+                    "   </td>" +
+                    "</tr>";
+                var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+                table.rows.add(html).draw();
+            });
+        }
+    }
+    // Function to pass data into modal
+    $('#editModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var menuID = button.data('menuid');
+      var url = '/ws/menu/query/'+menuID;
+      $.ajax({url:url})
+          .done(function( res ) {
+              if (res.status == 0)
+              {
+                  var menuItem = res.data
+                  $('#editMenuID').val(menuItem.id);
+                  $('#menuGroup').val(menuItem.parentMenuName);
+                  $('#editMenuName').val(menuItem.name);
+                  $('#editMenuIcon').val(menuItem.iconClass);
+                  $('#editMenuMLS').val(menuItem.multiLanguageSupportID);
+                  $('#editMenuSequence').val(menuItem.sequence);
+                  $('#editMenuURL').val(menuItem.url);
+                  $('#editModalErrorMessage').text('');
+              }
+              else
+              {
+                  $('#editModalErrorMessage').text(res.status + " : " + res.message);
+              }
+          });
+    })
+    $('#menuEditSave').click(function(){
+        $.ajax({
+            method:"POST",
+            url:"/ws/menu/edit",
+            data:{
+                 menuID: $('#editMenuID').val(),
+                 menuGroup: $('#menuGroup').val(),
+                 menuName: $('#editMenuName').val(),
+                 menuIcon: $('#editMenuIcon').val(),
+                 menuMLS: $('#editMenuMLS').val(),
+                 menuSequence: $('#editMenuSequence').val(),
+                 menuURL: $('#editMenuURL').val(),
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                var menuID = res.data.id;
+                $('#parentMenuName-' + menuID).text(res.data.parentMenuName);
+                $('#menuName-' + menuID).text(res.data.name);
+                $('#menuIconClass-' + menuID).removeClass();
+                $('#menuIconClass-' + menuID).addClass("nav-icon");
+                $('#menuIconClass-' + menuID).addClass(res.data.multiLanguageSupportID);
+                $('#menuSequence-' + menuID).text(res.data.sequence);
+                $('#menuURL-' + menuID).text(res.data.url);
+                $('#editModalErrorMessage').text('');
+                $('#editModal').modal('toggle');
+            }
+            else{
+                $('#editModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+    var assignMenu = function(menuID, roleId) {
+        var checkBox = $('#' + menuID + '-' + roleId);
+
+        console.log("Menu id: " + menuID + ", Role ID: " + roleId + ", checked? " + checkBox.prop("checked"));
+        // ajax to assign / deassign the menu from the user
+        $.ajax({
+          type: "POST",
+          url: '/ws/menu/assign/' + menuID,
+          data: {
+              roleID : roleId,
+              assigned :  checkBox.prop("checked")
+          }
+        }).done(function(res) {
+            console.log(JSON.stringify(res));
+
+        });
+
+    }
+
+    // Function to show the roles and whether they are assigned with
+    // this menu or not
+    $('#assignMenuModal').on('show.bs.modal', function (event) {
+
+      var button = $(event.relatedTarget);
+      var modal = $(this)
+
+      var menuID = button.data('menuid');
+      var menuName = button.data('menuname');
+
+      modal.find('.menuName').text(menuName);
+
+      var url = '/ws/menu/assign/'+menuID;
+      $.ajax({
+          url:url,
+          menuID: menuID
+      }).done(function( res ) {
+          if (res.status == 0)
+          {
+              console.log(JSON.stringify(res.data));
+
+              var table = $("#menuAssignTable").DataTable();
+              if (res.data.length == 0) {
+                    table.clear().draw();
+              }
+              else {
+                  table.clear();
+                  $.each(res.data, function(index, role){
+                      var menuAssigned = false;
+                      // Check whether current menu is assigned to the role
+                      $.each(role.menuItems, function(index, menuItem){
+                          if (menuItem.id == menuID) {
+                              // menu is assigned to the role
+                              menuAssigned = true;
+                              return false;
+                          }
+                      });
+
+                      var htmlData =
+                              "<tr>" +
+                              "   <td id='roleId-" +  role.id + "'>" + role.id + "</td>" +
+                              "   <td id='roleName-" +  role.id + "'>" + role.name +  "</td>" +
+                              "   <td id='roleDescription-" +  role.id + "'>" + role.description + "</td>" +
+                              "   <td>" +
+                              "       <label class='switch switch-3d switch-primary'> " +
+                              (menuAssigned ?
+                                      "    <input class='switch-input' id='" + menuID + "-" + role.id + "' name='menuAssignment' data-menuId='" + menuID + "' data-roleId='" + role.id + "' type='checkbox' checked='' onchange=\"assignMenu('" + menuID + "','" + role.id + "')\"> "
+                                      :
+                                      "    <input class='switch-input' id='" + menuID + "-" + role.id + "' name='menuAssignment' data-menuId='" + menuID + "' data-roleId='" + role.id + "' type='checkbox'  onchange=\"assignMenu('" + menuID + "','" + role.id + "')\"> "
+                              ) +
+                              "            <span class='switch-slider'></span> " +
+                              "       </label>" +
+                              "    </td>" +
+                              "</tr>";
+                      var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+                      table.rows.add(html).draw();
+
+                      // Add function to handle the checkbox event
+                      $("#assignMenuModal .menuAssignment").click(function() {
+                          var checkbox = $(this)
+                          console.log("menu:" + checkbox.data("menuId") + " / role: " + checkbox.data("roleId") + " assigned? " + checkbox.is(":checked"));
+                      });
+                  });
+              }
+          }
+          else
+          {
+              $('#assignMenuModalErrorMessage').text(res.status + " : " + res.message);
+          }
+      });
+    })
+    </script>
+</body>
+</html>

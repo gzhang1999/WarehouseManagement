@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://coreui.io/license)
+-->
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta charset="UTF-8">
+<title>Web site Top(main) navigation template</title>
+</head>
+<body>
+    <footer class="app-footer" th:fragment="app-footer">
+      <div>
+        <a href="https://coreui.io">CoreUI</a>
+        <span>&copy; 2018 creativeLabs.</span>
+      </div>
+      <div class="ml-auto">
+        <span>Powered by</span>
+        <a href="https://coreui.io">CoreUI</a>
+      </div>
+
+        <script th:src="@{/js/node_modules/jquery/dist/jquery.min.js}"></script>
+        <script th:src="@{/js/node_modules/popper.js/dist/umd/popper.min.js}"></script>
+        <script th:src="@{/js/node_modules/bootstrap/dist/js/bootstrap.min.js}"></script>
+        <script th:src="@{/js/node_modules/pace-progress/pace.min.js}"></script>
+        <script th:src="@{/js/node_modules/perfect-scrollbar/dist/perfect-scrollbar.min.js}"></script>
+        <script th:src="@{/js/node_modules/@coreui/coreui/dist/js/coreui.min.js}"></script>
+        <!-- Plugins and scripts required by this view-->
+        <script th:src="@{/js/node_modules/chart.js/dist/Chart.min.}"></script>
+        <script th:src="@{/js/node_modules/@coreui/coreui-plugin-chartjs-custom-tooltips/dist/js/custom-tooltips.min.js}"></script>
+        <script th:src="@{/js/main.js}"></script>
+        <script type="text/javascript" th:src="@{https://cdn.datatables.net/v/dt/dt-1.10.18/datatables.min.js}"></script>
+
+        <!-- javascript to support multiple language in client size(at server side we will use thymeleaf)-->
+        <script type="text/javascript" th:src="@{/js/i18n.js}"></script>
+
+        <!-- javascript to initialize controls-->
+        <script type="text/javascript" th:src="@{/js/control/dropdown.js}"></script>
+        <script type="text/javascript" th:src="@{/js/control/query_form.js}"></script>
+
+    </footer>
+
+</body>
+</html>
