@@ -12,7 +12,7 @@
 * @version v0.0.1
 * @link
 * Copyright (c) 2018 Gary Zhang
-* Licensed under MIT (https://coreui.io/license)
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
 -->
 
 <html xmlns="http://www.w3.org/1999/xhtml"
@@ -57,6 +57,8 @@
                     <div class="card-footer">
                         <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="menu_query">
                             <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="menu_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
                     </div>
 
                 </div>
@@ -86,7 +88,11 @@
                                             <td th:text="${assignedMenuItem.id}" th:id="'menuID-' + ${assignedMenuItem.id}"></td>
                                             <td th:text="${assignedMenuItem.parentMenuName}" th:id="'parentMenuName-' + ${assignedMenuItem.id}"></td>
                                             <td th:text="${assignedMenuItem.name}" th:id="'menuName-' + ${assignedMenuItem.id}"></td>
-                                            <td><i class="nav-icon" th:classappend="${assignedMenuItem.iconClass}" th:id="'menuIconClass-' + ${assignedMenuItem.id}"></i></td>
+                                            <td>
+                                                <i class="nav-icon" th:classappend="${assignedMenuItem.iconClass}" th:id="'menuIconClass-' + ${assignedMenuItem.id}" th:text="${assignedMenuItem.iconClass}">
+
+                                                </i>
+                                            </td>
                                             <td th:text="${assignedMenuItem.multiLanguageSupportID}"  th:id="'menuMLS-' + ${assignedMenuItem.id}"></td>
                                             <td th:text="${assignedMenuItem.sequence}" th:id="'menuSequence-' + ${assignedMenuItem.id}"></td>
                                             <td th:text="${assignedMenuItem.url}" th:id="'menuURL-' + ${assignedMenuItem.id}"></td>
@@ -134,6 +140,11 @@
                         <div class="form-group">
                             <label for="editMenuIcon" class="col-form-label" th:text="#{menuIcon}">Menu Icon:</label>
                             <input type="text" class="form-control" id="editMenuIcon" name="menuIcon">
+                            <a th:href="@{/res/icon.html}"
+                               target="popup"
+                               onclick="window.open('/res/icon.html','popup','width=600,height=600,scrollbars=no,resizable=no'); return false;">
+                                Example
+                            </a>
                         </div>
                         <div class="form-group">
                             <label for="editMenuMLS" class="col-form-label" th:text="#{menuMLS}">Multi Language Display:</label>
@@ -219,7 +230,7 @@
                     "   <td id='parentMenuName-" +  menu.id + "'>" + (menu.parentMenuName == undefined ? "" : menu.parentMenuName) + "</td>" +
                     "   <td id='menuName-" +  menu.id + "'>" + menu.name + "</td>" +
                     "   <td>" +
-                    "       <i class='nav-icon " + menu.iconClass + "' id='menuIconClass-" +  menu.id + "'></i></td>" +
+                    "       <i class='nav-icon " + menu.iconClass + "' id='menuIconClass-" +  menu.id + "'></i>" + menu.iconClass + "</td>" +
                     "   <td id='menuMLS-" +  menu.id + "'>" + menu.multiLanguageSupportID + "</td>" +
                     "   <td id='menuSequence-" +  menu.id + "'>" + menu.sequence + "</td>" +
                     "   <td id='menuURL-" +  menu.id + "'>" + menu.url + "</td>" +
@@ -276,12 +287,16 @@
             }
         }).done(function( res ) {
             if (res.status == 0) {
+                console.log("#menuEditSave:");
+                console.log(JSON.stringify(res.data));
                 var menuID = res.data.id;
                 $('#parentMenuName-' + menuID).text(res.data.parentMenuName);
                 $('#menuName-' + menuID).text(res.data.name);
                 $('#menuIconClass-' + menuID).removeClass();
                 $('#menuIconClass-' + menuID).addClass("nav-icon");
-                $('#menuIconClass-' + menuID).addClass(res.data.multiLanguageSupportID);
+                $('#menuIconClass-' + menuID).addClass(res.data.iconClass);
+                $('#menuIconClass-' + menuID).text(res.data.iconClass);
+                $('#menuMLS-' + menuID).text(res.data.multiLanguageSupportID);
                 $('#menuSequence-' + menuID).text(res.data.sequence);
                 $('#menuURL-' + menuID).text(res.data.url);
                 $('#editModalErrorMessage').text('');

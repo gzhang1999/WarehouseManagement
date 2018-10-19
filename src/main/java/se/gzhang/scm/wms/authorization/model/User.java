@@ -40,16 +40,20 @@ public class User {
     @NotEmpty(message = "*Please provide your password")
     private String password;
 
-    @Column(name = "name")
-    @NotEmpty(message = "*Please provide your name")
-    private String name;
+    @Column(name = "username")
+    @NotEmpty(message = "*Please provide your username")
+    private String username;
 
     @Column(name = "last_name")
     @NotEmpty(message = "*Please provide your last name")
-    private String lastName;
+    private String lastname;
+
+    @Column(name = "first_name")
+    @NotEmpty(message = "*Please provide your first name")
+    private String firstname;
 
     @Column(name = "active")
-    private int active;
+    private boolean active;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
@@ -60,4 +64,16 @@ public class User {
     // 2. assign / deassign menu to role
     @Column(name = "role_manager_flag")
     private boolean roleManager;
+
+
+    @Column(name = "user_manager_flag")
+    private boolean userManager;
+
+    @Column(name = "menu_manager_flag")
+    private boolean menuManager;
+
+    // Whether the user need to change password
+    // at next logon
+    @Column(name = "change_password_flag")
+    private boolean changePassword;
 }

@@ -24,6 +24,29 @@ var initQueryButtons = function() {
             });
         });
     }
+
+
+    var clearButtons = $('[data-buttontype="clear"]');
+
+    if(clearButtons.length != 0) {
+        clearButtons.each(function(){
+
+            // Add event handler to the button click event
+            // so that whenever the button is clicked
+            // all fields in the form will be clear
+            $(this).click(function() {
+                // Let's submit the form with the same id
+                var formID = $(this).data("target");
+                $("#" + formID).each(function() {
+                    $(this).trigger('reset');
+                    // Clear the display table as well
+                    var displayTableID = $(this).data("display");
+                    var table = $("#" + displayTableID).DataTable();
+                    table.clear().draw();
+                });
+            });
+        });
+    }
 }
 
 var initQueryForm = function(formID) {

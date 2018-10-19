@@ -23,6 +23,7 @@ var dropdownListCache = {
 var loadDropdownList = function() {
     $('select').each(function(){
         var variable = $(this).data("variable");
+        console.log("init dropdown list: " + variable);
         if (variable != undefined && variable != "") {
             var url = '/ws/control/dropdown/' + variable;
             $.ajax({
@@ -38,6 +39,8 @@ var loadDropdownList = function() {
                 }
              })
              .done(function( res ) {
+                 console.log("init dropdown list: " + res.data.variable);
+                 console.log(">> return : " + JSON.stringify(res.data));
                  renderSelection(res.data.variable, res.data);
              });
          }
@@ -46,7 +49,7 @@ var loadDropdownList = function() {
 
 var renderSelection = function(variable, data) {
 
-    var selectionControls = $('select[data-variable="menuGroup"]');
+    var selectionControls = $('select[data-variable="' + variable + '"]');
     if(selectionControls.length != 0) {
         selectionControls.each(function(){
             var selectionControl = $(this);

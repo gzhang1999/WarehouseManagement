@@ -16,20 +16,22 @@
  * limitations under the License.
  */
 
-package se.gzhang.scm.wms.authorization.repository;
+package se.gzhang.scm.wms.resource.controller;
 
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import se.gzhang.scm.wms.authorization.model.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
-@Repository("userRepository")
-public interface UserRepository extends JpaRepository<User, Integer> , JpaSpecificationExecutor<User> {
-    User findByEmail(String email);
+@Controller
+public class ResourceController {
 
-    User findByUsername(String username);
 
-    List<User> findAll();
+    @RequestMapping(value="/res/**", method = RequestMethod.GET)
+    public String getResource(HttpServletRequest request) {
+        String uri = request.getServletPath();
+        System.out.println("Get res path: " + uri.substring(1));
+        return uri.substring(1);
+    }
 }

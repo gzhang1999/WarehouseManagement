@@ -31,9 +31,7 @@ import se.gzhang.scm.wms.authorization.repository.UserRepository;
 import se.gzhang.scm.wms.menu.model.MenuItem;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
 
 @Service("roleService")
@@ -55,7 +53,7 @@ public class RoleService {
             return roleRepository.findAll();
         }
     }
-
+    public Role findByName(String  name) {return roleRepository.findByName(name);}
     public Role findById(int roleId) {
         return roleRepository.findById(roleId);
     }
@@ -106,10 +104,13 @@ public class RoleService {
         // Only add the menu item to the role when
         // the role had no access to the menu before
         if (isAccessible(role, menuItem)) {
-            for(MenuItem assignedMenu : role.getMenuItems()) {
+
+            for(Iterator<MenuItem> iterator = role.getMenuItems().iterator(); iterator.hasNext();) {
+                MenuItem assignedMenu = iterator.next();
                 if (assignedMenu.getId() == menuItem.getId()) {
                     role.getMenuItems().remove(assignedMenu);
                 }
+
             }
             save(role);
         }

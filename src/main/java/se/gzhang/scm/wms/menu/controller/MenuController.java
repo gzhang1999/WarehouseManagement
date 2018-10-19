@@ -49,6 +49,9 @@ public class MenuController {
     @Autowired
     private MenuService menuService;
 
+    private static final String APPLICATION_ID = "Menu";
+    private static final String FORM_ID = "Menu";
+
     @RequestMapping(value="/menu/menu", method = RequestMethod.GET)
     public ModelAndView displayMenu(HttpSession session){
         List<MenuItem> assignedMenuList = new ArrayList<MenuItem>();
@@ -69,6 +72,8 @@ public class MenuController {
 
         modelAndView.addObject("assignedMenuList",assignedMenuList);
         modelAndView.addObject("currentLoginUser",currentLoginUser);
+        modelAndView.addObject("applicationID",APPLICATION_ID);
+        modelAndView.addObject("formID",FORM_ID);
         modelAndView.setViewName("menu/menu");
 
         return modelAndView;

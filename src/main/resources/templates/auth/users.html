@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="container-fluid">
+                <div class="animated fadeIn">
+
+                    <div class="card">
+                        <div class="card-header">
+                            <!--
+                            <span class="badge badge-success float-right" data-toggle="modal" data-target="#editModal" data-action="new" th:text="#{user.new}" >
+                                New User
+                            </span>
+                            -->
+                            <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{user.new}" >New User</a>
+                        </div>
+                        <div class="card-body">
+                            <form class="form-inline" id="user_query" data-display="userTable" th:action="@{/ws/auth/users/list}">
+                                <div class="form-group">
+                                    <label for="queryRole" class="col-form-label" th:text="#{role}">Role:</label>
+                                    <select class="form-control  mx-sm-4" id="queryRole" name="roleId" data-variable="role"></select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="queryUsername" class="col-form-label" th:text="#{user.username}">User Name:</label>
+                                    <input type="text" class="form-control mx-sm-4" id="queryUsername" name="username" >
+                                </div>
+                                <div class="form-group">
+                                    <label for="queryFirstname" class="col-form-label" th:text="#{user.firstname}">First Name:</label>
+                                    <input type="text" class="form-control mx-sm-4" id="queryFirstname" name="firstname" >
+                                </div>
+                                <div class="form-group">
+                                    <label for="queryLastname" class="col-form-label" th:text="#{user.lastname}">Last Name:</label>
+                                    <input type="text" class="form-control mx-sm-4" id="queryLastname" name="lastname" >
+                                </div>
+                                <div class="form-group">
+                                    <label for="queryEmail" class="col-form-label" th:text="#{user.email}">Email:</label>
+                                    <input type="text" class="form-control mx-sm-4" id="queryEmail" name="email" >
+                                </div>
+                                <div class="form-group">
+                                    <label for="queryActive" class="col-form-label" th:text="#{user.active}">Active:</label>
+                                    <input type="checkbox" class="form-control mx-sm-4" id="queryActive" name="active" >
+                                </div>
+                            </form>
+
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="user_query">
+                                <i class="fa fa-dot-circle-o"></i> Find</button>
+                            <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="user_query">
+                                <i class="fa fa-dot-circle-o"></i> Clear</button>
+                        </div>
+                    </div>
+
+
+                    <div class="card card-accent-success">
+                        <div class="card-body">
+                            <!-- Grid Display -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table id = "userTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true">
+                                        <thead>
+                                        <tr>
+                                            <td th:text="#{user.userID}">User ID</td>
+                                            <td th:text="#{user.username}">Username</td>
+                                            <td th:text="#{user.firstname}">First Name</td>
+                                            <td th:text="#{user.lastname}">Last Name</td>
+                                            <td th:text="#{user.role}">Roles</td>
+                                            <td th:text="#{user.active}">Active</td>
+                                            <td th:text="#{user.userManager}">User Manager</td>
+                                            <td th:text="#{user.roleManager}">Role Manager</td>
+                                            <td th:text="#{user.menuManager}">Menu Manager</td>
+                                            <td th:text="#{user.changePassword}">Change Password on Next Logon</td>
+                                            <td></td>
+                                        </tr>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for editing existing record or add new User record-->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel" th:text="#{user.editmodel.title}">Edit User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-danger px-2" id="editModalErrorMessage"></div>
+                    <form>
+                        <div class="form-group">
+                            <label for="editModalUserID" class="col-form-label" th:text="#{user.userID}">User ID:</label>
+                            <input type="text" class="form-control" id="editModalUserID" name="userID" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalUsername" class="col-form-label" th:text="#{user.username}">User Name:</label>
+                            <input type="text" class="form-control" id="editModalUsername" name="username" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalPassword" class="col-form-label" th:text="#{user.password}">Password:</label>
+                            <input type="password" class="form-control" id="editModalPassword" name="password">
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalFirstname" class="col-form-label" th:text="#{user.firstname}">First Name:</label>
+                            <input type="text" class="form-control" id="editModalFirstname" name="firstname">
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalLastname" class="col-form-label" th:text="#{user.lastname}">Last Name:</label>
+                            <input type="text" class="form-control" id="editModalLastname" name="lastname">
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input"  id="editModalActive" name="active">
+                            <label class="custom-control-label" for="editModalActive" th:text="#{user.active}">Active:</label>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input"  id="editModalUserManager" name="userManager">
+                            <label class="custom-control-label" for="editModalUserManager" th:text="#{user.userManager}">User Manager:</label>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input"  id="editModalRoleManager" name="roleManager">
+                            <label class="custom-control-label" for="editModalRoleManager" th:text="#{user.roleManager}">Role Manager:</label>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input"  id="editModalMenuManager" name="menuManager">
+                            <label class="custom-control-label" for="editModalMenuManager" th:text="#{user.menuManager}">Menu Manager:</label>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input"  id="editModalChangePassword" name="changePassword">
+                            <label class="custom-control-label" for="editModalChangePassword" th:text="#{user.changePassword}">User Must Change Password Next Login:</label>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="userEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for assign role to the user -->
+    <div class="modal fade" id="assignRoleModal" tabindex="-1" role="dialog" aria-labelledby="assignRoleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignRoleModalLabel" th:text="#{role.assign}">Assign Role</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <span th:text="#{user.username}">Role Name</span> :
+                        <span class="username px-2"></span>
+                    </div>
+                    <div class="row" id="assignRoleModalErrorMessage"></div>
+                    <table id = "roleAssignTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true">
+                        <thead>
+                        <tr>
+                            <td th:text="#{role.id}">Role ID</td>
+                            <td th:text="#{role.name}">Role Name</td>
+                            <td th:text="#{role.description}">Role Description</td>
+                            <td th:text="#{assigned}">Assigned</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+    // Function to render table
+    // This function will be called by the javascript from query_form.js
+    // It works as a stub function that after we get content from
+    // query_form.js, this function will render the datatable
+    var renderTable = function(tableID, data, customField) {
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+
+            $.each(data, function(index, user){
+                var htmlData =
+                    "<tr>" +
+                    "   <td id='userID-" +  user.id + "'>" + user.id + "</td>" +
+                    "   <td id='username-" +  user.id + "'>" + user.username + "</td>" +
+                    "   <td id='firstname-" +  user.id + "'>" + user.firstname + "</td>" +
+                    "   <td id='lastname-" +  user.id + "'>" + user.lastname + "</td>" +
+                    "   <td id='role-" +  user.id + "'>" +  getRoleListFromRoleArray(user.roles)+ "</td>" +
+                    "   <td id='active-" +  user.id + "'>" + user.active + "</td>" +
+                    "   <td id='userManager-" +  user.id + "'>" + user.userManager + "</td>" +
+                    "   <td id='roleMananger-" +  user.id + "'>" + user.roleManager + "</td>" +
+                    "   <td id='menuManager-" +  user.id + "'>" + user.menuManager + "</td>" +
+                    "   <td id='changePassword-" +  user.id + "'>" + user.changePassword + "</td>" +
+                    "   <td>" +
+                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal'  data-action='change' text='edit' data-userid='" + user.id + "'>Edit</button>" +
+                    (customField.isRoleManager == "true" ?
+                        "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#assignRoleModal' text='assign' data-userid='" + user.id + "' data-username='" + user.username + "' >Assign Menu</button>"
+                        : ""
+                    )+
+                    "   </td>" +
+                    "</tr>";
+                var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+                table.rows.add(html).draw();
+            });
+        }
+    }
+
+    // Show the edit modal when the user press
+    // 1. Edit button to modify an existing user
+    // or
+    // 2. New button to create a new user
+    $('#editModal').on('show.bs.modal', function (event) {
+      clearEditModal();
+      var button = $(event.relatedTarget);
+      var action = button.data('action');
+      if (action == 'change') {
+          var userID = button.data('userid');
+          var url = '/ws/auth/users/query/'+userID;
+          $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var user = res.data
+                      $('#editModalUserID').val(user.id);
+                      $('#editModalUsername').val(user.username);
+                      $('#editModalPassword').val(user.password);
+                      $('#editModalFirstname').val(user.firstname);
+                      $('#editModalLastname').val(user.lastname);
+                      $('#editModalActive').prop('checked',user.active);
+                      $('#editModalUserManager').prop('checked',user.userManager);
+                      $('#editModalRoleManager').prop('checked',user.roleManager);
+                      $('#editModalMenuManager').prop('checked',user.menuManager);
+                      $('#editModalChangePassword').prop('checked',user.changePassword);
+                      $('#editModalErrorMessage').text('');
+                      setEnableOfEditModal(true);
+
+                  }
+                  else
+                  {
+                      $('#editModalErrorMessage').text(res.status + " : " + res.message);
+                      setEnableOfEditModal(false);
+
+                  }
+              });
+      }
+      else if (action == 'new') {
+          setEnableOfEditModal(true);
+      }
+      else  {
+          setEnableOfEditModal(false);
+      }
+
+    })
+
+    $('#userEditSave').click(function(){
+        var userID = $('#editModalUserID').val();
+        var url = "/ws/auth/user";
+        // action to log if we are creating a new user
+        // or editing a existing user
+        var actionCode = "new";
+        if (userID == '') {
+            // user id textbox is empty, let's add
+            // the user
+            url += "/new";
+        }
+        else {
+            // user id textbox is empty, let's add
+            // the user
+            url += "/edit";
+            actionCode = "edit";
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            actionCode : actionCode,
+            data:{
+                 userID: userID,
+                 username: $('#editModalUsername').val(),
+                 password: $('#editModalPassword').val(),
+                 firstname: $('#editModalFirstname').val(),
+                 lastname: $('#editModalLastname').val(),
+                 active: $('#editModalActive').prop('checked'),
+                 roleManager: $('#editModalRoleManager').prop('checked'),
+                 userManager: $('#editModalUserManager').prop('checked'),
+                 menuManager: $('#editModalMenuManager').prop('checked'),
+                 changePassword: $('#editModalChangePassword').prop('checked')
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                if (actionCode == "new") {
+                    // wrap the new user with an array type
+                    // as the display table(renderTable) function
+                    // can only process array, even there's only one
+                    // element in the array
+                    var userList = [];
+                    var user = res.data;
+                    userList.push(user);
+                    // if we just create an new user, let's just
+                    // display this new user in the display table
+                    renderTable("userTable", userList, res.customField);
+                }
+                else {
+                    // We just changed a existing user,
+                    // Let's update the existing result without affect
+                    // the other records in the display table
+                    var userID = res.data.id;
+
+                    $('#username-' + userID).text(res.data.username);
+                    $('#firstname-' + userID).text(res.data.firstname);
+                    $('#lastname-' + userID).text(res.data.lastname);
+                    $('#role-' + userID).text(getRoleListFromRoleArray(res.data.roles));
+                    $('#active-' + userID).text(res.data.active);
+                    $('#userManager-' + userID).text(res.data.userManager);
+                    $('#roleMananger-' + userID).text(res.data.roleManager);
+                    $('#menuManager-' + userID).text(res.data.menuManager);
+                    $('#changePassword-' + userID).text(res.data.changePassword);
+                }
+
+                $('#editModalErrorMessage').text('');
+
+                $('#editModal').modal('toggle');
+            }
+            else{
+                $('#editModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+    var setEnableOfEditModal = function(enabled) {
+        // Always disable the user id
+        $('#editModalUserID').prop("disabled", true);
+        $('#editModalUsername').prop("disabled", !enabled);
+        $('#editModalPassword').prop("disabled", !enabled);
+        $('#editModalFirstname').prop("disabled", !enabled);
+        $('#editModalLastname').prop("disabled", !enabled);
+        $('#editModalActive').prop("disabled", !enabled);
+        $('#editModalUserManager').prop("disabled", !enabled);
+        $('#editModalRoleManager').prop("disabled", !enabled);
+        $('#editModalMenuManager').prop("disabled", !enabled);
+        $('#editModalChangePassword').prop("disabled", !enabled);
+        $('#userEditSave').prop("disabled", !enabled);
+    }
+
+    var clearEditModal = function() {
+        $('#editModalUserID').val('');
+        $('#editModalUsername').val('');
+        $('#editModalPassword').val('');
+        $('#editModalFirstname').val('');
+        $('#editModalLastname').val('');
+        $('#editModalActive').prop('checked',false);
+        $('#editModalUserManager').prop('checked',false);
+        $('#editModalRoleManager').prop('checked',false);
+        $('#editModalMenuManager').prop('checked',false);
+        $('#editModalChangePassword').prop('checked',false);
+        $('#editModalErrorMessage').text('');
+    }
+
+    var getRoleListFromRoleArray = function(roleArray) {
+        var roleNameArray = [];
+        $.each(roleArray, function(index, role) {
+            roleNameArray.push(role.name);
+        });
+        return roleNameArray.join(", ");
+    }
+
+    // Show the edit modal when the user press
+    // the assign role button to assign the user to a role
+    $('#assignRoleModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var modal = $(this);
+
+      var userID = button.data('userid');
+      var uername = button.data('username');
+      var assignedRoleList = $('#role-' + userID).text().split(", ");
+
+      modal.find('.username').text(uername);
+
+      var url = '/ws/users/assign/roles/'+userID;
+      $.ajax({
+          url : url,
+          userID : userID,
+          assignedRoleList : assignedRoleList
+      }).done(function( res ) {
+          if (res.status == 0)
+          {
+              var table = $("#roleAssignTable").DataTable();
+              if (res.data.length == 0) {
+                    table.clear().draw();
+              }
+              else {
+                  table.clear();
+                  $.each(res.data, function(index, role){
+                      var roleAssigned = false;
+                      // Check whether current menu is assigned to the role
+                      $.each(assignedRoleList, function(index, roleName){
+                          if (roleName == role.name) {
+                              // menu is assigned to the role
+                              roleAssigned = true;
+                              return false;
+                          }
+                      });
+
+                      var htmlData =
+                              "<tr>" +
+                              "   <td id='roleId-" +  role.id + "'>" + role.id + "</td>" +
+                              "   <td id='roleName-" +  role.id + "'>" + role.name +  "</td>" +
+                              "   <td id='roleDescription-" +  role.id + "'>" + role.description + "</td>" +
+                              "   <td>" +
+                              "       <label class='switch switch-3d switch-primary'> " +
+                              (roleAssigned ?
+                                      "    <input class='switch-input' id='" + userID + "-" + role.id + "' name='roleAssignment' data-userID='" + userID + "' data-roleId='" + role.id + "' type='checkbox' checked='' onchange=\"assignRole('" + userID + "','" + role.id + "')\"> "
+                                      :
+                                      "    <input class='switch-input' id='" + userID + "-" + role.id + "' name='roleAssignment' data-userID='" + userID + "' data-roleId='" + role.id + "' type='checkbox'  onchange=\"assignRole('" + userID + "','" + role.id + "')\"> "
+                              ) +
+                              "            <span class='switch-slider'></span> " +
+                              "       </label>" +
+                              "    </td>" +
+                              "</tr>";
+                      var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+                      table.rows.add(html).draw();
+
+                  });
+              }
+          }
+          else
+          {
+              $('#assignMenuModalErrorMessage').text(res.status + " : " + res.message);
+          }
+      });
+    })
+
+
+    var assignRole = function(userID, roleID) {
+        var checkBox = $('#' + userID + '-' + roleID);
+
+        // ajax to assign / deassign the role from the user
+        $.ajax({
+          type: "POST",
+          url: '/ws/users/assign/roles/'+userID,
+          data: {
+              roleID : roleID,
+              userID : userID,
+              assigned :  checkBox.prop("checked")
+          }
+        }).done(function(res) {
+            // Change the table's display
+            if (res.status == 0) {
+                var userID = res.data.id;
+                $('#role-' + userID).text(getRoleListFromRoleArray(res.data.roles));
+            }
+            else {
+                $('#assignRoleModalErrorMessage').text(res.status + " : " + res.message);
+                // undo the change
+                var checkBox = $('#' + userID + '-' + roleID);
+                checkBox.prop("checked", !assigned);
+            }
+
+        });
+
+    }
+
+
+
+
+
+</script>
+</body>
+</html>

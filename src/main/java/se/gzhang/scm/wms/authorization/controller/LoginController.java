@@ -24,6 +24,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,9 +42,29 @@ public class LoginController {
     private UserService userService;
     @Autowired
     private MenuService menuService;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @RequestMapping(value={"/", "/login"}, method = RequestMethod.GET)
     public String login(){
+        /***
+        User user = userService.findUserByUsername("gzhang");
+        if (user == null) {
+            user = new User();
+        }
+        user.setUsername("gzhang");
+        user.setPassword(passwordEncoder.encode("gzhang"));
+        user.setFirstname("Gary");
+        user.setLastname("Gzhang");
+        user.setActive(true);
+        user.setRoleManager(true);
+        user.setUserManager(true);
+        user.setMenuManager(true);
+        user.setChangePassword(true);
+        userService.save(user);
+
+         ***/
+
         return "login";
     }
 
@@ -81,8 +102,8 @@ public class LoginController {
     public ModelAndView adminHome(){
         ModelAndView modelAndView = new ModelAndView();
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = userService.findUserByName(auth.getName());
-        modelAndView.addObject("userName", "Welcome " + user.getName() + " " + user.getLastName() + " (" + user.getEmail() + ")");
+        User user = userService.findUserByUsername(auth.getName());
+        modelAndView.addObject("userName", "Welcome " + user.getUsername() + " " + user.getLastname() + " (" + user.getEmail() + ")");
         modelAndView.addObject("adminMessage","Content Available Only for Users with Admin Role");
         modelAndView.setViewName("admin/home");
         return modelAndView;
@@ -91,7 +112,7 @@ public class LoginController {
     @RequestMapping(value="/home", method = RequestMethod.GET)
     public ModelAndView home(HttpSession session){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        int userID = userService.findUserByName(auth.getName()).getId();
+        int userID = userService.findUserByUsername(auth.getName()).getId();
         session.setAttribute("parentMenuItemList",menuService.getAssignedMenuItemList(userID));
         ModelAndView modelAndView = new ModelAndView();
 

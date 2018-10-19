@@ -205,19 +205,6 @@ public class MenuService {
 
     public List<MenuItem> findMenu(Map<String, String> criteriaList, int userID) {
 
-        System.out.println("1. criteriaList.containsKey('parentMenuID')? " + (criteriaList.containsKey("parentMenuID")));
-        if (criteriaList.containsKey("parentMenuID")) {
-            System.out.println("2. criteriaList.get('parentMenuID').isEmpty()? " + criteriaList.get("parentMenuID").isEmpty());
-        }
-        System.out.println("3. criteriaList.containsKey('menuGroup')? " + (criteriaList.containsKey("menuGroup")));
-        if (criteriaList.containsKey("menuGroup")) {
-            System.out.println("4. criteriaList.get('menuGroup').isEmpty()? " + criteriaList.get("menuGroup").isEmpty());
-        }
-        System.out.println("5. criteriaList.containsKey('parentMenuName')? " + (criteriaList.containsKey("parentMenuName")));
-        if (criteriaList.containsKey("parentMenuName")) {
-            System.out.println("6. criteriaList.get('parentMenuName').isEmpty()? " + criteriaList.get("parentMenuName").isEmpty());
-        }
-
         if (!criteriaList.containsKey("parentMenuID") ||
                 criteriaList.get("parentMenuID").isEmpty()) {
             // both parent menu id and parent menu name are  valid criterias.
@@ -226,20 +213,15 @@ public class MenuService {
             //       from the name and query by the menu id
             // the parameter name for the parent menu name can be either menuGroup or parentMenuName
             String parentMenuName = "";
-            System.out.println(" 1 & 2 ");
             if(criteriaList.containsKey("menuGroup") && !criteriaList.get("menuGroup").isEmpty()) {
                 parentMenuName = criteriaList.get("menuGroup");
-                System.out.println(" 3 & 4");
             }
             else if (criteriaList.containsKey("parentMenuName") && !criteriaList.get("parentMenuName").isEmpty()) {
                 parentMenuName = criteriaList.get("parentMenuName");
-                System.out.println(" 5 & 6 ");
             }
-            System.out.println(" parentMenuName: " + parentMenuName);
             if (parentMenuName.length() > 0) {
                 // Get the parent menu by name
                 MenuItem parentMenu = findParentMenuByName(parentMenuName, userID);
-                System.out.println(" parentMenu != null: " + (parentMenu != null));
                 if (parentMenu != null) {
                     criteriaList.put("parentMenuID", String.valueOf(parentMenu.getId()));
                 }
@@ -247,10 +229,6 @@ public class MenuService {
                     criteriaList.put("parentMenuID", "-1");
                 }
             }
-        }
-
-        for(Map.Entry<String, String> queryString : criteriaList.entrySet()) {
-            System.out.println("key: " + queryString.getKey() + ", value: " + queryString.getValue());
         }
 
         return menuItemRepository.findAll(new Specification<MenuItem>() {
