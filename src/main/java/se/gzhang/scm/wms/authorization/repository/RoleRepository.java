@@ -18,14 +18,14 @@
 
 package se.gzhang.scm.wms.authorization.repository;
 
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import se.gzhang.scm.wms.authorization.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
 @Repository("roleRepository")
-public interface RoleRepository extends JpaRepository<Role, Integer> {
+public interface RoleRepository extends JpaRepository<Role, Integer>, JpaSpecificationExecutor<Role> {
 
     Role findByName(String name);
 

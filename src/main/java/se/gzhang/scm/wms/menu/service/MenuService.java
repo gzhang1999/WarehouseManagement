@@ -74,12 +74,35 @@ public class MenuService {
     }
 
     @Cacheable("fullMenuList")
-    private List<MenuItem> findAll() {
+    public List<MenuItem> findAll() {
         return menuItemRepository.findAll();
     }
 
+    // Whether load the parent menu's info. The parent menu
+    // info will be loaded mainly for display purpose
+    public List<MenuItem> findAll(boolean loadParentMenu) {
+        if (loadParentMenu) {
+            List<MenuItem> menuItemList = findAll();
+
+            for(MenuItem menuItem : menuItemList) {
+                // Setup the parent menu name
+                if (getParentMenu(menuItem) != null) {
+                    menuItem.setParentMenuName(getParentMenu(menuItem).getName());
+                }
+                else {
+                    menuItem.setParentMenuName("");
+                }
+
+            }
+            return menuItemList;
+        }
+        else {
+            return findAll();
+        }
+    }
+
     @Cacheable("fullAssignedMenuList")
-    private List<MenuItem> findAll(int userId) {
+    public List<MenuItem> findAll(int userId) {
         return menuItemRepository.findAll();
     }
 

@@ -20,6 +20,7 @@ package se.gzhang.scm.wms.authorization.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,6 +31,10 @@ import se.gzhang.scm.wms.authorization.repository.RoleRepository;
 import se.gzhang.scm.wms.authorization.repository.UserRepository;
 import se.gzhang.scm.wms.menu.model.MenuItem;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -54,7 +59,7 @@ public class RoleService {
         }
     }
     public Role findByName(String  name) {return roleRepository.findByName(name);}
-    public Role findById(int roleId) {
+    public Role findByRoleId(int roleId) {
         return roleRepository.findById(roleId);
     }
 
@@ -85,7 +90,7 @@ public class RoleService {
 
 
     public void grantMenuAccess(int roleID, MenuItem menuItem) {
-        grantMenuAccess(findById(roleID), menuItem);
+        grantMenuAccess(findByRoleId(roleID), menuItem);
     }
     public void grantMenuAccess(Role role, MenuItem menuItem) {
         // Only add the menu item to the role when
@@ -97,7 +102,7 @@ public class RoleService {
     }
 
     public void removeMenuAccess(int roleID, MenuItem menuItem) {
-        removeMenuAccess(findById(roleID), menuItem);
+        removeMenuAccess(findByRoleId(roleID), menuItem);
 
     }
     public void removeMenuAccess(Role role, MenuItem menuItem) {
@@ -108,7 +113,8 @@ public class RoleService {
             for(Iterator<MenuItem> iterator = role.getMenuItems().iterator(); iterator.hasNext();) {
                 MenuItem assignedMenu = iterator.next();
                 if (assignedMenu.getId() == menuItem.getId()) {
-                    role.getMenuItems().remove(assignedMenu);
+                    // role.getMenuItems().remove(assignedMenu);
+                    iterator.remove();
                 }
 
             }
@@ -117,8 +123,35 @@ public class RoleService {
     }
 
     public Role save(Role role) {
-        return roleRepository.save(role);
+        Role newRole = roleRepository.save(role);
+        roleRepository.flush();
+        System.out.println("Saved role with id: " + newRole.getId());
+        return newRole;
 
     }
+
+
+    public List<Role> findRoles(Map<String, String> criteriaList) {
+        System.out.println("query role by >>> ");
+        for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
+            System.out.println("key: " + entry.getKey() + " / value: " + entry.getValue());
+
+        }
+        return roleRepository.findAll(new Specification<Role>() {
+                    @Override
+                    public Predicate toPredicate(Root<Role> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                        List<Predicate> predicates = new ArrayList<Predicate>();
+
+                        if(criteriaList.containsKey("rolename") && !criteriaList.get("rolename").isEmpty()) {
+                            predicates.add(criteriaBuilder.equal(root.get("name"), criteriaList.get("rolename")));
+                        }
+
+                        Predicate[] p = new Predicate[predicates.size()];
+                        return criteriaBuilder.and(predicates.toArray(p));
+
+                    }
+                });
+    }
+
 
 }

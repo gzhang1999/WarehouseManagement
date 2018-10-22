@@ -59,6 +59,21 @@ var initQueryForm = function(formID) {
            // Defulat method is 'GET'
            var method = $(this).attr("method") == undefined ? "GET" : $(this).attr("method");
            var queryString = $(this).serialize();
+           // if this form contains tri-state checkbox, then
+           // 1. if the state is checked, then we already have it in the queryString
+           // 2. if the state is unchecked, then we need to add checkboxName=off
+           //    onto the queryString
+           // 3. if the state is intermediate, we don't have to do anything
+
+            var triStateCheckboxs = $(this).find('[data-cbtype="tri-state"]');
+
+            if(triStateCheckboxs.length != 0) {
+                triStateCheckboxs.each(function(){
+                    if ($(this).data("checked") == "false") {
+                        queryString += "&" + $(this).prop("name") + "=off";
+                    }
+                });
+            };
 
            // The table to display the result
            var displayTableID = $(this).data("display");
@@ -71,7 +86,7 @@ var initQueryForm = function(formID) {
            }).done(function(res){
                // The page that use this function
                // should have the renderTable implemented
-               renderTable(this.displayTable, res.data, res.customField);
+               renderTable(this.displayTable, res.data, res.customFields);
 
            });
        });
@@ -86,13 +101,59 @@ var initDataTable = function() {
         datatables.each(function(){
             // Initiate the data table if data-init set to true
             if ($(this).data("init") == true) {
-                $(this).DataTable();
+                if ($(this).data("custominit") == true) {
+                    customInitDataTable($(this).prop("id"));
+                }
+                else {
+                    $(this).DataTable();
+                }
             }
         });
     };
 }
+var initCheckBox = function () {
+    var triStateCheckbox = $('[data-cbtype="tri-state"]');
 
+    if(triStateCheckbox.length != 0) {
+        triStateCheckbox.each(function(){
+            $(this).prop("indeterminate", true);
+            // indeterminate checkbox will only have 2 states for the 'check' value: on or off
+            // we will need to use customized data field to trace the state of the checkbox
+            // so that we can have 3 states instead of 2
+            // data-checked:
+            // 0: indeterminate
+            // 1: checked
+            // 2: unchecked
+            $(this).data("checked", "indeterminate");
+            $(this).click(function(e) {
+                switch($(this).data("checked")) {
+                    // from indeterminated to checked
+                    case "indeterminate":
+                        $(this).data("checked","true");
+                        $(this).prop("indeterminate",false);
+                        $(this).prop("checked",true);
+                    break;
+                    // from checked to unchecked
+                    case "true":
+                        $(this).data("checked","false");
+                        $(this).prop("indeterminate",false);
+                        $(this).prop("checked",false);
+                    break;
+                    // from anything else to indeterminated
+                    default:
+                        $(this).data("checked","indeterminate");
+                        $(this).prop("indeterminate",true);
+                        $(this).prop("checked",false);
+                    break;
+                }
+            })
+
+        });
+    };
+}
 $(document).ready( function () {
     initQueryButtons();
     initDataTable();
+    // Init checkbox to be tri-state checkbox
+    initCheckBox();
 });

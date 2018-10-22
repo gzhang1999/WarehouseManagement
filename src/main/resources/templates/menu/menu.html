@@ -287,8 +287,6 @@
             }
         }).done(function( res ) {
             if (res.status == 0) {
-                console.log("#menuEditSave:");
-                console.log(JSON.stringify(res.data));
                 var menuID = res.data.id;
                 $('#parentMenuName-' + menuID).text(res.data.parentMenuName);
                 $('#menuName-' + menuID).text(res.data.name);
@@ -311,7 +309,6 @@
     var assignMenu = function(menuID, roleId) {
         var checkBox = $('#' + menuID + '-' + roleId);
 
-        console.log("Menu id: " + menuID + ", Role ID: " + roleId + ", checked? " + checkBox.prop("checked"));
         // ajax to assign / deassign the menu from the user
         $.ajax({
           type: "POST",
@@ -321,7 +318,6 @@
               assigned :  checkBox.prop("checked")
           }
         }).done(function(res) {
-            console.log(JSON.stringify(res));
 
         });
 
@@ -346,7 +342,6 @@
       }).done(function( res ) {
           if (res.status == 0)
           {
-              console.log(JSON.stringify(res.data));
 
               var table = $("#menuAssignTable").DataTable();
               if (res.data.length == 0) {
@@ -387,7 +382,6 @@
                       // Add function to handle the checkbox event
                       $("#assignMenuModal .menuAssignment").click(function() {
                           var checkbox = $(this)
-                          console.log("menu:" + checkbox.data("menuId") + " / role: " + checkbox.data("roleId") + " assigned? " + checkbox.is(":checked"));
                       });
                   });
               }

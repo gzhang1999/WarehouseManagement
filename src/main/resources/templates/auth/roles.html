@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+
+                <div class="card">
+                    <div class="card-header">
+                        <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{role.new}" >New Role</a>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="role_query" data-display="roleTable" th:action="@{/ws/auth/roles/list}">
+                            <div class="form-group">
+                                <label for="queryRolename" class="col-form-label" th:text="#{role.name}">Role Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryRolename" name="rolename" >
+                            </div>
+
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="role_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="role_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "roleTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true" data-custominit="true">
+                                    <thead>
+                                    <tr>
+                                        <td th:text="#{role.id}">Role ID</td>
+                                        <td th:text="#{role.name}">Role Name</td>
+                                        <td th:text="#{role.description}">Role Description</td>
+                                        <td > </td>
+                                    </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for editing existing record or add new Role record-->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel" th:text="#{role.editmodel.title}">Edit Role</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-danger px-2" id="editModalErrorMessage"></div>
+                    <form>
+                        <div class="form-group">
+                            <label for="editModalRoleID" class="col-form-label" th:text="#{role.id}">Role ID:</label>
+                            <input type="text" class="form-control" id="editModalRoleID" name="roleID" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalRolename" class="col-form-label" th:text="#{role.name}">Role Name:</label>
+                            <input type="text" class="form-control" id="editModalRoleName" name="rolename">
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalRoleDesc" class="col-form-label" th:text="#{role.description}">Role Description:</label>
+                            <input type="text" class="form-control" id="editModalRoleDesc" name="roleDescription">
+                        </div>
+
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="roleEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for assign role to the user -->
+    <div class="modal fade" id="assignUserModal" tabindex="-1" role="dialog" aria-labelledby="assignUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignUserModalLabel" th:text="#{role.assignUserModal.title}">Assign User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <span th:text="#{role.name}">Role Name</span> :
+                        <span class="px-2" id="assignUserModalRoleName"></span>
+                    </div>
+                    <div class="row" id="assignUserModalErrorMessage"></div>
+                    <table id = "userAssignTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true">
+                        <thead>
+                        <tr>
+                            <td th:text="#{user.id}">User ID</td>
+                            <td th:text="#{user.username}">Username</td>
+                            <td th:text="#{user.firstname}">Firstname</td>
+                            <td th:text="#{user.lastname}">Lastname</td>
+                            <td th:text="#{assigned}">Assigned</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal for assign role to the user -->
+    <div class="modal fade" id="assignMenuModal" tabindex="-1" role="dialog" aria-labelledby="assignMenuModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignMenuModalLabel" th:text="#{role.assignMenuModal.title}">Assign Menu</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <span th:text="#{role.name}">Role Name</span> :
+                        <span class="px-2" id="assignMenuModalRoleName"></span>
+                    </div>
+                    <div class="row" id="assignMenuModalErrorMessage"></div>
+                    <table id = "menuAssignTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true">
+                        <thead>
+                        <tr>
+                            <td th:text="#{menuID}">Menu ID</td>
+                            <td th:text="#{menuGroup}">Menu Group</td>
+                            <td th:text="#{menuName}">Menu Name</td>
+                            <td th:text="#{menuMLS}">Menu Description</td>
+                            <td th:text="#{assigned}">Assigned</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+
+    // Function to initial a data table with customized init configuration
+    var customInitDataTable = function(tableID) {
+        // Since the role table only has 4 columns, let's configure the
+        // table width
+        if (tableID == "roleTable") {
+            $("#" + tableID).DataTable({
+                "columns": [
+                           { "width": "20%" },
+                           { "width": "20%" },
+                           { "width": "20%" },
+                           { "width": "40%" }
+                ]
+            });
+        }
+    }
+
+    // Function to render table
+    // This function will be called by the javascript from query_form.js
+    // It works as a stub function that after we get content from
+    // query_form.js, this function will render the datatable
+    var renderTable = function(tableID, data, customFields) {
+        // Init the table with 4 columns and the width
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+
+            $.each(data, function(index, role){
+                var htmlData =
+                    "<tr>" +
+                    "   <td id='roleID-" +  role.id + "'>" + role.id + "</td>" +
+                    "   <td id='roleName-" +  role.id + "'>" + role.name + "</td>" +
+                    "   <td id='roleDescription-" +  role.id + "'>" + role.description + "</td>" +
+                    "   <td>" +
+                    (customFields.isRoleManager == "true" ?
+                        "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='Edit'  data-action='change'  data-roleid='" + role.id + "' >Edit Role</button>"
+                        : ""
+                    ) +
+                    ((customFields.isRoleManager == "true" && customFields.isUserManager == "true") ?
+                        "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#assignUserModal' text='assign users' data-roleid='" + role.id + "' data-roleName='" + role.name + "' >Assign User</button>"
+                        : ""
+                    ) +
+                    ((customFields.isRoleManager == "true" && customFields.isMenuManager == "true") ?
+                        "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#assignMenuModal' text='assign menu' data-roleid='" + role.id + "' data-roleName='" + role.name +  "' >Assign Menu</button>"
+                        : ""
+                    ) +
+                    "   </td>" +
+                    "</tr>";
+                var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+                table.rows.add(html).draw();
+            });
+        }
+    }
+
+    // Show the edit modal when the user press
+    // 1. Edit button to modify an existing role
+    // or
+    // 2. New button to create a new role
+    $('#editModal').on('show.bs.modal', function (event) {
+      clearEditModal();
+      var button = $(event.relatedTarget);
+      var action = button.data('action');
+      if (action == 'change') {
+          var roleID = button.data('roleid');
+          var url = '/ws/auth/roles/query/'+roleID;
+          $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var role = res.data
+                      $('#editModalRoleID').val(role.id);
+                      $('#editModalRoleName').val(role.name);
+                      $('#editModalRoleDesc').val(role.description);
+                      $('#editModalErrorMessage').text('');
+                      setEnableOfEditModal(true);
+
+                  }
+                  else
+                  {
+                      $('#editModalErrorMessage').text(res.status + " : " + res.message);
+                      setEnableOfEditModal(false);
+
+                  }
+              });
+      }
+      else if (action == 'new') {
+          setEnableOfEditModal(true);
+      }
+      else  {
+          setEnableOfEditModal(false);
+      }
+
+    })
+
+    $('#roleEditSave').click(function(){
+        var roleID = $('#editModalRoleID').val();
+        var url = "/ws/auth/role";
+        // action to log if we are creating a new role
+        // or editing a existing role
+        var actionCode = "new";
+        if (roleID == '') {
+            // role id textbox is empty, let's add
+            // the role
+            url += "/new";
+        }
+        else {
+            url += "/edit";
+            actionCode = "edit";
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            actionCode : actionCode,
+            data:{
+                 roleID: roleID,
+                 roleName: $('#editModalRoleName').val(),
+                 roleDescription: $('#editModalRoleDesc').val()
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                if (actionCode == "new") {
+                    // wrap the new role with an array type
+                    // as the display table(renderTable) function
+                    // can only process array, even there's only one
+                    // element in the array
+                    var roleList = [];
+                    var role = res.data;
+                    roleList.push(role);
+                    // if we just create an new role, let's just
+                    // display this new role in the display table
+                    renderTable("roleTable", roleList, res.customFields);
+                }
+                else {
+                    // We just changed a existing role,
+                    // Let's update the existing result without affect
+                    // the other records in the display table
+                    var roleID = res.data.id;
+
+                    $('#roleName-' + roleID).text(res.data.name);
+                    $('#roleDescription-' + roleID).text(res.data.description);
+                }
+
+                $('#editModalErrorMessage').text('');
+
+                $('#editModal').modal('toggle');
+            }
+            else{
+                $('#editModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+    var setEnableOfEditModal = function(enabled) {
+        // Always disable the role id
+        $('#editModalRoleID').prop("disabled", true);
+        $('#editModalRoleName').prop("disabled", !enabled);
+        $('#editModalRoleDesc').prop("disabled", !enabled);
+    }
+
+    var clearEditModal = function() {
+        $('#editModalRoleID').val('');
+        $('#editModalRoleName').val('');
+        $('#editModalRoleDesc').val('');
+        $('#editModalErrorMessage').text('');
+    }
+
+
+    // Show the edit modal when the user press
+    // the assign role button to assign the user to a role
+    $('#assignUserModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var modal = $(this);
+
+      var roleID = button.data('roleid');
+      var roleName = button.data('roleName');
+
+      modal.find('#assignUserModalRoleName').text(roleName);
+
+      var url = '/ws/roles/assign/users/'+roleID;
+      $.ajax({
+          url : url,
+          roleID : roleID
+      }).done(function( res ) {
+          if (res.status == 0)
+          {
+              var table = $("#userAssignTable").DataTable();
+              if (res.data.length == 0) {
+                    table.clear().draw();
+              }
+              else {
+                  table.clear();
+                  var assignedUsers = res.customFields.assignedUsers;
+                  $.each(res.data, function(index, user){
+                      var roleAssigned = false;
+                      if (assignedUsers.length > 0) {
+                          roleAssigned = checkRoleAssignedToUser(assignedUsers.split(","), user);
+                      }
+                      var htmlData =
+                              "<tr>" +
+                              "   <td>" + user.id + "</td>" +
+                              "   <td>" + user.username +  "</td>" +
+                              "   <td>" + user.firstname + "</td>" +
+                              "   <td>" + user.lastname + "</td>" +
+                              "   <td>" +
+                              "       <label class='switch switch-3d switch-primary'> " +
+                              (roleAssigned ?
+                                      "    <input class='switch-input' id='" + user.id + "-" + roleID + "' type='checkbox' checked='' onchange=\"assignRole('" +  user.id  + "','" + roleID + "')\"> "
+                                      :
+                                      "    <input class='switch-input' id='" + user.id + "-" + roleID + "' type='checkbox'  onchange=\"assignRole('" +  user.id  + "','" + roleID + "')\"> "
+                              ) +
+                              "            <span class='switch-slider'></span> " +
+                              "       </label>" +
+                              "    </td>" +
+                              "</tr>";
+                      var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+                      table.rows.add(html).draw();
+
+                  });
+              }
+          }
+          else
+          {
+              $('#assignMenuModalErrorMessage').text(res.status + " : " + res.message);
+          }
+      });
+    })
+
+    var checkRoleAssignedToUser = function(assignedUserList, user) {
+        var isRoleAssigned = false;
+        $.each(assignedUserList, function(index, assignedUser){
+            if (assignedUser == user.id) {
+                isRoleAssigned = true;
+                return false;
+            }
+        });
+        return isRoleAssigned;
+    }
+
+    var assignRole = function(userID, roleID) {
+        var checkBox = $('#' + userID + '-' + roleID);
+
+        // ajax to assign / deassign the role from the user
+        $.ajax({
+          type: "POST",
+          url: '/ws/users/assign/roles/'+userID,
+          data: {
+              roleID : roleID,
+              userID : userID,
+              assigned :  checkBox.prop("checked")
+          }
+        }).done(function(res) {
+            // Change the table's display
+            if (res.status != 0) {
+                $('#assignRoleModalErrorMessage').text(res.status + " : " + res.message);
+                // undo the change
+                var checkBox = $('#' + userID + '-' + roleID);
+                checkBox.prop("checked", !assigned);
+            }
+
+        });
+
+    }
+
+
+    // Show the assign menu modal when the user press
+    // the assign menu button to assign the menus to a role
+    $('#assignMenuModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      var modal = $(this);
+
+      var roleID = button.data('roleid');
+      var roleName = button.data('roleName');
+
+      modal.find('#assignMenuModalRoleName').text(roleName);
+
+      var url = '/ws/roles/assign/menus/'+roleID;
+      $.ajax({
+          url : url,
+          roleID : roleID
+      }).done(function( res ) {
+          if (res.status == 0)
+          {
+
+              var table = $("#menuAssignTable").DataTable();
+              if (res.data.length == 0) {
+                    table.clear().draw();
+              }
+              else {
+                  table.clear();
+                  var assignedMenus = res.customFields.assignedMenus;
+                  $.each(res.data, function(index, menu){
+                      var menuAssigned = false;
+                      if (assignedMenus.length > 0) {
+                          menuAssigned = checkMenuAssignedToRole(assignedMenus.split(","), menu);
+                      }
+                      var htmlData =
+                              "<tr>" +
+                              "   <td>" + menu.id + "</td>" +
+                              "   <td>" + menu.parentMenuName +  "</td>" +
+                              "   <td>" + menu.name + "</td>" +
+                              "   <td>" + menu.multiLanguageSupportID + "</td>" +
+                              "   <td>" +
+                              "       <label class='switch switch-3d switch-primary'> " +
+                              (menuAssigned ?
+                                      "    <input class='switch-input' id='" + menu.id + "-" + roleID + "' type='checkbox' checked='' onchange=\"assignMenu('" +  menu.id  + "','" + roleID + "')\"> "
+                                      :
+                                      "    <input class='switch-input' id='" + menu.id + "-" + roleID + "' type='checkbox'  onchange=\"assignMenu('" +  menu.id  + "','" + roleID + "')\"> "
+                              ) +
+                              "            <span class='switch-slider'></span> " +
+                              "       </label>" +
+                              "    </td>" +
+                              "</tr>";
+                      var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+                      table.rows.add(html).draw();
+
+                  });
+              }
+          }
+          else
+          {
+              $('#assignMenuModalErrorMessage').text(res.status + " : " + res.message);
+          }
+      });
+    })
+
+    var checkMenuAssignedToRole = function(assignedMenuList, menu) {
+        var isMenuAssigned = false;
+        $.each(assignedMenuList, function(index, assignedMenu){
+            if (assignedMenu == menu.id) {
+                isMenuAssigned = true;
+                return false;
+            }
+        });
+        return isMenuAssigned;
+    }
+
+    var assignMenu = function(menuID, roleID) {
+        var checkBox = $('#' + menuID + '-' + roleID);
+
+        // ajax to assign / deassign the menu from the role
+
+        $.ajax({
+          type: "POST",
+          url: '/ws/menu/assign/' + menuID,
+          data: {
+              roleID : roleID,
+              menuID : menuID,
+              assigned :  checkBox.prop("checked")
+          }
+        }).done(function(res) {
+            // Change the table's display
+            if (res.status != 0) {
+                $('#assignRoleModalErrorMessage').text(res.status + " : " + res.message);
+                // undo the change
+                var checkBox = $('#' + menuID + '-' + roleID);
+                checkBox.prop("checked", !assigned);
+            }
+
+        });
+
+    }
+
+</script>
+</body>
+</html>

@@ -35,24 +35,24 @@ public class WebServiceResponseWrapper<T> {
     private T data;
 
     // a map to store custmized data
-    private Map<String, String> customField;
+    private Map<String, String> customFields;
 
     public WebServiceResponseWrapper(int status, String message, T data) {
         this.status = status;
         this.message = message;
         this.data = data;
-        customField = new HashMap<String, String>();
+        customFields = new HashMap<String, String>();
     }
 
-    public WebServiceResponseWrapper(int status, String message, T data, Map<String, String> customField) {
+    public WebServiceResponseWrapper(int status, String message, T data, Map<String, String> customFields) {
         this.status = status;
         this.message = message;
         this.data = data;
-        this.customField = customField;
+        this.customFields = customFields;
     }
 
     public void addCustomData(String name, String value) {
-        customField.put(name, value);
+        customFields.put(name, value);
     }
 
     public static WebServiceResponseWrapper raiseError(int errorCode, String errorMessage) {

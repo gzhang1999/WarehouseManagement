@@ -62,7 +62,7 @@ public class UserController {
     @RequestMapping(value="/ws/auth/users/list")
     public WebServiceResponseWrapper queryUsers(@RequestParam Map<String, String> parameters) {
         User currentLoginUser = userService.getCurrentLoginUser();
-        List<User> userList = userService.findUsers(parameters, currentLoginUser.getId());
+        List<User> userList = userService.findUsers(parameters);
         Map<String, String> customFields = new HashMap<>();
         customFields.put("isUserManager", String.valueOf(currentLoginUser.isUserManager()));
         customFields.put("isRoleManager", String.valueOf(currentLoginUser.isRoleManager()));
@@ -233,10 +233,10 @@ public class UserController {
             }
             else {
                 if (assigned) {
-                    userService.grantRoleAccess(user,roleService.findById(roleID));
+                    userService.grantRoleAccess(user,roleService.findByRoleId(roleID));
                 }
                 else  {
-                    userService.removeRoleAccess(user,roleService.findById(roleID));
+                    userService.removeRoleAccess(user,roleService.findByRoleId(roleID));
                 }
                 // load role & menu item, ignore cache as we will need to get the newly
                 // assigned menu of the role

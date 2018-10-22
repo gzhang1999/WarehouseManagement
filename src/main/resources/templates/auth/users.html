@@ -39,11 +39,6 @@
 
                     <div class="card">
                         <div class="card-header">
-                            <!--
-                            <span class="badge badge-success float-right" data-toggle="modal" data-target="#editModal" data-action="new" th:text="#{user.new}" >
-                                New User
-                            </span>
-                            -->
                             <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{user.new}" >New User</a>
                         </div>
                         <div class="card-body">
@@ -68,9 +63,21 @@
                                     <label for="queryEmail" class="col-form-label" th:text="#{user.email}">Email:</label>
                                     <input type="text" class="form-control mx-sm-4" id="queryEmail" name="email" >
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group mx-sm-4">
+                                    <input type="checkbox" class="form-control mx-sm-1" id="queryActive" name="active" data-cbtype="tri-state">
                                     <label for="queryActive" class="col-form-label" th:text="#{user.active}">Active:</label>
-                                    <input type="checkbox" class="form-control mx-sm-4" id="queryActive" name="active" >
+                                </div>
+                                <div class="form-group mx-sm-4">
+                                    <input type="checkbox" class="form-control mx-sm-1" id="queryUserManager" name="userManager" data-cbtype="tri-state">
+                                    <label for="queryUserManager" class="col-form-label" th:text="#{user.userManager}">User Manager:</label>
+                                </div>
+                                <div class="form-group mx-sm-4">
+                                    <input type="checkbox" class="form-control mx-sm-1" id="queryRoleManager" name="roleManager" data-cbtype="tri-state">
+                                    <label for="queryRoleManager" class="col-form-label" th:text="#{user.roleManager}">Role Manager:</label>
+                                </div>
+                                <div class="form-group mx-sm-4">
+                                    <input type="checkbox" class="form-control mx-sm-1" id="queryMenuManager" name="menuManager" data-cbtype="tri-state">
+                                    <label for="queryMenuManager" class="col-form-label" th:text="#{user.menuManager}">Menu Manager:</label>
                                 </div>
                             </form>
 
@@ -224,7 +231,7 @@
     // This function will be called by the javascript from query_form.js
     // It works as a stub function that after we get content from
     // query_form.js, this function will render the datatable
-    var renderTable = function(tableID, data, customField) {
+    var renderTable = function(tableID, data, customFields) {
         var table = $("#" + tableID).DataTable();
 
         if (data.length == 0) {
@@ -248,7 +255,7 @@
                     "   <td id='changePassword-" +  user.id + "'>" + user.changePassword + "</td>" +
                     "   <td>" +
                     "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal'  data-action='change' text='edit' data-userid='" + user.id + "'>Edit</button>" +
-                    (customField.isRoleManager == "true" ?
+                    ((customFields.isUserManager == "true"  && customFields.isRoleManager == "true") ?
                         "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#assignRoleModal' text='assign' data-userid='" + user.id + "' data-username='" + user.username + "' >Assign Menu</button>"
                         : ""
                     )+
@@ -352,7 +359,7 @@
                     userList.push(user);
                     // if we just create an new user, let's just
                     // display this new user in the display table
-                    renderTable("userTable", userList, res.customField);
+                    renderTable("userTable", userList, res.customFields);
                 }
                 else {
                     // We just changed a existing user,

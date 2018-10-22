@@ -52,6 +52,9 @@ public class UserService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -74,10 +77,11 @@ public class UserService {
     }
 
 
-    public List<User> findUsers(Map<String, String> criteriaList, int userID) {
+    public List<User> findUsers(Map<String, String> criteriaList) {
         System.out.println("query user by >>> ");
         for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
             System.out.println("key: " + entry.getKey() + " / value: " + entry.getValue());
+
         }
         List<User> userList =
                 userRepository.findAll(new Specification<User>() {
@@ -100,6 +104,17 @@ public class UserService {
                         }
                         if(criteriaList.containsKey("active") && !criteriaList.get("active").isEmpty()) {
                             predicates.add(criteriaBuilder.equal(root.get("active"), criteriaList.get("active").equals("on")));
+                        }
+                        if(criteriaList.containsKey("userManager") && !criteriaList.get("userManager").isEmpty()) {
+                            predicates.add(criteriaBuilder.equal(root.get("userManager"), criteriaList.get("userManager").equals("on")));
+
+                        }
+                        if(criteriaList.containsKey("roleManager") && !criteriaList.get("roleManager").isEmpty()) {
+                            predicates.add(criteriaBuilder.equal(root.get("roleManager"), criteriaList.get("roleManager").equals("on")));
+
+                        }
+                        if(criteriaList.containsKey("menuManager") && !criteriaList.get("menuManager").isEmpty()) {
+                            predicates.add(criteriaBuilder.equal(root.get("menuManager"), criteriaList.get("menuManager").equals("on")));
 
                         }
 
@@ -112,7 +127,7 @@ public class UserService {
         if(criteriaList.containsKey("roleId") && !criteriaList.get("roleId").isEmpty()) {
             for(Iterator<User> iterator = userList.iterator(); iterator.hasNext();) {
                 User user = iterator.next();
-                Role role = roleService.findById(Integer.parseInt(criteriaList.get("roleId")));
+                Role role = roleService.findByRoleId(Integer.parseInt(criteriaList.get("roleId")));
                 if (!isAccessible(user,role)) {
                     // Current user doesn't belong to the specific role, let's not
                     // return this user
