@@ -16,43 +16,55 @@
  * limitations under the License.
  */
 
-package se.gzhang.scm.wms.authorization.model;
-
+package se.gzhang.scm.wms.layout.model;
 
 import lombok.Data;
-import se.gzhang.scm.wms.menu.model.MenuItem;
+import se.gzhang.scm.wms.common.model.Address;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
-@Table(name = "role")
-public class Role {
+@Table(name = "building")
+public class Building {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "role_id")
+    @Column(name = "building_id")
     private Integer id;
+
     @Column(name = "name")
     private String name;
-    @Column(name = "description")
-    private String description;
 
-    @ManyToMany(cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE
-    })
-    @JoinTable(name = "role_menu",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "menu_id")
+
+    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @JoinColumn(name="address_id")
+    private Address address;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "warehouse_id")
+    private Warehouse warehouse;
+
+    @OneToMany(
+            mappedBy = "building",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
     )
-    private Set<MenuItem> menuItems;
+    private List<Area> areas = new ArrayList<>();
+
+    @Column(name = "pick_sequence")
+    private int pickSequence;
+
+    @Column(name = "storage_sequence")
+    private int storageSequence;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Role)) return false;
-        return id != null && id.equals(((Role) o).id);
+        if (!(o instanceof Building )) return false;
+        return id != null && id.equals(((Building) o).id);
     }
 
 }

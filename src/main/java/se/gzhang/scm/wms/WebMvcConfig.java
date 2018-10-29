@@ -18,15 +18,29 @@
 
 package se.gzhang.scm.wms;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import se.gzhang.scm.wms.authorization.controller.WebPageAccessControllerFilter;
+import se.gzhang.scm.wms.authorization.service.UserService;
+import se.gzhang.scm.wms.layout.service.WarehouseService;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
+    @Autowired
+    private UserService userService;
     @Bean
     // When we need to encrypt password in the server side
     // we can call passwordEncoer.encode(password) to encrypt the password
@@ -34,5 +48,23 @@ public class WebMvcConfig implements WebMvcConfigurer {
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
         return bCryptPasswordEncoder;
     }
+
+    @Bean
+    public FilterRegistrationBean filterRegistration() {
+
+        FilterRegistrationBean registration = new FilterRegistrationBean();
+        WebPageAccessControllerFilter webPageAccessControllerFilter = new WebPageAccessControllerFilter();
+        // Add the auto wired user service into the page access controller as the controller will
+        // use the user service to validate whether the current user has access to the page
+        webPageAccessControllerFilter.setupUserService(userService);
+
+        registration.setFilter(webPageAccessControllerFilter);
+        registration.addUrlPatterns("/*");
+        registration.setName("webPageAccessController");
+        registration.setOrder(1);
+        return registration;
+    }
+
+
 
 }

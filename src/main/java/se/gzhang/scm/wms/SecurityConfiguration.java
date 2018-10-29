@@ -27,7 +27,11 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import se.gzhang.scm.wms.authorization.service.UserService;
+import se.gzhang.scm.wms.layout.service.WarehouseService;
+import se.gzhang.scm.wms.menu.service.MenuService;
 
 
 import javax.sql.DataSource;
@@ -38,6 +42,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    // for multi-warehouse environment only. we will ask the
+    // user to login into a specific warehouse during login
+    @Autowired
+    private WarehouseService warehouseService;
+
+
+    @Autowired
+    LoadAccessibleMenuHandler loadAccessibleMenuHandler;
 
     @Autowired
     private DataSource dataSource;
@@ -51,8 +64,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 
-        http.
-            authorizeRequests()
+        http.addFilterBefore(authenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+            .authorizeRequests()
             .antMatchers("/").permitAll()
             .antMatchers("/login").permitAll()
             .antMatchers("/registration").permitAll()
@@ -85,5 +98,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         web
             .ignoring()
             .antMatchers("/resources/**", "/static/**", "/css/**", "/js/**", "/images/**");
+    }
+
+    public MultipleWarehouseAuthenticationFilter authenticationFilter() throws Exception {
+        MultipleWarehouseAuthenticationFilter filter = new MultipleWarehouseAuthenticationFilter();
+        filter.setWarehouseService(warehouseService);
+        filter.setAuthenticationManager(authenticationManagerBean());
+        filter.setAuthenticationSuccessHandler(loadAccessibleMenuHandler);
+
+        return filter;
     }
 }

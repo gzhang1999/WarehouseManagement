@@ -34,7 +34,7 @@
         <a class="nav-link" href="#">Users</a>
       </li>
       <li class="nav-item px-3">
-        <a class="nav-link" href="#">Settings</a>
+        <a class="nav-link" href="#" th:text="${session.warehouse_name}" th:unless="${session == null}">Warehouse Name</a>
       </li>
     </ul>
     <ul class="nav navbar-nav ml-auto">

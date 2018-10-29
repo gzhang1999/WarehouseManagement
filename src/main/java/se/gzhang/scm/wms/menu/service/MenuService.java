@@ -19,9 +19,15 @@
 package se.gzhang.scm.wms.menu.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import se.gzhang.scm.wms.authorization.model.Role;
+import se.gzhang.scm.wms.authorization.model.User;
+import se.gzhang.scm.wms.authorization.service.RoleService;
+import se.gzhang.scm.wms.authorization.service.UserService;
 import se.gzhang.scm.wms.menu.model.MenuItem;
 import se.gzhang.scm.wms.menu.repository.MenuItemRepository;
 
@@ -32,27 +38,46 @@ import javax.persistence.criteria.Root;
 import java.util.*;
 
 @Service("menuService")
+
+@PropertySource("classpath:application.properties")
 public class MenuService {
 
     @Autowired
     private MenuItemRepository menuItemRepository;
+    @Autowired
+    private RoleService roleService;
+    @Autowired
+    private UserService userService;
+
+    // Specific url for
+    // 1. user manager
+    // 2. role manager
+    // 3. menu manager
+    // Those 3 url are managed in a different way as the normal menu
+    @Value( "${se.gzhang.menuManager.url}" )
+    private String menuManagerUrl;
+    @Value( "${se.gzhang.roleManager.url}" )
+    private String roleManagerUrl;
+    @Value( "${se.gzhang.userManager.url}" )
+    private String userManagerUrl;
+
 
     @Cacheable("assignedMenuList")
     public List<MenuItem> getAssignedMenuItemList(int userID) {
+
         return getStructuredMenuItemList(userID);
+
+
     }
 
     @Cacheable("structuredMenuList")
     public List<MenuItem> getStructuredMenuItemList() {
         List<MenuItem> menuItemList = findAll();
-        System.out.println("Total Menu items: " + menuItemList.size());
 
         List<MenuItem> parentMenuItemList = sortMenuItem(getParentMenuItemList(menuItemList));
-        System.out.println("Total parent Menu items: " + parentMenuItemList.size());
 
         for (MenuItem parentMenuItem : parentMenuItemList) {
             parentMenuItem.setChildMenuList(getChildMenuItemList(parentMenuItem.getId(), menuItemList));
-            System.out.println("> Parent: " + parentMenuItem.getName() + " has " + parentMenuItem.getChildMenuList().size() + " children");
         }
 
         return parentMenuItemList;
@@ -60,14 +85,10 @@ public class MenuService {
     @Cacheable("structuredAssignedMenuList")
     public List<MenuItem> getStructuredMenuItemList(int userID) {
         List<MenuItem> menuItemList = findAll(userID);
-        System.out.println("Total Menu items: " + menuItemList.size());
-
         List<MenuItem> parentMenuItemList = sortMenuItem(getParentMenuItemList(menuItemList));
-        System.out.println("Total parent Menu items: " + parentMenuItemList.size());
 
         for (MenuItem parentMenuItem : parentMenuItemList) {
             parentMenuItem.setChildMenuList(getChildMenuItemList(parentMenuItem.getId(), menuItemList));
-            System.out.println("> Parent: " + parentMenuItem.getName() + " has " + parentMenuItem.getChildMenuList().size() + " children");
         }
 
         return parentMenuItemList;
@@ -76,6 +97,10 @@ public class MenuService {
     @Cacheable("fullMenuList")
     public List<MenuItem> findAll() {
         return menuItemRepository.findAll();
+    }
+
+    public List<MenuItem> findByUrl(String url){
+        return menuItemRepository.findByUrl(url);
     }
 
     // Whether load the parent menu's info. The parent menu
@@ -103,7 +128,38 @@ public class MenuService {
 
     @Cacheable("fullAssignedMenuList")
     public List<MenuItem> findAll(int userId) {
-        return menuItemRepository.findAll();
+        List<MenuItem> assignedMenuList = menuItemRepository.findAll();
+        List<MenuItem> fullMenuList = menuItemRepository.findAll();
+
+        User user = userService.findUserById(userId);
+        // Remove any child menu item that the user doesn't have access to
+        for(Iterator<MenuItem> itemIterator = assignedMenuList.iterator(); itemIterator.hasNext();) {
+            MenuItem menuItem = itemIterator.next();
+            if (!isParentMenu(menuItem.getId(), fullMenuList) &&
+                    !isAccessible(user, menuItem)) {
+                // remove the menu from the return if the user
+                // doesn't have access
+                itemIterator.remove();
+            }
+        }
+        // Remove any parent menu item which doesn't have any child menu item
+        // that the current user has access
+        for(Iterator<MenuItem> itemIterator = assignedMenuList.iterator(); itemIterator.hasNext();) {
+            MenuItem menuItem = itemIterator.next();
+            if (isParentMenu(menuItem.getId(), fullMenuList)) {
+                // Get all children of this parent menu
+                List<MenuItem> childMenuItemList = getChildMenuItemList(menuItem.getId(), assignedMenuList);
+                if (childMenuItemList.size() == 0) {
+                    // There's no child menu item left in the assignedMenuList,
+                    // which means the current user doesn't have any access to
+                    // any of the child menu of this parent menu
+                    // let's remove the parent menu as well
+                    itemIterator.remove();
+                }
+            }
+
+        }
+        return assignedMenuList;
     }
 
 
@@ -169,7 +225,34 @@ public class MenuService {
     // TO-DO: Check wither the user can access the menu
     public boolean isAccessible(int userID, int menuID) {
 
-        return true;
+        return isAccessible(userService.findUserById(userID), findMenuItemById(menuID));
+    }
+
+    public boolean isAccessible(User user, MenuItem menuItem) {
+        // if the menu URL is one of the following specific url,
+        // check the correspondent flag from the user,
+        // otherwise, check the authentication against the role
+        if (menuItem.getUrl().equals(menuManagerUrl) && user.isMenuManager()) {
+            return true;
+        }
+        else if (menuItem.getUrl().equals(userManagerUrl) && user.isUserManager()) {
+            return true;
+        }
+        else if (menuItem.getUrl().equals(roleManagerUrl) && user.isRoleManager()) {
+            return true;
+        }
+        // The user has access to the menu as long as
+        // one of the role has access
+        for (Role role : user.getRoles()) {
+            if (isAccessible(role, menuItem)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isAccessible(Role role, MenuItem menuItem) {
+        return roleService.isAccessible(role,menuItem);
     }
 
     public MenuItem findMenuItemById(int menuID, boolean fullyLoaded) {
@@ -221,12 +304,43 @@ public class MenuService {
         }
     }
 
+    // Find menu by name. If the menu is parent menu(isParentMenu = true), then we will only
+    // return the parent menu that matches with the name. If the menu to be searched is not
+    // a parent menu, then the function is supposed to be invoke with a parentMenuID and it
+    // will only returns the menu matches with the menu name and under certain parent menu
+    public MenuItem findMenuByName(String name, boolean isParentMenu, int parentMenuID) {
+        List<MenuItem> menuItemList = getStructuredMenuItemList();
+        if (isParentMenu) {
+            for(MenuItem menuItem : menuItemList) {
+                if (menuItem.getName().equals(name)) {
+                    return menuItem;
+                }
+            }
+            return null;
+        }
+        else {
+            for(MenuItem menuItem : menuItemList) {
+                if (menuItem.getId() == parentMenuID) {
+                    for(MenuItem childMenuItem : menuItem.getChildMenuList()) {
+                        if (childMenuItem.getName().equals(name)) {
+                            return childMenuItem;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
     public MenuItem findParentMenuByName(String name, int userID) {
         return findMenuByName(name, true, 0, userID);
     }
 
+    public MenuItem findParentMenuByName(String name) {
+        return findMenuByName(name, true, 0);
+    }
 
-    public List<MenuItem> findMenu(Map<String, String> criteriaList, int userID) {
+    public List<MenuItem> findMenu(Map<String, String> criteriaList) {
 
         if (!criteriaList.containsKey("parentMenuID") ||
                 criteriaList.get("parentMenuID").isEmpty()) {
@@ -244,7 +358,7 @@ public class MenuService {
             }
             if (parentMenuName.length() > 0) {
                 // Get the parent menu by name
-                MenuItem parentMenu = findParentMenuByName(parentMenuName, userID);
+                MenuItem parentMenu = findParentMenuByName(parentMenuName);
                 if (parentMenu != null) {
                     criteriaList.put("parentMenuID", String.valueOf(parentMenu.getId()));
                 }

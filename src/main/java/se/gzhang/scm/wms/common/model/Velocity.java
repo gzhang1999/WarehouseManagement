@@ -16,43 +16,22 @@
  * limitations under the License.
  */
 
-package se.gzhang.scm.wms.authorization.model;
-
+package se.gzhang.scm.wms.common.model;
 
 import lombok.Data;
-import se.gzhang.scm.wms.menu.model.MenuItem;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Data
 @Entity
-@Table(name = "role")
-public class Role {
+@Table(name = "velocity")
+public class Velocity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "role_id")
+    @Column(name = "velocity_id")
     private Integer id;
+
     @Column(name = "name")
     private String name;
-    @Column(name = "description")
-    private String description;
-
-    @ManyToMany(cascade = {
-            CascadeType.PERSIST,
-            CascadeType.MERGE
-    })
-    @JoinTable(name = "role_menu",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "menu_id")
-    )
-    private Set<MenuItem> menuItems;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Role)) return false;
-        return id != null && id.equals(((Role) o).id);
-    }
-
 }

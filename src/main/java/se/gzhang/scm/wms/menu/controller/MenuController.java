@@ -58,7 +58,7 @@ public class MenuController {
 
         User currentLoginUser = userService.getCurrentLoginUser();
 
-        List<MenuItem> parentMenuItemList = menuService.getAssignedMenuItemList(currentLoginUser.getId());
+        List<MenuItem> parentMenuItemList = menuService.getStructuredMenuItemList();
         for(MenuItem parentMenuItem : parentMenuItemList)
         {
             assignedMenuList.add(parentMenuItem);
@@ -84,7 +84,7 @@ public class MenuController {
     @RequestMapping(value="/ws/menu/list")
     public WebServiceResponseWrapper queryMenu(@RequestParam Map<String, String> parameters) {
         User currentLoginUser = userService.getCurrentLoginUser();
-        List<MenuItem> menuList = menuService.findMenu(parameters, currentLoginUser.getId());
+        List<MenuItem> menuList = menuService.findMenu(parameters);
         for(MenuItem menuItem : menuList) {
             // Setup the parent menu name
             if (menuService.getParentMenu(menuItem) != null) {
@@ -93,6 +93,7 @@ public class MenuController {
         }
         Map<String, String> customFields = new HashMap<>();
         customFields.put("isRoleManager", String.valueOf(currentLoginUser.isRoleManager()));
+        customFields.put("isMenuManager", String.valueOf(currentLoginUser.isMenuManager()));
         return new WebServiceResponseWrapper<List<MenuItem>>(0, "", menuList, customFields);
     }
 
@@ -101,7 +102,7 @@ public class MenuController {
     public WebServiceResponseWrapper getMenu(@PathVariable("id") int menuID) {
         // Check whether the user can access the menu;
         User currentLoginUser = userService.getCurrentLoginUser();
-        if (menuService.isAccessible(currentLoginUser.getId(), menuID)) {
+        if (currentLoginUser.isRoleManager() && currentLoginUser.isMenuManager()) {
             MenuItem menuItem = menuService.findMenuItemById(menuID);
             if(menuItem == null) {
                 return WebServiceResponseWrapper.raiseError(10001, "Can not find the menu by ID: " + menuID);
@@ -112,7 +113,7 @@ public class MenuController {
         }
         else {
             // The user doesn't have the access to the menu
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have access to the menu");
+            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to assign menu");
 
         }
     }
@@ -124,7 +125,7 @@ public class MenuController {
         User currentLoginUser = userService.getCurrentLoginUser();
 
         // The user need to have the right for menu assignment
-        if (currentLoginUser.isRoleManager()) {
+        if (currentLoginUser.isRoleManager() && currentLoginUser.isMenuManager()) {
 
             MenuItem menuItem = menuService.findMenuItemById(menuID);
             if(menuItem == null) {
@@ -176,7 +177,7 @@ public class MenuController {
                                                 @RequestParam("menuURL") String menuURL) {
         // Check whether the user can access the menu;
         User currentLoginUser = userService.getCurrentLoginUser();
-        if (menuService.isAccessible(currentLoginUser.getId(), menuID)) {
+        if (currentLoginUser.isRoleManager() && currentLoginUser.isMenuManager()) {
             MenuItem menuItem = menuService.findMenuItemById(menuID);
             if(menuItem == null) {
                 return WebServiceResponseWrapper.raiseError(10001, "Can not find the menu by ID: " + menuID);
@@ -194,7 +195,7 @@ public class MenuController {
         }
         else {
             // The user doesn't have the access to the menu
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have access to the menu");
+            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to assign menu");
 
         }
     }

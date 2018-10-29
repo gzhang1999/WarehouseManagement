@@ -98,7 +98,7 @@
                                             <td th:text="${assignedMenuItem.url}" th:id="'menuURL-' + ${assignedMenuItem.id}"></td>
                                             <td>
                                                 <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editModal" th:text="#{edit}" th:data-menuid="${assignedMenuItem.id}" th:data-menuname="${assignedMenuItem.name}">Edit</button>
-                                                <button th:if="${currentLoginUser.roleManager == true}" class="btn btn-warning" type="button" data-toggle="modal" data-target="#assignMenuModal" th:text="#{menu.assign}" th:data-menuid="${assignedMenuItem.id}" th:data-menuname="${assignedMenuItem.name}">Assign Menu</button>
+                                                <button th:if="${currentLoginUser.roleManager == true && currentLoginUser.menuManager == true}" class="btn btn-warning" type="button" data-toggle="modal" data-target="#assignMenuModal" th:text="#{menu.assign}" th:data-menuid="${assignedMenuItem.id}" th:data-menuname="${assignedMenuItem.name}">Assign Menu</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -215,7 +215,8 @@
     // This function will be called by the javascript from query_form.js
     // It works as a stub function that after we get content from
     // query_form.js, this function will render the datatable
-    var renderTable = function(tableID, data, customField) {
+    var renderTable = function(tableID, data, customFields) {
+        console.log("renderTable / customFields: " + JSON.stringify(customFields));
         var table = $("#" + tableID).DataTable();
 
         if (data.length == 0) {
@@ -236,8 +237,8 @@
                     "   <td id='menuURL-" +  menu.id + "'>" + menu.url + "</td>" +
                     "   <td>" +
                     "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-menuid='" + menu.id + "' data-menuname='" + menu.name+ "'>Edit</button>" +
-                    (customField.isRoleManager == true ?
-                        "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#assignMenu' text='assign' data-menuid='" + menu.id + "' data-menuname='" + menu.name+ "'>Assign Menu</button>"
+                    ((customFields.isMenuManager == "true" && customFields.isRoleManager == "true") ?
+                        "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#assignMenuModal' text='assign' data-menuid='" + menu.id + "' data-menuname='" + menu.name+ "'>Assign Menu</button>"
                         : ""
                     ) +
                     "   </td>" +

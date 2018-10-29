@@ -18,16 +18,11 @@
 
 package se.gzhang.scm.wms.menu.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.Data;
 import se.gzhang.scm.wms.authorization.model.Role;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Entity
@@ -37,7 +32,7 @@ public class MenuItem {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "menu_id")
-    private int id;
+    private Integer id;
 
     @Column(name = "parent_menu_id")
     private int parentMenuID;
@@ -62,6 +57,12 @@ public class MenuItem {
     @Transient
     private String parentMenuName;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MenuItem)) return false;
+        return id != null && id.equals(((MenuItem) o).id);
+    }
 
 
 }

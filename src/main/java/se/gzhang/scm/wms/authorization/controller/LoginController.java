@@ -111,9 +111,6 @@ public class LoginController {
 
     @RequestMapping(value="/home", method = RequestMethod.GET)
     public ModelAndView home(HttpSession session){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        int userID = userService.findUserByUsername(auth.getName()).getId();
-        session.setAttribute("parentMenuItemList",menuService.getAssignedMenuItemList(userID));
         ModelAndView modelAndView = new ModelAndView();
 
         // modelAndView.addObject("parentMenuItemList",menuService.getStructuredMenuItemList());

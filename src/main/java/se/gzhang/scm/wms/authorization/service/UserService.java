@@ -29,28 +29,29 @@ import se.gzhang.scm.wms.authorization.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import se.gzhang.scm.wms.menu.model.MenuItem;
+import se.gzhang.scm.wms.menu.service.MenuService;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.awt.*;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.List;
 
 @Service("userService")
 public class UserService {
 
-    private UserRepository userRepository;
-    private RoleService roleService;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-
     @Autowired
-    public UserService(UserRepository userRepository,
-                       RoleService roleService,
-                       BCryptPasswordEncoder bCryptPasswordEncoder) {
-        this.userRepository = userRepository;
-        this.roleService = roleService;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-    }
+    private UserRepository userRepository;
+    @Autowired
+    private RoleService roleService;
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    @Autowired
+    private MenuService menuService;
 
     public List<User> findAll() {
         return userRepository.findAll();
@@ -151,13 +152,32 @@ public class UserService {
     public boolean isAccessible(User user, Role role) {
         for(Role assignedRole : user.getRoles()) {
             if (assignedRole.getId() == role.getId()) {
-                System.out.println(user.getUsername() + " has access to role " + role.getName());
                 return true;
             }
 
         }
-        System.out.println(user.getUsername() + " has NO access to role " + role.getName());
         return false;
+    }
+
+    public boolean isMenuAccessible(String url) {
+        // Get the menu item from url
+        List<MenuItem> menuItems = menuService.findByUrl(url);
+        if (menuItems.size() == 0) {
+            // Can't find menu from the URL
+            // let's just reutrn false
+            return false;
+        }
+        // Get the current user
+        User currentUser = getCurrentLoginUser();
+        // If the user has no access to any one of the
+        // menu item from the URL, the user
+        // doesn't have access
+        for(MenuItem menuItem : menuItems) {
+            if (!menuService.isAccessible(currentUser,menuItem)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -188,6 +208,8 @@ public class UserService {
             }
         }
     }
+
+
 
 
 

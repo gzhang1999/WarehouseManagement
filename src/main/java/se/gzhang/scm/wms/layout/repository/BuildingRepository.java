@@ -16,25 +16,18 @@
  * limitations under the License.
  */
 
-package se.gzhang.scm.wms.menu.repository;
+package se.gzhang.scm.wms.layout.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
-import se.gzhang.scm.wms.menu.model.MenuItem;
+import se.gzhang.scm.wms.layout.model.Building;
 
-import java.awt.*;
 import java.util.List;
 
-@Repository("menuItemRepository")
-public interface MenuItemRepository extends JpaRepository<MenuItem, Integer>, JpaSpecificationExecutor<MenuItem> {
-    List<MenuItem> findAll();
+@Repository("buildingRepository")
+public interface BuildingRepository extends JpaRepository<Building, Integer>, JpaSpecificationExecutor<Building> {
+    List<Building> findAll();
 
-    MenuItem findById(int menuID);
-
-    List<MenuItem> findByName(String menuName);
-
-    List<MenuItem> findByParentMenuID(int parentMenuID);
-
-    List<MenuItem> findByUrl(String url);
+    Building findById(int id);
 }
