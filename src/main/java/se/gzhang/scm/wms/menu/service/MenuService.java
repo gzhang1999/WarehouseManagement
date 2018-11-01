@@ -88,7 +88,7 @@ public class MenuService {
         List<MenuItem> parentMenuItemList = sortMenuItem(getParentMenuItemList(menuItemList));
 
         for (MenuItem parentMenuItem : parentMenuItemList) {
-            parentMenuItem.setChildMenuList(getChildMenuItemList(parentMenuItem.getId(), menuItemList));
+            parentMenuItem.setChildMenuList(sortMenuItem(getChildMenuItemList(parentMenuItem.getId(), menuItemList)));
         }
 
         return parentMenuItemList;

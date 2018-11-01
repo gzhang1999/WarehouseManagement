@@ -18,15 +18,18 @@
 
 package se.gzhang.scm.wms.layout.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import se.gzhang.scm.wms.common.model.VehicleType;
 import se.gzhang.scm.wms.common.model.Velocity;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @Entity
 @Table(name = "location")
+@JsonSerialize(using = LocationSerializer.class)
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -36,13 +39,12 @@ public class Location {
     @Column(name = "name")
     private String name;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "area_id")
     private Area area;
 
     @Column(name = "aisle_id")
-    private String aisleId;
+    private String aisleID;
 
     @Column(name = "pickable")
     private boolean pickable;
@@ -72,9 +74,12 @@ public class Location {
     // for example, higher locations can only be accessed by
     // forklift truck while lower locations can be accessed by
     // pallet jet with handheld
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
-    @JoinColumn(name="vehicle_type_id")
-    private VehicleType vehicleType;
+
+    @OneToMany(
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<VehicleType> accessibleVehicleTypes;
 
 
     // Coordinate used for labor management

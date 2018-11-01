@@ -44,4 +44,8 @@ public class BuildingService {
         return buildingRepository.findByWarehouseId(warehouseID);
     }
 
+    public Building findByBuildingID(int buildingID) {
+        return buildingRepository.findById(buildingID);
+    }
+
 }

@@ -104,10 +104,13 @@ var initDataTable = function() {
                 if ($(this).data("custominit") == true) {
                     customInitDataTable($(this).prop("id"));
                 }
-                else {
+                else if ($(this).data("scrollx") == true) {
                     $(this).DataTable({
                         "scrollX": true
                     });
+                }
+                else {
+                    $(this).DataTable();
                 }
             }
         });

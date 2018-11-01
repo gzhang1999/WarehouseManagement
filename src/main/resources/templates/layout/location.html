@@ -36,13 +36,12 @@
         <div class="container-fluid">
             <div class="animated fadeIn">
 
-
                 <div class="card">
                     <div class="card-header">
-                        <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{area.new}" >New Area</a>
+                        <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{location.new}" >New Location</a>
                     </div>
                     <div class="card-body">
-                        <form class="form-inline" id="area_query" data-display="areaTable" th:action="@{/ws/layout/area/list}">
+                        <form class="form-inline" id="location_query" data-display="locationTable" th:action="@{/ws/layout/location/list}">
                             <div class="form-group">
                                 <label for="queryBuildingID" class="col-form-label" th:text="#{building}">Building:</label>
                                 <select class="form-control  mx-sm-4" id="queryBuildingID" name="buildingID" data-variable="building"></select>
@@ -51,14 +50,34 @@
                                 <label for="queryAreaID" class="col-form-label" th:text="#{area}">Area:</label>
                                 <select class="form-control  mx-sm-4" id="queryAreaID" name="id" data-variable="area"></select>
                             </div>
+                            <div class="form-group">
+                                <label for="queryLocationName" class="col-form-label" th:text="#{location.name}">Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryLocationName" name="name" >
+                            </div>
+                            <div class="form-group">
+                                <label for="queryAisleID" class="col-form-label" th:text="#{location.aisle}">Aisle:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryAisleID" name="aisleID" >
+                            </div>
+                            <div class="form-group mx-sm-4">
+                                <input type="checkbox" class="form-control mx-sm-1" id="queryPickableFlag" name="pickable" data-cbtype="tri-state">
+                                <label for="queryPickableFlag" class="col-form-label" th:text="#{location.pickable}">Pickable:</label>
+                            </div>
+                            <div class="form-group mx-sm-4">
+                                <input type="checkbox" class="form-control mx-sm-1" id="queryStorableFlag" name="storable" data-cbtype="tri-state">
+                                <label for="queryStorableFlag" class="col-form-label" th:text="#{location.storable}">Storable:</label>
+                            </div>
+                            <div class="form-group mx-sm-4">
+                                <input type="checkbox" class="form-control mx-sm-1" id="queryUsableFlag" name="usable" data-cbtype="tri-state">
+                                <label for="queryUsableFlag" class="col-form-label" th:text="#{location.usable}">Usable:</label>
+                            </div>
 
                         </form>
 
                     </div>
                     <div class="card-footer">
-                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="area_query">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="location_query">
                             <i class="fa fa-dot-circle-o"></i> Find</button>
-                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="area_query">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="location_query">
                             <i class="fa fa-dot-circle-o"></i> Clear</button>
                     </div>
                 </div>
@@ -69,25 +88,49 @@
                         <!-- Grid Display -->
                         <div class="row">
                             <div class="col-md-12">
-                                <table id = "areaTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true">
+                                <table id = "locationTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
                                     <thead>
                                         <tr>
-                                            <td th:text="#{area.name}">Area Name</td>
-                                            <td th:text="#{area.building}">Building Name</td>
-                                            <td th:text="#{area.type}">Type</td>
-                                            <td th:text="#{area.volumeType}">Volume Type</td>
+                                            <td th:text="#{location.name}">Location Name</td>
+                                            <td th:text="#{building}">Building Name</td>
+                                            <td th:text="#{area}">Area Name</td>
+                                            <td th:text="#{location.aisle}">Aisle</td>
+                                            <td th:text="#{location.length}">Length</td>
+                                            <td th:text="#{location.width}">Width</td>
+                                            <td th:text="#{location.height}">Height</td>
+                                            <td th:text="#{location.volume}">Volume</td>
+                                            <td th:text="#{location.pickable}">Pickable Flag</td>
+                                            <td th:text="#{location.storable}">Storable Flag</td>
+                                            <td th:text="#{location.usable}">Usable Flag</td>
+                                            <td th:text="#{location.velocity}">Velocity</td>
+                                            <td th:text="#{location.accessibleVehicleType}">Accessible Vehicle Type</td>
+                                            <td th:text="#{location.coordinateX}">Coordinate X</td>
+                                            <td th:text="#{location.coordinateY}">Coordinate Y</td>
+                                            <td th:text="#{location.coordinateZ}">Coordinate Z</td>
                                             <td></td>
                                         </tr>
                                     </thead>
 
                                     <tbody>
-                                        <tr th:each="area : ${areaList}">
-                                            <td th:text="${area.name}" th:id="'areaName-' + ${area.id}"></td>
-                                            <td th:text="${area.building.name}" th:id="'areaBuilding-' + ${area.id}"></td>
-                                            <td th:text="${area.areaType}" th:id="'areaType-' + ${area.id}"></td>
-                                            <td th:text="${area.volumeType}" th:id="'areaVolumeType-' + ${area.id}"></td>
+                                        <tr th:each="location : ${locationList}">
+                                            <td th:text="${location.name}" th:id="'locationName-' + ${location.id}"></td>
+                                            <td th:text="${location.area.building.name}" th:id="'buildingName-' + ${location.id}"></td>
+                                            <td th:text="${location.area.name}" th:id="'areaName-' + ${location.id}"></td>
+                                            <td th:text="${location.aisleID}" th:id="'aisleId-' + ${location.id}"></td>
+                                            <td th:text="${location.length}" th:id="'length-' + ${location.id}"></td>
+                                            <td th:text="${location.width}" th:id="'width-' + ${location.id}"></td>
+                                            <td th:text="${location.height}" th:id="'height-' + ${location.id}"></td>
+                                            <td th:text="${location.volume}" th:id="'volume-' + ${location.id}"></td>
+                                            <td th:text="${location.pickable}" th:id="'pickableFlag-' + ${location.id}"></td>
+                                            <td th:text="${location.storable}" th:id="'storableFlag-' + ${location.id}"></td>
+                                            <td th:text="${location.usable}" th:id="'usableFlag-' + ${location.id}"></td>
+                                            <td th:text="${location.velocity.name}" th:id="'velocity-' + ${location.id}"></td>
+                                            <td th:text="${#strings.listJoin(#messages.listMsg(location.accessibleVehicleTypes), ',')}" th:id="'accessibleVehicleType-' + ${location.id}"></td>
+                                            <td th:text="${location.coordinateX}" th:id="'coordinateX-' + ${location.id}"></td>
+                                            <td th:text="${location.coordinateY}" th:id="'coordinateY-' + ${location.id}"></td>
+                                            <td th:text="${location.coordinateZ}" th:id="'coordinateZ-' + ${location.id}"></td>
                                             <td>
-                                                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editModal" th:text="#{edit}" th:data-areaid="${area.id}" th:data-areaname="${area.name}" data-action="change" >Edit</button>
+                                                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editModal" th:text="#{edit}" th:data-locationid="${location.id}" th:data-locationname="${location.name}" data-action="change" >Edit</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -97,53 +140,9 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </main>
-
-    <!-- Modal for editing existing record -->
-    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel" th:text="#{area.editmodel.title}">Edit Area</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="row" id="editModalErrorMessage"></div>
-                    <form>
-                        <div class="form-group">
-                            <label for="editModalAreaID" class="col-form-label" th:text="#{area.id}">Area ID:</label>
-                            <input type="text" class="form-control" id="editModalAreaID" name="areaID" disabled>
-                        </div>
-                        <div class="form-group">
-                            <label for="editModalAreaName" class="col-form-label" th:text="#{area.name}">Area Name:</label>
-                            <input type="text" class="form-control" id="editModalAreaName" name="areaName">
-                        </div>
-                        <div class="form-group">
-                            <label for="editModalBuilding" class="col-form-label" th:text="#{area.building}">Building Name:</label>
-                            <select class="form-control" id="editModalBuilding" name="buildingID" data-variable="building"></select>
-                        </div>
-                        <div class="form-group">
-                            <label for="editModalAreaType" class="col-form-label" th:text="#{area.type}">Area Type:</label>
-                            <select class="form-control" id="editModalAreaType" name="areaType" data-variable="areaType"></select>
-                        </div>
-                        <div class="form-group">
-                            <label for="editModalVolumeType" class="col-form-label" th:text="#{area.volumeType}">Volume Type:</label>
-                            <select class="form-control" id="editModalVolumeType" name="volumeType" data-variable="volumeType"></select>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
-                    <button type="button" class="btn btn-primary" id="areaEditSave" th:text="#{save}">Save</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
 </div>
@@ -164,15 +163,26 @@
         }
         else {
             table.clear();
-            $.each(data, function(index, area){
+            $.each(data, function(index, location){
                 var htmlData =
                     "<tr>" +
-                    "   <td id='areaName-" +  area.id + "'>" + area.name + "</td>" +
-                    "   <td id='areaBuilding-" +  area.id + "'>" + area.building + "</td>" +
-                    "   <td id='areaType-" +  area.id + "'>" + area.areaType + "</td>" +
-                    "   <td id='areaVolumeType-" +  area.id + "'>" + area.volumeType + "</td>" +
+                    "   <td id='locationName-" +  location.id + "'>" + location.name + "</td>" +
+                    "   <td id='buildingName-" +  location.id + "'>" + location.building + "</td>" +
+                    "   <td id='areaName-" +  location.id + "'>" + location.area + "</td>" +
+                    "   <td id='aisleId-" +  location.id + "'>" + location.aisleId + "</td>" +
+                    "   <td id='length-" +  location.id + "'>" + location.length + "</td>" +
+                    "   <td id='width-" +  location.id + "'>" + location.width + "</td>" +
+                    "   <td id='height-" +  location.id + "'>" + location.height + "</td>" +
+                    "   <td id='volume-" +  location.id + "'>" + location.volume + "</td>" +
+                    "   <td id='pickableFlag-" +  location.id + "'>" + location.pickable + "</td>" +
+                    "   <td id='storableFlag-" +  location.id + "'>" + location.storable + "</td>" +
+                    "   <td id='usableFlag-" +  location.id + "'>" + location.usable + "</td>" +
+                    "   <td id='accessibleVehicleType-" +  location.id + "'>" + getAccessibleVehicleType(location.accessibleVehicleType) + "</td>" +
+                    "   <td id='coordinateX-" +  location.id + "'>" + location.coordinateX + "</td>" +
+                    "   <td id='coordinateY-" +  location.id + "'>" + location.coordinateY + "</td>" +
+                    "   <td id='coordinateZ-" +  location.id + "'>" + location.coordinateZ + "</td>" +
                     "   <td>" +
-                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-action='change' data-areaid='" + area.id + "' data-areaname='" + area.name+ "'>Edit</button>" +
+                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-action='change' data-locationid='" + location.id + "' data-locationname='" + location.name+ "'>Edit</button>" +
                     "   </td>" +
                     "</tr>";
                 var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
@@ -241,6 +251,14 @@
         $('#editModalErrorMessage').text('');
     }
 
+    var getAccessibleVehicleType = function(accessibleVehicleTypeArray) {
+        var vehicleTypeNameArray = [];
+        $.each(accessibleVehicleTypeArray, function(index, vehicleType) {
+            vehicleTypeNameArray.push(vehicleType.name);
+        });
+        return vehicleTypeNameArray.join(", ");
+    }
+
     $('#areaEditSave').click(function(){
         var areaID = $('#editModalAreaID').val();
         var url = "/ws/layout/area";
@@ -307,5 +325,6 @@
 
 
     </script>
+
 </body>
 </html>

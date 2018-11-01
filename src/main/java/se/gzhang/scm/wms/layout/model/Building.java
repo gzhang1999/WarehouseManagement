@@ -18,6 +18,7 @@
 
 package se.gzhang.scm.wms.layout.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import se.gzhang.scm.wms.common.model.Address;
 
@@ -43,6 +44,8 @@ public class Building {
     @JoinColumn(name="address_id")
     private Address address;
 
+
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;

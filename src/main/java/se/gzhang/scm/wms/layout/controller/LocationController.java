@@ -22,39 +22,47 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
-import se.gzhang.scm.wms.layout.model.Building;
-import se.gzhang.scm.wms.layout.model.Warehouse;
+import se.gzhang.scm.wms.layout.model.Location;
+import se.gzhang.scm.wms.layout.service.AreaService;
 import se.gzhang.scm.wms.layout.service.BuildingService;
-import se.gzhang.scm.wms.layout.service.WarehouseService;
+import se.gzhang.scm.wms.layout.service.LocationService;
+import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
 
-import javax.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Map;
 
 @Controller
-public class BuildingController {
+public class LocationController {
 
     private static final String APPLICATION_ID = "Layout";
-    private static final String FORM_ID = "Building";
+    private static final String FORM_ID = "Location";
 
     @Autowired
-    WarehouseService warehouseService;
+    LocationService locationService;
 
-    @Autowired
-    BuildingService buildingService;
 
-    @RequestMapping(value="/layout/building", method = RequestMethod.GET)
-    public ModelAndView displayBuilding(HttpSession httpSession) {
-        // only display the information in current login warehouse
-
-        Warehouse currentWarehouse = warehouseService.findByWarehouseId(Integer.parseInt(httpSession.getAttribute("warehouse_id").toString()));
-        List<Building> buildingList = buildingService.findByWarehouseId(currentWarehouse.getId());
+    @RequestMapping(value="/layout/location", method = RequestMethod.GET)
+    public ModelAndView listLocations() {
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.addObject("buildingList", buildingList);
-        modelAndView.setViewName("layout/building");
+
+        System.out.println("Find all locations: " + locationService.findAll().size());
+        modelAndView.addObject("locationList", locationService.findAll());
         modelAndView.addObject("applicationID",APPLICATION_ID);
         modelAndView.addObject("formID",FORM_ID);
-        return modelAndView;
 
+        modelAndView.setViewName("layout/location");
+        return modelAndView;
     }
+
+    @ResponseBody
+    @RequestMapping(value="/ws/layout/location/list")
+    public WebServiceResponseWrapper queryLocation(@RequestParam Map<String, String> parameters) {
+
+        List<Location> locationList = locationService.findLocation(parameters);
+        return new WebServiceResponseWrapper<List<Location>>(0, "", locationList);
+    }
+
 }

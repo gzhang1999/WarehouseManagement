@@ -19,13 +19,17 @@
 package se.gzhang.scm.wms.layout.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import se.gzhang.scm.wms.authorization.model.User;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.Building;
 import se.gzhang.scm.wms.layout.repository.AreaRepository;
-import se.gzhang.scm.wms.layout.repository.BuildingRepository;
 
+import javax.persistence.criteria.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service("areaService")
 public class AreaService {
@@ -39,5 +43,39 @@ public class AreaService {
     public List<Area> findAll() {
 
         return areaRepository.findAll();
+    }
+
+
+    public List<Area> findArea(Map<String, String> criteriaList) {
+        System.out.println("Find area with following criteria");
+        for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
+            System.out.println("name: " + entry.getKey() + " , value: " + entry.getValue());
+        }
+        return areaRepository.findAll(new Specification<Area>() {
+            @Override
+            public Predicate toPredicate(Root<Area> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                List<Predicate> predicates = new ArrayList<Predicate>();
+                if(criteriaList.containsKey("buildingID") && !criteriaList.get("buildingID").isEmpty()) {
+                    Join<Area, Building> joinBuilding = root.join("building",JoinType.INNER);
+
+                    predicates.add(criteriaBuilder.equal(joinBuilding.get("id"), criteriaList.get("buildingID")));
+                }
+
+                if(criteriaList.containsKey("id") && !criteriaList.get("id").isEmpty()) {
+                    predicates.add(criteriaBuilder.equal(root.get("id"), criteriaList.get("id")));
+                }
+
+                Predicate[] p = new Predicate[predicates.size()];
+                return criteriaBuilder.and(predicates.toArray(p));
+
+            }
+        });
+
+    }
+
+    public Area save(Area area) {
+        Area newArea = areaRepository.save(area);
+        areaRepository.flush();
+        return newArea;
     }
 }

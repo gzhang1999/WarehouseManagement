@@ -18,6 +18,8 @@
 
 package se.gzhang.scm.wms.layout.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import se.gzhang.scm.wms.common.model.UnitOfMeasure;
 
@@ -28,6 +30,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "area")
+@JsonSerialize(using = AreaSerializer.class)
 public class Area {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -36,7 +39,6 @@ public class Area {
 
     @Column(name = "name")
     private String name;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "building_id")
@@ -54,7 +56,7 @@ public class Area {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    private List<UnitOfMeasure> pickableUOM = new ArrayList<>();
+    private List<UnitOfMeasure> pickableUOMs = new ArrayList<>();
 
     @Column(name = "area_type")
     private AreaType areaType;

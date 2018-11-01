@@ -216,7 +216,6 @@
     // It works as a stub function that after we get content from
     // query_form.js, this function will render the datatable
     var renderTable = function(tableID, data, customFields) {
-        console.log("renderTable / customFields: " + JSON.stringify(customFields));
         var table = $("#" + tableID).DataTable();
 
         if (data.length == 0) {

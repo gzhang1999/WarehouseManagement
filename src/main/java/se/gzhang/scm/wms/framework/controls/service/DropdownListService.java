@@ -63,8 +63,6 @@ public class DropdownListService {
                     .getResultList();
 
             for(DropdownOption option : dropdownOptionList) {
-                System.out.println("\nValue: " + option.getValue() +
-                                   "\nText: " + option.getText());
                 option.setDropdownList(dropdownList);
             }
 
