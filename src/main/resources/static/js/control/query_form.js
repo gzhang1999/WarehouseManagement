@@ -105,7 +105,9 @@ var initDataTable = function() {
                     customInitDataTable($(this).prop("id"));
                 }
                 else {
-                    $(this).DataTable();
+                    $(this).DataTable({
+                        "scrollX": true
+                    });
                 }
             }
         });

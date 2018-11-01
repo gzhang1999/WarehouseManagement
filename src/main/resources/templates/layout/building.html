@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+    <style>
+        .card-columns {
+            column-count: 2;
+        }
+
+    </style>
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="card-columns" th:each="building : ${buildingList}">
+                <!-- Display the building information -->
+                <div>
+                    <div class="card border-primary">
+                        <div class="card-header" th:text="#{building.information}"></div>
+                        <div class="card-body">
+                            <div class="row">
+                                <span th:text="#{building}"></span> /
+                                <span th:if="${building != null}" th:text="${building.name}"></span>
+                            </div>
+                            <div th:if="${building != null && building.address != null}">
+                                Address:
+                                <span  th:text="${building.address.name}">
+                                    Address Name
+                                </span>
+                                <div class="row">
+                                    >>
+                                    <span th:text="${building.address.firstname}">
+                                        First Name
+                                    </span>
+
+                                    <span th:text="${building.address.lastname}">
+                                        Last Name
+                                    </span>
+                                </div>
+                                <div class="row">
+                                    >>
+                                    <span th:text="${building.address.addressLine1}">
+                                        Address Line 1
+                                    </span>
+                                     ,
+                                    <span th:text="${building.address.addressLine2}">
+                                        Address Line 2
+                                    </span>
+                                </div>
+                                <div class="row">
+                                    >>
+                                    <span th:text="${building.address.city}">
+                                        City
+                                    </span>
+                                    ,
+                                    <span th:text="${building.address.county}">
+                                        County
+                                    </span>
+
+                                    <span th:text="${building.address.postcode}">
+                                        postcode
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Display the building statistics information -->
+                <div>
+                    <div class="card border-primary">
+                        <div class="card-header" th:text="#{building.statistics}"></div>
+                        <div class="card-body">
+                            <div class="row">
+                                <span th:text="#{area}"></span> /
+                                <span th:text="${building.totalAreaCount}"></span></div>
+                            <div class="row">
+                                <span th:text="#{location}"></span>  /
+                                <span th:text="${building.totalLocationCount}"></span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+</body>
+</html>

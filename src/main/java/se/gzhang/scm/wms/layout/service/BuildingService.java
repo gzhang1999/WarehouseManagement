@@ -38,4 +38,10 @@ public class BuildingService {
 
         return buildingRepository.findAll();
     }
+
+    public List<Building> findByWarehouseId(int warehouseID) {
+
+        return buildingRepository.findByWarehouseId(warehouseID);
+    }
+
 }

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+
+
+                <div class="card">
+                    <div class="card-header">
+                        <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{area.new}" >New Area</a>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="area_query" data-display="areaTable" th:action="@{/ws/layout/area/list}">
+                            <div class="form-group">
+                                <label for="queryAreaName" class="col-form-label" th:text="#{area}">Area:</label>
+                                <select class="form-control  mx-sm-4" id="queryAreaName" name="name" data-variable="role"></select>
+                            </div>
+
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="area_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="area_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "areaTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true">
+                                    <thead>
+                                        <tr>
+                                            <td th:text="#{area.name}">Area Name</td>
+                                            <td th:text="#{area.building}">Building Name</td>
+                                            <td th:text="#{area.type}">Type</td>
+                                            <td th:text="#{area.volumetype}">Volume Type</td>
+                                            <td></td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+</body>
+</html>

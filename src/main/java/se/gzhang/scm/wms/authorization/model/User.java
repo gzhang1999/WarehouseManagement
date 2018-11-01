@@ -19,6 +19,7 @@
 package se.gzhang.scm.wms.authorization.model;
 
 import lombok.Data;
+import se.gzhang.scm.wms.layout.model.Warehouse;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -78,6 +79,9 @@ public class User {
     @Column(name = "change_password_flag")
     private boolean changePassword;
 
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(name = "user_warehouse", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "warehouse_id"))
+    private Set<Warehouse> warehouses;
 
     @Override
     public boolean equals(Object o) {

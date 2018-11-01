@@ -34,23 +34,14 @@
         <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
 
         <div class="container-fluid">
-            <div class="animated fadeIn">
-                <div class="card card-accent-success">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-sm-5">
-                                <h4 class="card-title mb-0">Welcome</h4>
-                                <div class="small text-muted">November 2018</div>
-                            </div>
-                            <!-- /.col-->
-                            <div class="col-sm-7 d-none d-md-block">
-                            </div>
-                            <!-- /.col-->
-                        </div>
-                        <!-- /.row-->
-                        <div class="chart-wrapper" style="height:300px;margin-top:40px;">
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="card border-primary">
+                        <div class="card-header" th:text="#{warehouse.information}"></div>
+                        <div class="card-body">
                             <div class="row">
-                                Current Warehouse:
+                                <span th:text="#{warehouse.current}"></span>
                                 <span th:if="${warehouse != null}" th:text="${warehouse.name}"></span>
                             </div>
                             <div th:if="${warehouse != null && warehouse.address != null}">
@@ -63,6 +54,7 @@
                                     <span th:text="${warehouse.address.firstname}">
                                         First Name
                                     </span>
+
                                     <span th:text="${warehouse.address.lastname}">
                                         Last Name
                                     </span>
@@ -72,6 +64,7 @@
                                     <span th:text="${warehouse.address.addressLine1}">
                                         Address Line 1
                                     </span>
+                                    ,
                                     <span th:text="${warehouse.address.addressLine2}">
                                         Address Line 2
                                     </span>
@@ -91,24 +84,110 @@
                                     </span>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="card border-primary">
+                        <div class="card-header" th:text="#{warehouse.statistics}"></div>
+                        <div class="card-body">
                             <div class="row">
-                                Buildings /
+                                <span th:text="#{building}"></span> /
                                 <span th:text="${building_count}"></span></div>
                             <div class="row">
-                                Areas /
+                                <span th:text="#{area}"></span> /
                                 <span th:text="${area_count}"></span></div>
                             <div class="row">
-                                Locations /
+                                <span th:text="#{location}"></span>  /
                                 <span th:text="${location_count}"></span></div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="card border-primary">
+                        <div class="card-header" th:text="#{warehouse.accessibleuser}"></div>
+                        <div class="card-body">
+                            <table th:if="${isUserManager}" id="userTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true">
+                                <thead>
+                                    <tr>
+                                        <td th:text="#{user.userID}">User ID</td>
+                                        <td th:text="#{user.username}">Username</td>
+                                        <td th:text="#{warehouse.user.assign}">Assigned</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="user : ${userList}">
+                                        <td th:text="${user.id}" th:id="'userID-' + ${user.id}"></td>
+                                        <td th:text="${user.username}" th:id="'username-' + ${user.id}"></td>
+                                        <td>
+                                            <label class='switch switch-3d switch-primary'>
+                                                <input class='switch-input' name="warehouse_user_access" th:id="${user.id} + '-' + ${warehouse.id}" th:attr="data-userid=${user.id},data-warehouseid=${warehouse.id}"  type='checkbox' th:checked='${#lists.contains(accessibleUserIDList, user.id)}'>
+                                                <span class='switch-slider'></span>
+                                            </label>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <span th:if="${!isUserManager}" th:text="#{error.notUserManager}">
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+
     </main>
 
     <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
 </div>
 <footer th:replace="fragment/footer :: app-footer"></footer>
+
+<script>
+
+    $("input[name='warehouse_user_access']").each(function(){
+
+        var userID = $(this).data("userid");
+        var warehouseID = $(this).data("warehouseid");
+        console.log("Find checkbox of user : " + userID + " TO warehouse: " + warehouseID);
+
+        // register the on change function so that when the uesr
+        // check / uncheck the checkbox, we will grant / ungrant
+        // the warehouse's access to the user
+        $(this).change(function () {
+            var userID = $(this).data("userid");
+            var warehouseID = $(this).data("warehouseid");
+            var checkBox = $('#' + userID + '-' + warehouseID);
+            console.log("grant access of user : " + userID + " TO warehouse: " + warehouseID);
+            console.log("checkbox checked? " + checkBox.prop("checked"));
+
+            // ajax to assign / deassign the role from the user
+            $.ajax({
+              type: "POST",
+              url: '/ws/layout/warehouse/assign/user/'+warehouseID,
+              data: {
+                  warehouseID : warehouseID,
+                  userID : userID,
+                  assigned :  checkBox.prop("checked")
+              }
+            }).done(function(res) {
+                console.log("assign warehouse accessible\n" + JSON.stringify(res));
+                if (res.status != 0) {
+                    // undo the change
+                    var checkBox = $('#' + userID + '-' + warehouseID);
+                    checkBox.prop("checked", !assigned);
+                }
+
+            });
+         });
+    });
+
+
+</script>
+
 </body>
 </html>

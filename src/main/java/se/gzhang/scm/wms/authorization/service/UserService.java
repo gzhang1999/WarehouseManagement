@@ -29,6 +29,8 @@ import se.gzhang.scm.wms.authorization.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import se.gzhang.scm.wms.layout.model.Warehouse;
+import se.gzhang.scm.wms.layout.service.WarehouseService;
 import se.gzhang.scm.wms.menu.model.MenuItem;
 import se.gzhang.scm.wms.menu.service.MenuService;
 
@@ -52,6 +54,8 @@ public class UserService {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Autowired
     private MenuService menuService;
+    @Autowired
+    private WarehouseService warehouseService;
 
     public List<User> findAll() {
         return userRepository.findAll();
@@ -129,7 +133,7 @@ public class UserService {
             for(Iterator<User> iterator = userList.iterator(); iterator.hasNext();) {
                 User user = iterator.next();
                 Role role = roleService.findByRoleId(Integer.parseInt(criteriaList.get("roleId")));
-                if (!isAccessible(user,role)) {
+                if (!isRoleAccessible(user,role)) {
                     // Current user doesn't belong to the specific role, let's not
                     // return this user
                     System.out.println("user " + user.getUsername() + " doesn't have access to " + role.getName());
@@ -149,7 +153,7 @@ public class UserService {
     }
 
     // TO-DO: Check wither the user can access the menu
-    public boolean isAccessible(User user, Role role) {
+    public boolean isRoleAccessible(User user, Role role) {
         for(Role assignedRole : user.getRoles()) {
             if (assignedRole.getId() == role.getId()) {
                 return true;
@@ -182,7 +186,7 @@ public class UserService {
 
 
     public void grantRoleAccess(User user, Role role) {
-        if (!isAccessible(user, role)) {
+        if (!isRoleAccessible(user, role)) {
             user.getRoles().add(role);
             System.out.println("grantRoleAccess / The user: " + user.getUsername() + " now has the following roles: ");
             for(Role currentRole : user.getRoles()) {
@@ -192,7 +196,7 @@ public class UserService {
         }
     }
     public void removeRoleAccess(User user, Role removedRole) {
-        if (isAccessible(user, removedRole)) {
+        if (isRoleAccessible(user, removedRole)) {
             for (Iterator<Role> iterator = user.getRoles().iterator(); iterator.hasNext(); ) {
                 Role role = iterator.next();
                 if (role.getId() == removedRole.getId()){
@@ -208,6 +212,36 @@ public class UserService {
             }
         }
     }
+
+    public void grantWarehouseAccess(int userID, int warehouseID) {
+        grantWarehouseAccess(findUserById(userID), warehouseService.findByWarehouseId(warehouseID));
+    }
+
+    public void grantWarehouseAccess(User user, Warehouse warehouse) {
+        // Only grant the warehouse when the user doesn't have the access yet
+        if (!hasWarehouseAccess(user, warehouse)) {
+            user.getWarehouses().add(warehouse);
+            save(user);
+        }
+    }
+
+
+    public void removeWarehouseAccess(int userID, int warehouseID) {
+        removeWarehouseAccess(findUserById(userID), warehouseService.findByWarehouseId(warehouseID));
+    }
+
+    public void removeWarehouseAccess(User user, Warehouse warehouse) {
+        // Only remove the warehouse when the user has the access already
+        if (hasWarehouseAccess(user, warehouse)) {
+            user.getWarehouses().remove(warehouse);
+            save(user);
+        }
+    }
+
+    public boolean hasWarehouseAccess(User user, Warehouse warehouse) {
+        return user.getWarehouses().contains(warehouse);
+    }
+
 
 
 

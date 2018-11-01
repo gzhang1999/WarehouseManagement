@@ -161,7 +161,7 @@ public class RoleController {
                 // Check which users has access to the current role
                 List<String> assignedUsers = new ArrayList<>();
                 for(User user : users) {
-                    if (userService.isAccessible(user, role)) {
+                    if (userService.isRoleAccessible(user, role)) {
                         assignedUsers.add(String.valueOf(user.getId()));
                     }
                 }

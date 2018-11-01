@@ -30,4 +30,6 @@ public interface BuildingRepository extends JpaRepository<Building, Integer>, Jp
     List<Building> findAll();
 
     Building findById(int id);
+
+    List<Building> findByWarehouseId(int warehouseID);
 }

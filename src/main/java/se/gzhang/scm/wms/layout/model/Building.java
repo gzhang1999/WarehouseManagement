@@ -67,4 +67,16 @@ public class Building {
         return id != null && id.equals(((Building) o).id);
     }
 
+    public int getTotalAreaCount() {
+        return areas.size();
+    }
+
+    public int getTotalLocationCount() {
+        int totalLocationCount = 0;
+        for(Area area : areas) {
+            totalLocationCount += area.getLocations().size();
+        }
+        return totalLocationCount;
+    }
+
 }

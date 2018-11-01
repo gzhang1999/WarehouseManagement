@@ -20,15 +20,18 @@ package se.gzhang.scm.wms.layout.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import se.gzhang.scm.wms.authorization.model.User;
+import se.gzhang.scm.wms.authorization.service.UserService;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.Building;
 import se.gzhang.scm.wms.layout.model.Warehouse;
 import se.gzhang.scm.wms.layout.service.WarehouseService;
+import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
 
 import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 @Controller
 public class WarehouseController {
@@ -38,12 +41,12 @@ public class WarehouseController {
 
     @Autowired
     WarehouseService warehouseService;
+    @Autowired
+    UserService userService;
 
     @RequestMapping(value="/layout/warehouse", method = RequestMethod.GET)
     public ModelAndView displayWarehouse(HttpSession httpSession) {
         Warehouse warehouse = warehouseService.findByWarehouseId(Integer.parseInt(httpSession.getAttribute("warehouse_id").toString()));
-        System.out.println("Warehouse: " + warehouse.getName());
-        System.out.println(">> Address: " + warehouse.getAddress() == null ? " N/A" : warehouse.getAddress().getName());
         int buildingCount = warehouse.getBuildings().size();
         int areaCount = 0;
         int locationCount = 0;
@@ -53,6 +56,7 @@ public class WarehouseController {
                 locationCount += area.getLocations().size();
             }
         }
+
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.addObject("warehouse",warehouse);
         modelAndView.addObject("building_count",buildingCount);
@@ -60,7 +64,57 @@ public class WarehouseController {
         modelAndView.addObject("location_count",locationCount);
         modelAndView.addObject("applicationID",APPLICATION_ID);
         modelAndView.addObject("formID",FORM_ID);
+
+        // Get all the user and the accessible user so the current user
+        // can grant the other users with the access to the warehouse
+        // only available if the current user is a user manager
+        User currentUser = userService.getCurrentLoginUser();
+
+        modelAndView.addObject("isUserManager", currentUser.isUserManager());
+        if (currentUser.isUserManager()) {
+            modelAndView.addObject("userList", userService.findAll());
+            modelAndView.addObject("accessibleUserIDList",warehouseService.getAccessibleUserIDs(warehouse));
+        }
         modelAndView.setViewName("layout/warehouse");
         return modelAndView;
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value="/ws/layout/warehouse/assign/user/{id}", method = RequestMethod.POST)
+    public WebServiceResponseWrapper grantUserAccess(@PathVariable("id") int warehouseID,
+                                                     @RequestParam("userID") int userID,
+                                                     @RequestParam("assigned") boolean assigned) {
+
+        // Check whether the user can manager the menus;
+        User currentLoginUser = userService.getCurrentLoginUser();
+
+        // The user need to have the right for menu assignment
+        if (currentLoginUser.isUserManager()) {
+            User user = userService.findUserById(userID);
+            Warehouse warehouse = warehouseService.findByWarehouseId(warehouseID);
+
+            if (user == null) {
+                return WebServiceResponseWrapper.raiseError(10001, "Can not find the user by ID: " + userID);
+            }
+            else if (warehouse == null){
+                return WebServiceResponseWrapper.raiseError(10001, "Can not find the warehouse by ID: " + warehouseID);
+            }
+            else {
+                if (assigned) {
+                    userService.grantWarehouseAccess(user, warehouse);
+                } else {
+                    userService.removeWarehouseAccess(user, warehouse);
+                }
+                String message = "User: " + user.getUsername() + ", Warehouse: " + warehouse.getName() + ", Accessible? " + userService.hasWarehouseAccess(user,warehouse);
+                return WebServiceResponseWrapper.raiseError(0, message);
+            }
+
+        }
+        else {
+
+            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to manager other users");
+        }
+
     }
 }

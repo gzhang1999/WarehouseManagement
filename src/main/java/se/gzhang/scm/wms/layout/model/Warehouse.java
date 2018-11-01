@@ -65,4 +65,10 @@ public class Warehouse {
         buildings.remove(building);
         building.setWarehouse(null);
     }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Warehouse)) return false;
+        return id != null && id.equals(((Warehouse) o).id);
+    }
 }

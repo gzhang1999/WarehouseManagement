@@ -20,15 +20,21 @@ package se.gzhang.scm.wms.layout.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import se.gzhang.scm.wms.authorization.model.User;
+import se.gzhang.scm.wms.authorization.service.UserService;
 import se.gzhang.scm.wms.layout.model.Warehouse;
 import se.gzhang.scm.wms.layout.repository.WarehouseRepository;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 @Service("warehouseService")
 public class WarehouseService {
     @Autowired
     private WarehouseRepository warehouseRepository;
+    @Autowired
+    private UserService userService;
 
     public Warehouse findByWarehouseId(int id) {
         return warehouseRepository.findById(id);
@@ -38,4 +44,42 @@ public class WarehouseService {
 
         return warehouseRepository.findAll();
     }
+
+    // Return all the users that have access to the warehouse
+    public List<User> getAccessibleUsers(Warehouse warehouse) {
+        List<User> accessibleUserList = userService.findAll();
+
+        for(Iterator<User> iterator = accessibleUserList.iterator(); iterator.hasNext();) {
+            User user = iterator.next();
+            boolean warehouseAccessible = false;
+            for(Warehouse accessibleWarehouse : user.getWarehouses()) {
+                if (accessibleWarehouse.equals(warehouse)) {
+                    // Current user has access to the warehouse
+                    warehouseAccessible = true;
+                    break;
+                }
+            }
+            if (!warehouseAccessible) {
+                // remove the user from the return list as it doesn't have
+                // access to the warehouse
+                iterator.remove();
+            }
+        }
+        return accessibleUserList;
+    }
+
+    // Return all the users' id that have access to the warehouse
+    public List<Integer> getAccessibleUserIDs(Warehouse warehouse) {
+        List<User> accessibleUser = getAccessibleUsers(warehouse);
+        List<Integer> accessibleUserIDList = new ArrayList<>();
+        for(User user : accessibleUser) {
+            accessibleUserIDList.add(user.getId());
+        }
+        return accessibleUserIDList;
+    }
+
+    public List<User> getAccessibleUsers(int warehouseID) {
+        return getAccessibleUsers(findByWarehouseId(warehouseID));
+    }
+
 }
