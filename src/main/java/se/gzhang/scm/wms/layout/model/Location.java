@@ -24,13 +24,14 @@ import se.gzhang.scm.wms.common.model.VehicleType;
 import se.gzhang.scm.wms.common.model.Velocity;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @Data
 @Entity
 @Table(name = "location")
 @JsonSerialize(using = LocationSerializer.class)
-public class Location {
+public class Location  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "location_id")

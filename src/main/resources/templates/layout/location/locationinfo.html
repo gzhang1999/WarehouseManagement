@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+<style>
+.scroll {
+    max-height: 750px;
+    overflow-y: auto;
+}
+
+</style>
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="row">
+                    <!-- Show all possible location names-->
+                    <div class="col-sm-3 scroll">
+                        <div class="card">
+                            <div class="card-header">
+                                <span th:text="#{location.nametemplate.allname}"></span>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group" id="locationList">
+                                    <li th:each="name, iter : ${addLocationFlowModel.getValidName()}" th:text="${name}" th:id="${'location-name-'+iter.index}" class="list-group-item" th:data-locationname="${name}"></li>
+                                </ul>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <!-- Setup location attribute -->
+                    <div class="col-sm-9">
+                        <div class="card">
+                            <form method="post" th:object="${location}" enctype="multipart/form-data">
+                                <div class="card-header" >
+                                    <span th:text="#{location.new}"></span>
+                                    <a class="badge badge-success float-right" th:href="@{'~' + ${flowExecutionUrl} + '&_eventId_home'}" th:text="#{location.new.return}" >Return to Location Display</a>
+                                </div>
+                                <div class="card-body">
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="areaID" class="col-form-label" th:text="#{area}">Area:</label>
+                                            <select class="form-control" id="areaID" name="areaID" data-variable="area"></select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="aisleID" class="col-form-label" th:text="#{location.aisle}">Aisle:</label>
+                                            <input type="text" class="form-control" id="aisleID" name="aisleID">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="length" class="col-form-label" th:text="#{location.length}">length:</label>
+                                            <input type="text" class="form-control" id="length" name="length">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="width" class="col-form-label" th:text="#{location.width}">width:</label>
+                                            <input type="text" class="form-control" id="width" name="width">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <label for="height" class="col-form-label" th:text="#{location.height}">height:</label>
+                                            <input type="text" class="form-control" id="height" name="height">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="height" class="col-form-label" th:text="#{location.volume}">volume:</label>
+                                            <input type="text" class="form-control" id="volume" name="volume">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="velocity" class="col-form-label" th:text="#{location.velocity}">velocity:</label>
+                                        <select class="form-control" id="velocity" name="velocity" data-variable="velocity"></select>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input"  id="pickable" name="pickable">
+                                                <label class="custom-control-label" for="pickable" th:text="#{location.pickable}">pickable:</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input"  id="storable" name="storable">
+                                                <label class="custom-control-label" for="storable" th:text="#{location.storable}">storable:</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input"  id="usable" name="usable">
+                                                <label class="custom-control-label" for="usable" th:text="#{location.usable}">usable:</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label for="coordinateX" class="col-form-label" th:text="#{location.coordinateX}">coordinate X:</label>
+                                            <input type="text" class="form-control" id="coordinateX" name="coordinateX">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="coordinateY" class="col-form-label" th:text="#{location.coordinateY}">coordinate Y:</label>
+                                            <input type="text" class="form-control" id="coordinateY" name="coordinateY">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="coordinateZ" class="col-form-label" th:text="#{location.coordinateZ}">coordinate Z:</label>
+                                            <input type="text" class="form-control" id="coordinateZ" name="coordinateZ">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <button type="submit" class="btn btn-sm btn-primary" name="_eventId_previous" th:text="#{step.previous}">
+                                        <i class="fa fa-dot-circle-o"></i> Next</button>
+                                    <button type="button" class="btn btn-sm btn-primary" th:text="#{location.flow.step.create}" id="buttonCreateLocation">
+                                        <i class="fa fa-dot-circle-o"></i> Create</button>
+                                    <button type="submit" class="btn btn-sm btn-primary" name="_eventId_submit" th:text="#{step.complete}">
+                                        <i class="fa fa-dot-circle-o"></i> Next</button>
+                                </div>
+                            </form>
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+    $("#buttonCreateLocation").click(function(){
+        // Create location one by one
+        var locationNameArray = $("#locationList li");
+        $("#buttonCreateLocation").prop("disabled", true);
+        console.log(JSON.stringify(locationNameArray));
+        console.log("Totally there're " + locationNameArray.length + " locations to be created");
+        var location={};
+
+
+        createLocation(0, locationNameArray.length);
+
+
+    });
+
+    var createLocation = function(index, locationNumber) {
+        if (index < locationNumber) {
+            var locationNameControl = $("#location-name-" + index);
+            var locationName = locationNameControl.data("locationname");
+            console.log(">> start to create location " + locationName + " @index: " + index);
+            var url= "/ws/layout/location/new"
+            $.ajax({
+                method:"POST",
+                url : url,
+                index : index,
+                locationNumber : locationNumber,
+                data:{
+                     name: locationName,
+                     areaID: $('#areaID').val(),
+                     aisleID: $('#aisleID').val(),
+                     length: $('#length').val(),
+                     width: $('#width').val(),
+                     height: $('#height').val(),
+                     volume: $('#volume').val(),
+                     pickable: $('#pickable').prop('checked'),
+                     storable: $('#storable').prop('checked'),
+                     usable: $('#usable').prop('checked'),
+                     velocity: $('#velocity').val(),
+                     coordinateX: $('#coordinateX').val(),
+                     coordinateY: $('#coordinateY').val(),
+                     coordinateZ: $('#coordinateZ').val()
+                }
+            }).done(function( res ) {
+                var locationNameControl = $("#location-name-" + index);
+                var locationName = locationNameControl.data("locationname");
+                if (res.status == 0) {
+
+                    var htmlString = locationName + "<span> Success!</span>";
+                    locationNameControl.html(htmlString);
+                }
+                else{
+                    var htmlString = locationName + "<span> " + res.status + " : " + res.message + "!</span>";
+                    locationNameControl.html(htmlString);
+                }
+                // create the next location
+                index++;
+
+                createLocation(index, locationNumber);
+            });
+        }
+        else {
+            $("#buttonCreateLocation").prop("disabled", false);
+        }
+    }
+
+</script>
+</body>
+</html>

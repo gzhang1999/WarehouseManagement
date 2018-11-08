@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+
+
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+
+                <div class="card">
+                    <div class="card-header">
+                        <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{location.nametemplate.new}" >New Location Name Template</a>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="location_name_template_query" data-display="locationNameTemplateTable" th:action="@{/ws/layout/location/nametemplate/list}">
+                            <div class="form-group">
+                                <label for="queryTemplateID" class="col-form-label" th:text="#{location.nametemplate.name}">Name:</label>
+                                <select class="form-control  mx-sm-4" id="queryTemplateID" name="id" data-variable="locationNameTemplate"></select>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="location_name_template_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="location_name_template_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "locationNameTemplateTable" class="table table-striped table-bordered  display nowrap" style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
+                                    <thead>
+                                    <tr>
+                                        <td th:text="#{location.nametemplate.id}">Location Name Template ID</td>
+                                        <td th:text="#{location.nametemplate.name}">Location Name Template Name</td>
+
+                                        <td th:if="${maxTemplateItemCount > 0}" th:each="i: ${#numbers.sequence(0, maxTemplateItemCount - 1)}" th:text="#{location.nametemplate.item + ${i+1}}">
+
+
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    <tr th:each="locationNameTemplate : ${locationNameTemplateList}">
+                                        <td th:text="${locationNameTemplate.id}" ></td>
+                                        <td th:text="${locationNameTemplate.name}" th:id="${'templateName-' + locationNameTemplate.id}"></td>
+                                        <td th:if="${maxTemplateItemCount > 0}"  th:each="i: ${#numbers.sequence(0, maxTemplateItemCount - 1)}">
+                                            <button type="button" class="btn btn-primary" th:if="${locationNameTemplate.getItemBySequence(i) != null}" >
+                                                <span class="label label-info displayTemplateItem" th:text="${locationNameTemplate.getItemBySequence(i)}" th:id="${'displayItem-'+locationNameTemplate.getItemBySequence(i).id}"
+                                                      data-toggle="modal" data-target="#editItemModal" th:data-templateitemid="${locationNameTemplate.getItemBySequence(i).id}" th:data-templateid="${locationNameTemplate.id}" th:data-templatename="${locationNameTemplate.name}" data-action="change" ></span>
+                                                <i class="fa fa-close removeTemplateItem" style="color:red" th:id="${'removeItem-'+locationNameTemplate.getItemBySequence(i).id}" th:data-templateitemid="${locationNameTemplate.getItemBySequence(i).id}"  onclick="removeTemplateItem(event)"></i>
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editModal" th:text="#{edit}" th:data-templateid="${locationNameTemplate.id}" data-action="change" >Edit</button>
+                                            <button class="btn btn-warning" type="button" data-toggle="modal" data-target="#editItemModal" th:text="#{location.nametemplate.item.new}" th:data-templateid="${locationNameTemplate.id}" th:data-templatename="${locationNameTemplate.name}" data-action="new" >New Item</button>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel" th:text="#{location.nametemplate.editmodel.title}">Edit Location Name Template</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="editModalErrorMessage"></div>
+                    <form>
+                        <div class="form-group">
+                            <label for="editModalTemplateID" class="col-form-label" th:text="#{location.nametemplate.id}">Template ID:</label>
+                            <input type="text" class="form-control" id="editModalTemplateID" name="templateID" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalTemplateName" class="col-form-label" th:text="#{location.nametemplate.name}">Template Name:</label>
+                            <input type="text" class="form-control" id="editModalTemplateName" name="templateName">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="templateEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal for adding / editing tempalte items-->
+    <div class="modal fade" id="editItemModal" tabindex="-1" role="dialog" aria-labelledby="editItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editItemModalLabel" th:text="#{location.nametemplate.item.editmodel.title}">Edit Location Name Template Items</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="editItemModalErrorMessage"></div>
+                    <form>
+                        <div class="form-group">
+                            <label for="editItemModalTemplateID" class="col-form-label" th:text="#{location.nametemplate.id}">Template ID:</label>
+                            <input type="text" class="form-control" id="editItemModalTemplateID" name="templateID" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editItemModalTemplateName" class="col-form-label" th:text="#{location.nametemplate.name}">Template Name:</label>
+                            <input type="text" class="form-control" id="editItemModalTemplateName" name="templateName">
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <label for="editItemModalTemplateItemID" class="col-form-label" th:text="#{location.nametemplate.item.id}">Template Item ID:</label>
+                            <input type="text" class="form-control" id="editItemModalTemplateItemID" name="templateItemID" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editItemModalTemplateItemName" class="col-form-label" th:text="#{location.nametemplate.item.name}">Template Item Name:</label>
+                            <input type="text" class="form-control" id="editItemModalTemplateItemName" name="templateItemName">
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input"  id="editItemModalTemplateItemValueFixed" name="templateItemValueFixed">
+                            <label class="custom-control-label" for="editItemModalTemplateItemValueFixed" th:text="#{location.nametemplate.item.fixedvalue}">Value Fixed:</label>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editItemModalTemplateItemSequence" class="col-form-label" th:text="#{location.nametemplate.item.sequence}">Template Item Sequence:</label>
+                                <input type="text" class="form-control" id="editItemModalTemplateItemSequence" name="templateItemSequence">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editItemModalTemplateItemLength" class="col-form-label" th:text="#{location.nametemplate.item.length}">Template Item Length:</label>
+                                <input type="text" class="form-control" id="editItemModalTemplateItemLength" name="templateItemLength">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editItemModalTemplateItemType" class="col-form-label" th:text="#{location.nametemplate.item.type}">Template Item Type:</label>
+                            <select class="form-control" id="editItemModalTemplateItemType" name="templateItemType" data-variable="locationNameTemplateItemType"></select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editItemModalTemplateItemRangeType" class="col-form-label" th:text="#{location.nametemplate.item.rangetype}">Template Item Range Type:</label>
+                            <select class="form-control" id="editItemModalTemplateItemRangeType" name="templateItemRangeType" data-variable="locationNameTemplateItemRangeType"></select>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="templateItemEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+
+<footer th:replace="fragment/footer :: app-footer"></footer>
+
+<script>
+
+    // Function to render table
+    // This function will be called by the javascript from query_form.js
+    // It works as a stub function that after we get content from
+    // query_form.js, this function will render the datatable
+    var renderTable = function(tableID, data, customFields) {
+        console.log("location name template render table with: \n" + JSON.stringify(data));
+        var table = $("#" + tableID).DataTable();
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            // We will need to fill in the template items manually.
+            // First column: template ID
+            // Second column: template name
+            // last Column: buttons
+            // others: template items
+            var itemColumnNumbers = table.columns().nodes().length - 3;
+            $.each(data, function(index, template){
+                var htmlData =
+                    "<tr>" +
+                    "   <td>" + template.id + "</td>" +
+                    "   <td id='templateName-" +  template.id + "'>" + template.name + "</td>";
+                var i;
+                var itemNumbers = template.locationNameTemplateItemList == null ? 0 : template.locationNameTemplateItemList.length;
+                for(i = 0; i < itemColumnNumbers; i++) {
+                    if (i < itemNumbers) {
+                        var templateItem = template.locationNameTemplateItemList[i];
+                        htmlData +=
+                        "   <td>" +
+                        "      <button type='button' class='btn btn-primary' > " +
+                        "          <span class='label label-info displayTemplateItem' id='displayItem-" + templateItem.id + "' data-toggle='modal' data-target='#editItemModal' " +
+                        "                data-templateitemid='" + templateItem.id + "' data-templateid='" + template.id + "' data-templatename='" + template.name + "' data-action='change'>" +
+                        (templateItem.fixedValue == true ?
+                            "          {name:" + templateItem.name + ",sequence:" + templateItem.sequence + ",length:" + templateItem.length + ",fixed value: true} "
+                            :
+                            "          {name:" + templateItem.name + ",sequence:" + templateItem.sequence + ",length:" + templateItem.length + ",type:" + templateItem.locationNameTemplateItemType + ",range_type:" + templateItem.locationNameTemplateItemRangeType + "}"
+                        ) +
+                        "          </span>" +
+                        "          <i class='fa fa-close removeTemplateItem' style='color:red' id='removeItem-" + templateItem.id + "' data-templateitemid='" + templateItem.id + "' onclick='removeTemplateItem(event)'></i>" +
+                        "      </button> " +
+                        "   </td> ";
+                    }
+                    else {
+                        // We have less items than the maximum
+                        // let's mark up the empty columns
+                        htmlData +=
+                        "   <td>" +
+                        "   </td> ";
+
+                    }
+                }
+                htmlData +=
+                    "   <td>" +
+                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-action='change' data-templateid='" + template.id + "'>Edit</button>" +
+                    "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#editItemModal' text='New Item' data-action='new' data-templateid='" + template.id + "'>New Item</button>" +
+                    "   </td>" +
+                    "</tr>";
+                var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+                table.rows.add(html).draw();
+            });
+        }
+    }
+
+    // Show the edit modal when the user press
+    // 1. Edit button to modify an existing template
+    // or
+    // 2. New button to create a new template
+    $('#editModal').on('show.bs.modal', function (event) {
+      clearEditModal();
+      var button = $(event.relatedTarget);
+      var action = button.data('action');
+      if (action == 'change') {
+          var templateID = button.data('templateid');
+          var url = '/ws/layout/location/nametemplate/query/'+templateID;
+          $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var template = res.data
+                      $('#editModalTemplateID').val(template.id);
+                      $('#editModalTemplateName').val(template.name);
+                      setEnableOfEditModal(true);
+
+                  }
+                  else
+                  {
+                      $('#editModalErrorMessage').text(res.status + " : " + res.message);
+                      setEnableOfEditModal(false);
+
+                  }
+              });
+      }
+      else if (action == 'new') {
+          setEnableOfEditModal(true);
+      }
+
+    })
+
+    var setEnableOfEditModal = function(enabled) {
+        // Always disable the Template id
+        $('#editModalTemplateID').prop("disabled", true);
+
+        $('#editModalTemplateName').prop("disabled", !enabled);
+        $('#templateEditSave').prop("disabled", !enabled);
+    }
+
+
+    var clearEditModal = function() {
+        $('#editModalTemplateID').val('');
+        $('#editModalTemplateName').val('');
+        $('#editItemModalErrorMessage').text('');
+    }
+
+    $('#templateEditSave').click(function(){
+        var templateID = $('#editModalTemplateID').val();
+        var url = "/ws/layout/location/nametemplate";
+        // action to log if we are creating a new area
+        // or editing a existing area
+        var actionCode = "new";
+        if (templateID == '') {
+            // template id textbox is empty, let's add
+            // the template
+            url += "/new";
+        }
+        else {
+            // template id textbox is not empty, let's change
+            // the template
+            url += "/edit";
+            actionCode = "edit";
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            actionCode : actionCode,
+            data:{
+                 templateID: templateID,
+                 name: $('#editModalTemplateName').val()
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                if (actionCode == "new") {
+                    // wrap the new area with an array type
+                    // as the display table(renderTable) function
+                    // can only process array, even there's only one
+                    // element in the array
+                    var templateList = [];
+                    var template = res.data;
+                    templateList.push(template);
+                    // if we just create an new area, let's just
+                    // display this new area in the display table
+                    renderTable("locationNameTemplateTable", templateList, res.customFields);
+                }
+                else {
+                    // We just changed a existing area,
+                    // Let's refresh the correspondent record with the right name
+                    var templateID = res.data.id;
+
+                    $('#templateName-' + templateID).text(res.data.name);
+                }
+
+                $('#editModalErrorMessage').text('');
+
+                $('#editModal').modal('toggle');
+            }
+            else{
+                $('#editModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+
+    var removeTemplateItem = function(event) {
+        var control = $(event.target);
+        var templateItemID = control.data("templateitemid");
+        console.log("templateItemID: " + templateItemID);
+        var url = "/ws/layout/location/nametemplate/item/delete";
+        $.ajax({
+            method:"POST",
+            url : url,
+            data:{
+                 templateItemID: templateItemID
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                refreshTemplateDisplay(res.data)
+            }
+
+        });
+
+    }
+
+    // Show the edit modal when the user press
+    // 1. Edit button to modify an existing template
+    // or
+    // 2. New button to create a new template
+    $('#editItemModal').on('show.bs.modal', function (event) {
+      clearEditItemModal();
+      var control = $(event.relatedTarget);
+
+      var templateID = control.data('templateid');
+      var templateName = control.data('templatename');
+      $('#editItemModalTemplateID').val(templateID);
+      $('#editItemModalTemplateName').val(templateName);
+
+      var templateItemID = control.data('templateitemid');
+      var action = control.data('action');
+
+      if (action == 'change') {
+          var url = '/ws/layout/location/nametemplate/item/query/'+templateItemID;
+          $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var templateItem = res.data
+                      $('#editItemModalTemplateItemID').val(templateItem.id);
+                      $('#editItemModalTemplateItemName').val(templateItem.name);
+                      $('#editItemModalTemplateItemValueFixed').prop('checked',templateItem.fixedValue);
+                      $('#editItemModalTemplateItemSequence').val(templateItem.sequence);
+                      $('#editItemModalTemplateItemLength').val(templateItem.length);
+                      $('#editItemModalTemplateItemType').val(templateItem.locationNameTemplateItemType);
+                      $('#editItemModalTemplateItemRangeType').val(templateItem.locationNameTemplateItemRangeType);
+                      setEnableOfEditItemModal(true);
+
+                  }
+                  else
+                  {
+                      $('#editItemModalErrorMessage').text(res.status + " : " + res.message);
+                      setEnableOfEditItemModal(false);
+
+                  }
+              });
+      }
+      else if (action == 'new') {
+          setEnableOfEditItemModal(true);
+      }
+
+    })
+
+    var setEnableOfEditItemModal = function(enabled) {
+        // Always disable the Template id / name and the item id
+        $('#editItemModalTemplateID').prop("disabled", true);
+        $('#editItemModalTemplateName').prop("disabled", true);
+
+        $('#editItemModalTemplateItemID').prop("disabled", true);
+
+        $('#editItemModalTemplateItemName').prop("disabled", !enabled);
+        $('#editItemModalTemplateItemValueFixed').prop("disabled", !enabled);
+        $('#editItemModalTemplateItemSequence').prop("disabled", !enabled);
+        $('#editItemModalTemplateItemLength').prop("disabled", !enabled);
+        $('#editItemModalTemplateItemType').prop("disabled", !enabled);
+        $('#editItemModalTemplateItemRangeType').prop("disabled", !enabled);
+    }
+
+
+    var clearEditItemModal = function() {
+
+        $('#editItemModalTemplateID').val('');
+        $('#editItemModalTemplateName').val('');
+
+        $('#editItemModalTemplateID').val('');
+
+        $('#editItemModalTemplateName').val('');
+        $('#editItemModalTemplateItemID').val('');
+        $('#editItemModalTemplateItemName').val('');
+        $('#editItemModalTemplateItemValueFixed').val('');
+        $('#editItemModalTemplateItemSequence').val('');
+        $('#editItemModalTemplateItemLength').val('');
+        $('#editItemModalTemplateItemType').val('');
+        $('#editItemModalTemplateItemRangeType').val('');
+        $('#editItemModalErrorMessage').text('');
+    }
+
+    $('#templateItemEditSave').click(function(){
+            var templateID = $('#editItemModalTemplateID').val();
+            var templateItemID = $('#editItemModalTemplateItemID').val();
+            var url = "/ws/layout/location/nametemplate/item";
+
+            // action to log if we are creating a new template
+            // or editing a existing template
+            var actionCode = "new";
+            if (templateItemID == '') {
+                // template item id textbox is empty, let's add
+                // the template item
+                url += "/new";
+            }
+            else {
+                // template item id textbox is not empty, let's change
+                // the template item
+                url += "/edit";
+                actionCode = "edit";
+            }
+            $.ajax({
+                method:"POST",
+                url : url,
+                actionCode : actionCode,
+                templateID : templateID,
+                data:{
+                     templateID : templateID,
+                     templateItemID: templateItemID,
+                     name: $('#editItemModalTemplateItemName').val(),
+                     fixedValue: $('#editItemModalTemplateItemValueFixed').prop('checked'),
+                     sequence: $('#editItemModalTemplateItemSequence').val(),
+                     length: $('#editItemModalTemplateItemLength').val(),
+                     type: $('#editItemModalTemplateItemType').val(),
+                     rangeType: $('#editItemModalTemplateItemRangeType').val()
+                }
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    // This AJAX call will return a new location name template item
+                    // We will refresh the display table
+                    refreshTemplateDisplay(res.data)
+
+                    $('#editItemModalErrorMessage').text('');
+
+                    $('#editItemModal').modal('toggle');
+                }
+                else{
+                    $('#editItemModalErrorMessage').text(res.status + " : " + res.message);
+                }
+            });
+    })
+
+    var refreshTemplateDisplay = function(nameTemplate) {
+        // Due to the complexity of render the table based on the return
+        // we will simply submit the query form to refresh the display table
+        $("#location_name_template_query").submit();
+    }
+
+
+
+</script>
+
+</body>
+</html>

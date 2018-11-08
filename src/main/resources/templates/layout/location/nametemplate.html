@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <form method="post" th:object="${addLocationFlowModel}" enctype="multipart/form-data">
+                        <div class="card-header" >
+                            <span th:text="#{location.new}"></span>
+                            <a class="badge badge-success float-right" th:href="@{'~' + ${flowExecutionUrl} + '&_eventId_home'}" th:text="#{location.new.return}" >Return to Location Display</a>
+                        </div>
+                        <div class="card-body">
+                            Thanks for using name template to create location
+
+                            <div class="form-group">
+                                <label for="nameTemplateID" class="col-form-label" th:text="#{location.nametemplate.name}">Name:</label>
+                                <select class="form-control" id="nameTemplateID" name="nameTemplateID" data-variable="locationNameTemplate"></select>
+                            </div>
+                            <div id="templateDetails"></div>
+
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_previous" th:text="#{step.previous}">
+                                <i class="fa fa-dot-circle-o"></i> Next</button>
+                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_submit" th:text="#{step.next}">
+                                <i class="fa fa-dot-circle-o"></i> Next</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+
+<script>
+    $("#nameTemplateID").change(function(){
+        var templateID = $(this).val();
+        console.log("selected ID: " + templateID);
+        var url = '/ws/layout/location/nametemplate/query/'+templateID;
+        $.ajax({url:url})
+              .done(function(res){
+            console.log(JSON.stringify(res));
+            var template = res.data;
+            $("#templateDetails").empty();
+            htmlTitle = "<div class='row'>" +
+                        "    <div class='col-md-2'>Name</div> " +
+                        "    <div class='col-md-2'>Length</div> " +
+                        "    <div class='col-md-2'>Type</div> " +
+                        "    <div class='col-md-2'>Range Type</div> " +
+                        "    <div class='col-md-2'>Start Value</div> " +
+                        "    <div class='col-md-2'>End Value</div> " +
+                        "</div>";
+            $("#templateDetails").append(htmlTitle);
+            $.each(template.locationNameTemplateItemList, function(index, templateItem){
+                var htmlContent = "<div class='row'> " +
+                                  "<div class='form-group col-md-2'> " +
+                                  "    <input type='text' class='form-control' value='" + templateItem.name + "' id='templateItemName-" + templateItem.id + "' name='templateItemName-" + templateItem.id + "'  readonly='readonly' >" +
+                                  "</div> " +
+                                  "<div class='form-group col-md-2'> " +
+                                  "    <input type='text' class='form-control' value='" + templateItem.length + "' id='templateItemLength-" + templateItem.id + "' name='templateItemLength-" + templateItem.id + "'  readonly='readonly' >" +
+                                  "</div> " +
+                                  "<div class='form-group col-md-2'> " +
+                                  "    <input type='text' class='form-control' value='" + templateItem.locationNameTemplateItemType + "' id='templateItemType-" + templateItem.id + "' name='templateItemType-" + templateItem.id + "'  readonly='readonly' >" +
+                                  "</div> " +
+                                  "<div class='form-group col-md-2'> " +
+                                  "    <input type='text' class='form-control' value='" + templateItem.locationNameTemplateItemRangeType + "' id='templateItemRangeType-" + templateItem.id + "' name='templateItemRangeType-" + templateItem.id + "' readonly='readonly' >" +
+                                  "</div> " +
+                                  "<div class='form-group col-md-2'> " +
+                                  "    <input type='text' class='form-control' id='templateItemRangeStartValue-" + templateItem.id + "' name='templateItemRangeStartValue-" + templateItem.id + "' >" +
+                                  "</div> ";
+                if (templateItem.fixedValue==true){
+                    htmlContent += "<div class='custom-control custom-checkbox col-md-2 px-3'>" +
+                                   "    <input type='checkbox' class='custom-control-input' checked disabled> " +
+                                   "    <label class='custom-control-label' >Value Fixed</label> " +
+                                   "</div>" +
+                                   "</div>";
+                }
+                else {
+                   htmlContent += "<div class='form-group col-md-2'> " +
+                                  "    <input type='text' class='form-control' id='templateItemRangeEndValue-" + templateItem.id + "' name='templateItemRangeEndValue-" + templateItem.id + "' >" +
+                                  "</div> " +
+                                  "</div>";
+                }
+                $("#templateDetails").append(htmlContent);
+            });
+
+
+        })
+    })
+</script>
+</body>
+</html>

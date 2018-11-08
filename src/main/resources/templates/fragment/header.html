@@ -44,7 +44,36 @@
       // Bootstrap ID
       gtag('config', 'UA-118965717-5');
     </script>
-
+    <style>
+        /*
+         * adapted from http://maxwells.github.io/bootstrap-tags.html
+         * For tag with a close button(X)
+         */
+        .tag {
+          font-size: 14px;
+          padding: .3em .4em .4em;
+          margin: 0 .1em;
+        }
+        .tag a {
+          color: #bbb;
+          cursor: pointer;
+          opacity: 0.6;
+        }
+        .tag a:hover {
+          opacity: 1.0
+        }
+        .tag .remove {
+          vertical-align: bottom;
+          top: 0;
+        }
+        .tag a {
+          margin: 0 0 0 .3em;
+        }
+        .tag a .glyphicon-white {
+          color: #fff;
+          margin-bottom: 2px;
+        }
+    </style>
 </head>
 <body>
 <div>This works as a template to include the JS and CSS for all the web pages.</div>

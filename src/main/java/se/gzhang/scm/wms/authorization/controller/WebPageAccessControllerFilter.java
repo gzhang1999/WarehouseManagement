@@ -36,7 +36,7 @@ public class WebPageAccessControllerFilter implements Filter {
         this.userService = userService;
     }
 
-    private final static String[] skipAccessValidPages = {"/login","/home","/ws/*","/error/*","/js/*","/css/*","/img/*"};
+    private final static String[] skipAccessValidPages = {"/login","/home","/ws/*","/error/*","/js/*","/css/*","/img/*", "/flow*"};
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
@@ -64,12 +64,14 @@ public class WebPageAccessControllerFilter implements Filter {
 
     private boolean skipAccessValid(String url) {
         for(String skipPageURL : skipAccessValidPages) {
+            // System.out.println("Testing URL: " + url);
 
             if (skipPageURL.equals(url)) {
                 return true;
             }
-            else if (skipPageURL.endsWith("/*")) {
+            else if (skipPageURL.endsWith("*")) {
                 String skippedUrl = skipPageURL.substring(0, skipPageURL.lastIndexOf("*"));
+                // System.out.println(">> skippedUrl: " + skippedUrl + "\n>> url.startsWith(skippedUrl) " + url.startsWith(skippedUrl));
                 if (url.startsWith(skippedUrl)) {
                     return true;
                 }

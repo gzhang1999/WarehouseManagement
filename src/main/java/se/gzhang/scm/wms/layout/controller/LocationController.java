@@ -20,11 +20,13 @@ package se.gzhang.scm.wms.layout.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import se.gzhang.scm.wms.common.model.Velocity;
+import se.gzhang.scm.wms.common.service.VelocityService;
+import se.gzhang.scm.wms.layout.model.Area;
+import se.gzhang.scm.wms.layout.model.AreaSerializer;
+import se.gzhang.scm.wms.layout.model.Building;
 import se.gzhang.scm.wms.layout.model.Location;
 import se.gzhang.scm.wms.layout.service.AreaService;
 import se.gzhang.scm.wms.layout.service.BuildingService;
@@ -42,6 +44,12 @@ public class LocationController {
 
     @Autowired
     LocationService locationService;
+    @Autowired
+    BuildingService buildingService;
+    @Autowired
+    AreaService areaService;
+    @Autowired
+    VelocityService velocityService;
 
 
     @RequestMapping(value="/layout/location", method = RequestMethod.GET)
@@ -63,6 +71,95 @@ public class LocationController {
 
         List<Location> locationList = locationService.findLocation(parameters);
         return new WebServiceResponseWrapper<List<Location>>(0, "", locationList);
+    }
+    @ResponseBody
+    @RequestMapping(value="/ws/layout/location/query/{id}")
+    public WebServiceResponseWrapper getLocation(@PathVariable("id") int locationID) {
+
+        Location location = locationService.findByLocationId(locationID);
+        if (location == null) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't find the location by id: " + locationID);
+        }
+        return new WebServiceResponseWrapper<Location>(0, "", location);
+    }
+
+    @ResponseBody
+    @RequestMapping(value="/ws/layout/location/edit")
+    public WebServiceResponseWrapper changeLocation(@RequestParam("locationID") int locationID,
+                                                    @RequestParam("name") String name,
+                                                    @RequestParam("buildingID") int buildingID,
+                                                    @RequestParam("areaID") int areaID,
+                                                    @RequestParam("aisleID") String aisleID,
+                                                    @RequestParam("length") double length,
+                                                    @RequestParam("width") double width,
+                                                    @RequestParam("height") double height,
+                                                    @RequestParam("volume") double volume,
+                                                    @RequestParam("pickable") boolean pickable,
+                                                    @RequestParam("storable") boolean storable,
+                                                    @RequestParam("usable") boolean usable,
+                                                    @RequestParam("velocity") int velocityID,
+                                                    @RequestParam("coordinateX") double coordinateX,
+                                                    @RequestParam("coordinateY") double coordinateY,
+                                                    @RequestParam("coordinateZ") double coordinateZ) {
+
+        System.out.println("change location parameters: \n" +
+               ">>  " + "locationID: " + locationID + "\n" +
+                ">>  " + "name: " + name + "\n" +
+                ">>  " + "buildingID: " + buildingID + "\n" +
+                ">>  " + "areaID: " + areaID + "\n" +
+                ">>  " + "aisleID: " + aisleID + "\n" +
+                ">>  " + "length: " + length + "\n" +
+                ">>  " + "width: " + width + "\n" +
+                ">>  " + "height: " + height + "\n" +
+                ">>  " + "volume: " + volume + "\n" +
+                ">>  " + "pickable: " + pickable + "\n" +
+                ">>  " + "storable: " + storable + "\n" +
+                ">>  " + "usable: " + usable + "\n" +
+                ">>  " + "velocity: " + velocityID + "\n" +
+                ">>  " + "coordinateX: " + coordinateX + "\n" +
+                ">>  " + "coordinateY: " + coordinateY + "\n" +
+                ">>  " + "coordinateZ: " + coordinateZ);
+        Location location = locationService.findByLocationId(locationID);
+        if (location == null) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't find the location by id: " + locationID);
+        }
+        Building buidling = buildingService.findByBuildingID(buildingID);
+        if (buidling == null) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't find the buidling by id: " + buildingID);
+        }
+        Area area = areaService.findByAreaId(areaID);
+        if (area == null) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't find the area by id: " + areaID);
+        }
+        if (area.getBuilding() != buidling) {
+            return WebServiceResponseWrapper.raiseError(10001, "Area " + area.getName() + " is not in Building " + buidling.getName());
+
+        }
+
+        Velocity velocity = velocityService.findByVelocityId(velocityID);
+        if (velocity == null) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't find the velocity by ID: " + velocityID);
+        }
+        else {
+            location.setVelocity(velocity);
+        }
+        location.setName(name);
+        location.setArea(area);
+        location.setAisleID(aisleID);
+        location.setLength(length);
+        location.setWidth(width);
+        location.setHeight(height);
+        location.setVolume(volume);
+        location.setPickable(pickable);
+        location.setStorable(storable);
+        location.setUsable(usable);
+        location.setCoordinateX(coordinateX);
+        location.setCoordinateY(coordinateY);
+        location.setCoordinateZ(coordinateZ);
+
+        Location newLocation = locationService.save(location);
+
+        return new WebServiceResponseWrapper<Location>(0, "", newLocation);
     }
 
 }

@@ -48,6 +48,9 @@ var initQueryButtons = function() {
         });
     }
 }
+/*
+ * Javascript to init the generic query form
+ */
 
 var initQueryForm = function(formID) {
     $("#" + formID).each(function() {
@@ -92,6 +95,9 @@ var initQueryForm = function(formID) {
        });
     });
 }
+/*
+ * Javascript to initialize the DataTable
+ */
 
 var initDataTable = function() {
 
@@ -101,12 +107,15 @@ var initDataTable = function() {
         datatables.each(function(){
             // Initiate the data table if data-init set to true
             if ($(this).data("init") == true) {
+                console.log("Data table " + $(this).prop("id") + " with scroll X: " + $(this).data("scrollx"));
                 if ($(this).data("custominit") == true) {
                     customInitDataTable($(this).prop("id"));
                 }
                 else if ($(this).data("scrollx") == true) {
+                    console.log("Init data table " + $(this).prop("id") + " with scroll X");
                     $(this).DataTable({
-                        "scrollX": true
+                        "scrollX": true,
+                        fixedHeader: true
                     });
                 }
                 else {
@@ -116,6 +125,10 @@ var initDataTable = function() {
         });
     };
 }
+/*
+ * Javascript to initial a tri-state checkbox
+ */
+
 var initCheckBox = function () {
     var triStateCheckbox = $('[data-cbtype="tri-state"]');
 
@@ -156,9 +169,136 @@ var initCheckBox = function () {
         });
     };
 }
+
+/*
+ * Javascript to load content of a dropdown list
+ */
+
+var dropdownListCache = {
+    data: {},
+    remove: function (url) {
+                delete dropdownListCache.data[url];
+    },
+    exist: function (url) {
+               return dropdownListCache.data.hasOwnProperty(url) && dropdownListCache.data[url] !== null;
+    },
+    get: function (url) {
+             return dropdownListCache.data[url];
+    },
+    set: function (url, cachedData, callback) {
+              dropdownListCache.remove(url);
+              dropdownListCache.data[url] = cachedData;
+              if ($.isFunction(callback)) callback(cachedData);
+    }
+};
+
+var loadDropdownList = function() {
+    $('select').each(function(){
+        var variable = $(this).data("variable");
+        console.log("init dropdown list: " + variable);
+        if (variable != undefined && variable != "") {
+            var url = '/ws/control/dropdown/' + variable;
+            $.ajax({
+                url:url,
+                beforeSend: function() {
+                    if (dropdownListCache.exist(url)) {
+                        var data = dropdownListCache.get(url);
+                        renderSelection(data.variable, data);
+                        dropdownListCache.set(url, data);
+                        return false;
+                    }
+                    return true;
+                }
+             })
+             .done(function( res ) {
+                 console.log("init dropdown list: " + res.data.variable);
+                 console.log(">> return : " + JSON.stringify(res.data));
+                 renderSelection(res.data.variable, res.data);
+             });
+         }
+    });
+}
+
+var renderSelection = function(variable, data) {
+
+    var selectionControls = $('select[data-variable="' + variable + '"]');
+    if(selectionControls.length != 0) {
+        selectionControls.each(function(){
+            var selectionControl = $(this);
+
+            // Remove all the options before we start to fill in new options
+            selectionControl.empty();
+            if(data.allowBlankRowFlag) {
+                selectionControl.append('<option value=""></option>');
+            }
+            $.each(data.dropdownOptions, function(i, option){
+                selectionControl.append('<option value="' + option.value + '">' + option.text + '</option>');
+            });
+        })
+    }
+}
+
+/*
+ * Javascript to initialize the validation on the input textbox
+ * validation type
+ * 1. Required / Required
+ * 2. Email
+ * 3. Password
+ * 4. Integer Only
+ * 5. Number Only / Number
+ * 6. Max Length
+ */
+var initValidation = function() {
+
+    var inputForValidation = $("input[data-validation]").filter(function () {
+        return $.trim($(this).data("validation")) != '';
+    });
+
+    if(inputForValidation.length != 0) {
+        inputForValidation.each(function(){
+            var inputControl = $(this);
+            console.log(" Start to add validation function for: " + inputControl.prop("id"));
+            inputControl.change(function(){
+                var textValue = $(this).val();
+                var validationMethod = inputControl.data("validation");
+                console.log(" validate : " + inputControl.prop("id") + " with value: " + textValue + " / method: " + validationMethod);
+                var valid = true;
+                var message = "";
+                switch(validationMethod) {
+                    case "Number":
+                        if (textValue != "" && !$.isNumeric(textValue)) {
+                            valid = false;
+                            message = "Number only"
+                        }
+                    break;
+                    case "Integer":
+                        if (textValue != "" && (!$.isNumeric(textValue) || Math.floor(textValue) != textValue)) {
+                            valid = false;
+                            message = "Integer only"
+                        }
+                    break;
+                }
+                // If the div for the error message exists, remove it
+                if ($("error_" + $(this).prop("id")).length > 0) {
+                    $("error_" + $(this).prop("id")).remove();
+                }
+                if (!valid) {
+                    // Add warning message to the below of the control
+                    $(this).after("<div class='has-error row' id='error_" + $(this).prop("id") + "'>" + message + "</div>");
+                }
+
+            })
+        });
+    }
+
+}
+
 $(document).ready( function () {
     initQueryButtons();
     initDataTable();
     // Init checkbox to be tri-state checkbox
     initCheckBox();
+    loadDropdownList();
+
+    initValidation();
 });

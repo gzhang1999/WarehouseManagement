@@ -95,4 +95,11 @@ public class LocationService {
         });
 
     }
+
+    public Location save(Location location) {
+
+        Location newLocation = locationRepository.save(location);
+        locationRepository.flush();
+        return newLocation;
+    }
 }

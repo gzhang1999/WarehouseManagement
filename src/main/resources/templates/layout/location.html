@@ -38,7 +38,7 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{location.new}" >New Location</a>
+                        <a class="badge badge-success float-right" th:text="#{location.new}" th:href="@{/flowAddLocation}">New Location</a>
                     </div>
                     <div class="card-body">
                         <form class="form-inline" id="location_query" data-display="locationTable" th:action="@{/ws/layout/location/list}">
@@ -48,7 +48,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="queryAreaID" class="col-form-label" th:text="#{area}">Area:</label>
-                                <select class="form-control  mx-sm-4" id="queryAreaID" name="id" data-variable="area"></select>
+                                <select class="form-control  mx-sm-4" id="queryAreaID" name="areaID" data-variable="area"></select>
                             </div>
                             <div class="form-group">
                                 <label for="queryLocationName" class="col-form-label" th:text="#{location.name}">Name:</label>
@@ -88,7 +88,7 @@
                         <!-- Grid Display -->
                         <div class="row">
                             <div class="col-md-12">
-                                <table id = "locationTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
+                                <table id = "locationTable" class="table table-striped table-bordered display nowrap" style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
                                     <thead>
                                         <tr>
                                             <td th:text="#{location.name}">Location Name</td>
@@ -116,14 +116,20 @@
                                             <td th:text="${location.name}" th:id="'locationName-' + ${location.id}"></td>
                                             <td th:text="${location.area.building.name}" th:id="'buildingName-' + ${location.id}"></td>
                                             <td th:text="${location.area.name}" th:id="'areaName-' + ${location.id}"></td>
-                                            <td th:text="${location.aisleID}" th:id="'aisleId-' + ${location.id}"></td>
+                                            <td th:text="${location.aisleID}" th:id="'aisleID-' + ${location.id}"></td>
                                             <td th:text="${location.length}" th:id="'length-' + ${location.id}"></td>
                                             <td th:text="${location.width}" th:id="'width-' + ${location.id}"></td>
                                             <td th:text="${location.height}" th:id="'height-' + ${location.id}"></td>
                                             <td th:text="${location.volume}" th:id="'volume-' + ${location.id}"></td>
-                                            <td th:text="${location.pickable}" th:id="'pickableFlag-' + ${location.id}"></td>
-                                            <td th:text="${location.storable}" th:id="'storableFlag-' + ${location.id}"></td>
-                                            <td th:text="${location.usable}" th:id="'usableFlag-' + ${location.id}"></td>
+                                            <td>
+                                                <input  th:id="'pickableFlag-' + ${location.id}" type="checkbox" th:checked="${location.pickable}" disabled/>
+                                            </td>
+                                            <td>
+                                                <input th:id="'storableFlag-' + ${location.id}" type="checkbox" th:checked="${location.storable}" disabled/>
+                                            </td>
+                                            <td>
+                                                <input th:id="'usableFlag-' + ${location.id}" type="checkbox" th:checked="${location.usable}" disabled/>
+                                            </td>
                                             <td th:text="${location.velocity.name}" th:id="'velocity-' + ${location.id}"></td>
                                             <td th:text="${#strings.listJoin(#messages.listMsg(location.accessibleVehicleTypes), ',')}" th:id="'accessibleVehicleType-' + ${location.id}"></td>
                                             <td th:text="${location.coordinateX}" th:id="'coordinateX-' + ${location.id}"></td>
@@ -144,6 +150,113 @@
         </div>
     </main>
 
+
+    <!-- Modal for editing existing record or add new User record-->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel" th:text="#{location.editmodel.title}">Edit Location</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-danger px-2" id="editModalErrorMessage"></div>
+                    <div class="container col-md-12">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editModalLocationID" class="col-form-label" th:text="#{location.id}">Location ID:</label>
+                                <input type="text" class="form-control" id="editModalLocationID" name="locationID" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editModalLocationname" class="col-form-label" th:text="#{location.name}">Location Name:</label>
+                                <input type="text" class="form-control" id="editModalLocationname" name="name"  data-validation="Required">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editModalBuilding" class="col-form-label" th:text="#{building}">Building Name:</label>
+                                <select class="form-control" id="editModalBuilding" name="buildingID" data-variable="building"  data-validation="Required"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editModalArea" class="col-form-label" th:text="#{area}">Area Name:</label>
+                                <select class="form-control" id="editModalArea" name="areaID" data-variable="area" data-validation="Required"></select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editModalAisle" class="col-form-label" th:text="#{location.aisle}">Aisle:</label>
+                                <input type="text" class="form-control" id="editModalAisle" name="aisleID">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editModalLength" class="col-form-label" th:text="#{location.length}">Length:</label>
+                                <input type="text" class="form-control" id="editModalLength" name="length" data-validation="Number">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editModalWidth" class="col-form-label" th:text="#{location.width}">Width:</label>
+                                <input type="text" class="form-control" id="editModalWidth" name="width" data-validation="Number">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editModalHeight" class="col-form-label" th:text="#{location.height}">Height:</label>
+                                <input type="text" class="form-control" id="editModalHeight" name="width" data-validation="Number">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editModalVolume" class="col-form-label" th:text="#{location.volume}">Volume:</label>
+                                <input type="text" class="form-control" id="editModalVolume" name="volume" data-validation="Number">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editModalVelocity" class="col-form-label" th:text="#{location.velocity}">Velocity:</label>
+                                <select class="form-control" id="editModalVelocity" name="velocity" data-variable="velocity"></select>
+                            </div>
+                        </div>
+                        <div class="row my-2 pl-4">
+                            <div class="custom-control custom-checkbox col-md-6">
+                                <input type="checkbox" class="custom-control-input"  id="editModalPickable" name="pickable">
+                                <label class="custom-control-label" for="editModalPickable" th:text="#{location.pickable}">Pickable:</label>
+                            </div>
+                            <div class="custom-control custom-checkbox col-md-6">
+                                <input type="checkbox" class="custom-control-input"  id="editModalStorable" name="storable">
+                                <label class="custom-control-label" for="editModalStorable" th:text="#{location.storable}">Storable:</label>
+                            </div>
+                        </div>
+                        <div class="row my-2 pl-4">
+                            <div class="custom-control custom-checkbox col-md-6">
+                                <input type="checkbox" class="custom-control-input"  id="editModalUsable" name="usable">
+                                <label class="custom-control-label" for="editModalUsable" th:text="#{location.usable}">Usable:</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editModalCoordinateX" class="col-form-label" th:text="#{location.coordinateX}">Coordinate X:</label>
+                                <input type="text" class="form-control" id="editModalCoordinateX" name="coordinateX">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editModalCoordinateY" class="col-form-label" th:text="#{location.coordinateY}">Coordinate Y:</label>
+                                <input type="text" class="form-control" id="editModalCoordinateY" name="coordinateY">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editModalCoordinateZ" class="col-form-label" th:text="#{location.coordinateZ}">Coordinate Z:</label>
+                                <input type="text" class="form-control" id="editModalCoordinateZ" name="coordinateZ">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="locationEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
 </div>
 <footer th:replace="fragment/footer :: app-footer"></footer>
@@ -155,6 +268,7 @@
     // It works as a stub function that after we get content from
     // query_form.js, this function will render the datatable
     var renderTable = function(tableID, data, customFields) {
+        console.log("render Table with: " + JSON.stringify(data));
 
         var table = $("#" + tableID).DataTable();
 
@@ -169,14 +283,28 @@
                     "   <td id='locationName-" +  location.id + "'>" + location.name + "</td>" +
                     "   <td id='buildingName-" +  location.id + "'>" + location.building + "</td>" +
                     "   <td id='areaName-" +  location.id + "'>" + location.area + "</td>" +
-                    "   <td id='aisleId-" +  location.id + "'>" + location.aisleId + "</td>" +
+                    "   <td id='aisleId-" +  location.id + "'>" + location.aisleID + "</td>" +
                     "   <td id='length-" +  location.id + "'>" + location.length + "</td>" +
                     "   <td id='width-" +  location.id + "'>" + location.width + "</td>" +
                     "   <td id='height-" +  location.id + "'>" + location.height + "</td>" +
                     "   <td id='volume-" +  location.id + "'>" + location.volume + "</td>" +
-                    "   <td id='pickableFlag-" +  location.id + "'>" + location.pickable + "</td>" +
-                    "   <td id='storableFlag-" +  location.id + "'>" + location.storable + "</td>" +
-                    "   <td id='usableFlag-" +  location.id + "'>" + location.usable + "</td>" +
+                    "   <td>" +
+                        (location.pickable ?
+                                 "<input id='pickableFlag-" +  location.id + "' type='checkbox' checked disabled /> " :
+                                 "<input id='pickableFlag-" +  location.id + "' type='checkbox' disabled /> " ) +
+
+                    "   </td>" +
+                    "   <td>" +
+                        (location.storable ?
+                                 "<input id='storableFlag-" +  location.id + "' type='checkbox' checked disabled /> " :
+                                 "<input id='storableFlag-" +  location.id + "' type='checkbox' disabled /> " )  +
+                    "   </td>" +
+                    "   <td>" +
+                        (location.usable ?
+                                 "<input id='usableFlag-" +  location.id + "' type='checkbox' checked disabled /> " :
+                                 "<input id='usableFlag-" +  location.id + "' type='checkbox' disabled /> " ) +
+                    "   </td>" +
+                    "   <td id='velocity-" +  location.id + "'>" + location.velocity + "</td>" +
                     "   <td id='accessibleVehicleType-" +  location.id + "'>" + getAccessibleVehicleType(location.accessibleVehicleType) + "</td>" +
                     "   <td id='coordinateX-" +  location.id + "'>" + location.coordinateX + "</td>" +
                     "   <td id='coordinateY-" +  location.id + "'>" + location.coordinateY + "</td>" +
@@ -199,56 +327,79 @@
       clearEditModal();
       var button = $(event.relatedTarget);
       var action = button.data('action');
-      if (action == 'change') {
-          var areaID = button.data('areaid');
-          var url = '/ws/layout/area/query/'+areaID;
-          $.ajax({url:url})
-              .done(function( res ) {
-                  if (res.status == 0)
-                  {
-                      var area = res.data
-                      $('#editModalAreaID').val(area.id);
-                      $('#editModalAreaName').val(area.name);
-                      $('#editModalBuilding').val(area.buildingID);
-                      $('#editModalAreaType').val(area.areaType);
-                      $('#editModalVolumeType').val(area.volumeType);
-                      $('#editModalErrorMessage').text('');
-                      setEnableOfEditModal(true);
-
-                  }
-                  else
-                  {
-                      $('#editModalErrorMessage').text(res.status + " : " + res.message);
-                      setEnableOfEditModal(false);
-
-                  }
-              });
-      }
-      else if (action == 'new') {
-          setEnableOfEditModal(true);
-      }
-
+      var locationID = button.data('locationid');
+      var url = '/ws/layout/location/query/'+locationID;
+      $.ajax({url:url})
+          .done(function( res ) {
+              console.log("return from location modal: " + JSON.stringify(location));
+              if (res.status == 0)
+              {
+                  var location = res.data
+                  $('#editModalLocationID').val(location.id);
+                  $('#editModalLocationname').val(location.name);
+                  $('#editModalBuilding').val(location.buildingID);
+                  $('#editModalArea').val(location.areaID);
+                  $('#editModalAisle').val(location.aisleID);
+                  $('#editModalLength').val(location.length);
+                  $('#editModalWidth').val(location.width);
+                  $('#editModalHeight').val(location.height);
+                  $('#editModalVolume').val(location.volume);
+                  $('#editModalPickable').prop('checked', location.pickable);
+                  $('#editModalStorable').prop('checked', location.storable);
+                  $('#editModalUsable').prop('checked', location.usable);
+                  $('#editModalVelocity').val(location.velocityID);
+                  $('#editModalCoordinateX').val(location.coordinateX);
+                  $('#editModalCoordinateY').val(location.coordinateY);
+                  $('#editModalCoordinateZ').val(location.coordinateZ);
+                  setEnableOfEditModal(true);
+              }
+              else
+              {
+                  $('#editModalErrorMessage').text(res.status + " : " + res.message);
+                  setEnableOfEditModal(false);
+              }
+          });
     })
 
     var setEnableOfEditModal = function(enabled) {
-        // Always disable the Area id
-        $('#editModalAreaID').prop("disabled", true);
+        // Always disable the Location id
+        $('#editModalLocationID').prop("disabled", true);
 
-        $('#editModalAreaName').prop("disabled", !enabled);
+        $('#editModalLocationname').prop("disabled", !enabled);
         $('#editModalBuilding').prop("disabled", !enabled);
-        $('#editModalAreaType').prop("disabled", !enabled);
-        $('#editModalVolumeType').prop("disabled", !enabled);
-        $('#userEditSave').prop("disabled", !enabled);
+        $('#editModalArea').prop("disabled", !enabled);
+        $('#editModalAisle').prop("disabled", !enabled);
+        $('#editModalLength').prop("disabled", !enabled);
+        $('#editModalWidth').prop("disabled", !enabled);
+        $('#editModalHeight').prop("disabled", !enabled);
+        $('#editModalVolume').prop("disabled", !enabled);
+        $('#editModalPickable').prop("disabled", !enabled);
+        $('#editModalStorable').prop("disabled", !enabled);
+        $('#editModalUsable').prop("disabled", !enabled);
+        $('#editModalVelocity').prop("disabled", !enabled);
+        $('#editModalCoordinateX').prop("disabled", !enabled);
+        $('#editModalCoordinateY').prop("disabled", !enabled);
+        $('#editModalCoordinateZ').prop("disabled", !enabled);
     }
 
 
     var clearEditModal = function() {
-        $('#editModalAreaID').val('');
-        $('#editModalAreaName').val('');
+        $('#editModalLocationID').val('');
+        $('#editModalLocationname').val('');
         $('#editModalBuilding').val('');
-        $('#editModalAreaType').val('');
-        $('#editModalVolumeType').val('');
-        $('#editModalErrorMessage').text('');
+        $('#editModalArea').val('');
+        $('#editModalAisle').val('');
+        $('#editModalLength').val('');
+        $('#editModalWidth').val('');
+        $('#editModalHeight').val('');
+        $('#editModalVolume').val('');
+        $('#editModalPickable').prop('checked', false);
+        $('#editModalStorable').prop('checked', false);
+        $('#editModalUsable').prop('checked', false);
+        $('#editModalVelocity').val('');
+        $('#editModalCoordinateX').val('');
+        $('#editModalCoordinateY').val('');
+        $('#editModalCoordinateZ').val('');
     }
 
     var getAccessibleVehicleType = function(accessibleVehicleTypeArray) {
@@ -259,59 +410,54 @@
         return vehicleTypeNameArray.join(", ");
     }
 
-    $('#areaEditSave').click(function(){
-        var areaID = $('#editModalAreaID').val();
-        var url = "/ws/layout/area";
-        // action to log if we are creating a new area
-        // or editing a existing area
-        var actionCode = "new";
-        if (areaID == '') {
-            // area id textbox is empty, let's add
-            // the area
-            url += "/new";
-        }
-        else {
-            // area id textbox is not empty, let's change
-            // the area
-            url += "/edit";
-            actionCode = "edit";
-        }
+    $('#locationEditSave').click(function(){
+        var locationID = $('#editModalLocationID').val();
+        var url = "/ws/layout/location/edit";
         $.ajax({
             method:"POST",
             url : url,
-            actionCode : actionCode,
             data:{
-                 areaID: areaID,
-                 name: $('#editModalAreaName').val(),
+                 locationID: locationID,
+                 name: $('#editModalLocationname').val(),
                  buildingID: $('#editModalBuilding').val(),
-                 areaType: $('#editModalAreaType').val(),
-                 volumeType: $('#editModalVolumeType').val()
+                 areaID: $('#editModalArea').val(),
+                 aisleID: $('#editModalAisle').val(),
+                 length: $('#editModalLength').val(),
+                 width: $('#editModalWidth').val(),
+                 height: $('#editModalHeight').val(),
+                 volume: $('#editModalVolume').val(),
+                 pickable: $('#editModalPickable').prop('checked'),
+                 storable: $('#editModalStorable').prop('checked'),
+                 usable: $('#editModalUsable').prop('checked'),
+                 velocity: $('#editModalVelocity').val(),
+                 coordinateX: $('#editModalCoordinateX').val(),
+                 coordinateY: $('#editModalCoordinateY').val(),
+                 coordinateZ: $('#editModalCoordinateZ').val()
             }
         }).done(function( res ) {
             if (res.status == 0) {
-                if (actionCode == "new") {
-                    // wrap the new area with an array type
-                    // as the display table(renderTable) function
-                    // can only process array, even there's only one
-                    // element in the array
-                    var areaList = [];
-                    var area = res.data;
-                    areaList.push(area);
-                    // if we just create an new area, let's just
-                    // display this new area in the display table
-                    renderTable("areaTable", areaList, res.customFields);
-                }
-                else {
-                    // We just changed a existing area,
-                    // Let's update the existing result without affect
-                    // the other records in the display table
-                    var areaID = res.data.id;
+                // We just changed a existing area,
+                // Let's update the existing result without affect
+                // the other records in the display table
+                var locationID = res.data.id;
+                console.log("Returned from location edit after saving record: \n" + JSON.stringify(res.data));
 
-                    $('#areaName-' + areaID).text(res.data.name);
-                    $('#areaBuilding-' + areaID).text(res.data.building);
-                    $('#areaType-' + areaID).text(res.data.areaType);
-                    $('#areaVolumeType-' + areaID).text(res.data.volumeType);
-                }
+                $('#locationName-' + locationID).text(res.data.name);
+                $('#buildingName-' + locationID).text(res.data.building);
+                $('#areaName-' + locationID).text(res.data.area);
+                $('#aisleID-' + locationID).text(res.data.aisleID);
+                $('#length-' + locationID).text(res.data.length);
+                $('#width-' + locationID).text(res.data.width);
+                $('#height-' + locationID).text(res.data.height);
+                $('#volume-' + locationID).text(res.data.volume);
+                $('#pickableFlag-' + locationID).prop('checked', res.data.pickable);
+                $('#storableFlag-' + locationID).prop('checked', res.data.storable);
+                $('#usableFlag-' + locationID).prop('checked', res.data.usable);
+                $('#velocity-' + locationID).text(res.data.velocity);
+                $('#accessibleVehicleType-' + locationID).text(getAccessibleVehicleType(res.data.accessibleVehicleType));
+                $('#coordinateX-' + locationID).text(res.data.coordinateX);
+                $('#coordinateY-' + locationID).text(res.data.coordinateY);
+                $('#coordinateZ-' + locationID).text(res.data.coordinateZ);
 
                 $('#editModalErrorMessage').text('');
 

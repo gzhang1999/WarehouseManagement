@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+                          http://www.springframework.org/schema/webflow/spring-webflow.xsd">
+
+    <var name="locationNameTemplate" class="se.gzhang.scm.wms.layout.model.LocationNameTemplate" />
+    <var name="location" class="se.gzhang.scm.wms.layout.model.Location" />
+
+    <!-- returning and adding inside flow addLocationFlowModel instance -->
+    <on-start>
+        <evaluate expression="addLocationFlowHandler.init()"
+                  result="flowScope.addLocationFlowModel" />
+    </on-start>
+
+    <!--  Flow Steps  -->
+    <!-- Step 1: Choose whether add a single location or multiple locations by naming template  -->
+    <!-- Step 2: If by naming template, choose naming template and fill in the naming items  -->
+    <!-- Step 3: Fill in the location details  -->
+    <!-- Step 4: Confirm to create locations  -->
+    <!-- Step 5: Display the result (End) -->
+
+    <!-- Step 1: Choose whether add a single location or multiple locations by naming template  -->
+    <view-state id="singleOrTemplate" view="layout/location/new" model="flowScope.addLocationFlowModel">
+        <transition on="locationOption" to="validateOption" />
+    </view-state>
+
+    <!-- Step 1.5: flow based on the option -->
+    <decision-state id="validateOption">
+        <if test="flowScope.addLocationFlowModel.useLocationNameTemplateFlag"
+            then="useNameTemplate"
+            else="singleLocation" />
+    </decision-state>
+
+    <view-state id="useNameTemplate" view="layout/location/nametemplate" model="flowScope.addLocationFlowModel">
+        <transition on="submit"  to="saveNameTemplate" />
+        <transition on="previous"  to="singleOrTemplate" />
+    </view-state>
+    <action-state id="saveNameTemplate">
+        <evaluate expression="addLocationFlowHandler.setupNameTemplate(flowScope.addLocationFlowModel, requestParameters)" />
+        <transition to="locationInfo" />
+    </action-state>
+    <view-state id="singleLocation" view="layout/location/locationinfo" model="location">
+        <transition on="submit" to="success" />
+        <transition on="previous"  to="singleOrTemplate" />
+    </view-state>
+    <view-state id="locationInfo" view="layout/location/locationinfo" model="location">
+        <transition on="submit" to="success" />
+        <transition on="previous"  to="singleOrTemplate" />
+    </view-state>
+
+    <!-- end state -->
+    <end-state id="success" view="externalRedirect:contextRelative:/layout/location" />
+    <end-state id="home" view="externalRedirect:contextRelative:/layout/location" />
+
+    <!-- Global Transition -->
+    <global-transitions>
+        <transition on="home" to="home" validate="false" />
+    </global-transitions>
+
+</flow>

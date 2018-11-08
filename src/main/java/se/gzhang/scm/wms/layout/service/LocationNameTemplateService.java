@@ -21,40 +21,33 @@ package se.gzhang.scm.wms.layout.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import se.gzhang.scm.wms.layout.model.Area;
-import se.gzhang.scm.wms.layout.model.Building;
-import se.gzhang.scm.wms.layout.repository.AreaRepository;
+import se.gzhang.scm.wms.layout.model.LocationNameTemplate;
+import se.gzhang.scm.wms.layout.repository.LocationNameTemplateRepository;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@Service("areaService")
-public class AreaService {
+@Service("locationNameTemplateService")
+public class LocationNameTemplateService {
     @Autowired
-    private AreaRepository areaRepository;
+    LocationNameTemplateRepository locationNameTemplateRepository;
 
-    public Area findByAreaId(int id) {
-        return areaRepository.findById(id);
+    public LocationNameTemplate findByLocationNameTemplateID(int id) {
+        return locationNameTemplateRepository.findById(id);
     }
 
-    public List<Area> findAll() {
-
-        return areaRepository.findAll();
+    public List<LocationNameTemplate> findAll() {
+        return locationNameTemplateRepository.findAll();
     }
 
 
-    public List<Area> findArea(Map<String, String> criteriaList) {
-        return areaRepository.findAll(new Specification<Area>() {
+    public List<LocationNameTemplate> findLocationNameTemplate(Map<String, String> criteriaList) {
+        return locationNameTemplateRepository.findAll(new Specification<LocationNameTemplate>() {
             @Override
-            public Predicate toPredicate(Root<Area> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+            public Predicate toPredicate(Root<LocationNameTemplate> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> predicates = new ArrayList<Predicate>();
-                if(criteriaList.containsKey("buildingID") && !criteriaList.get("buildingID").isEmpty()) {
-                    Join<Area, Building> joinBuilding = root.join("building",JoinType.INNER);
-
-                    predicates.add(criteriaBuilder.equal(joinBuilding.get("id"), criteriaList.get("buildingID")));
-                }
 
                 if(criteriaList.containsKey("id") && !criteriaList.get("id").isEmpty()) {
                     predicates.add(criteriaBuilder.equal(root.get("id"), criteriaList.get("id")));
@@ -68,9 +61,9 @@ public class AreaService {
 
     }
 
-    public Area save(Area area) {
-        Area newArea = areaRepository.save(area);
-        areaRepository.flush();
-        return newArea;
+    public LocationNameTemplate save(LocationNameTemplate locationNameTemplate) {
+        LocationNameTemplate newTemplate = locationNameTemplateRepository.save(locationNameTemplate);
+        locationNameTemplateRepository.flush();
+        return newTemplate;
     }
 }

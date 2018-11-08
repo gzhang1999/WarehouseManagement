@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+
+                <div class="card">
+                    <form method="post" th:object="${addLocationFlowModel}" enctype="multipart/form-data">
+                        <div class="card-header" >
+                            <span th:text="#{location.new}"></span>
+                            <a class="badge badge-success float-right" th:href="@{'~' + ${flowExecutionUrl} + '&_eventId_home'}" th:text="#{location.new.return}" >Return to Location Display</a>
+                        </div>
+                        <div class="card-body">
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" th:field="*{useLocationNameTemplateFlag}" class="custom-control-input" id="singleLocationOption" name="locationOption" value="false">
+                                    <label class="custom-control-label" for="singleLocationOption" th:text="#{location.new.option.singleLocation}">Single Location</label>
+                                </div>
+
+                                <!-- Default checked -->
+                                <div class="custom-control custom-radio">
+                                    <input type="radio" th:field="*{useLocationNameTemplateFlag}" class="custom-control-input" id="nameTemplateOption" name="locationOption" checked value="true">
+                                    <label class="custom-control-label" for="nameTemplateOption" th:text="#{location.new.option.nameTemplate}">Use Name Template</label>
+                                </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_locationOption" th:text="#{next}">
+                                <i class="fa fa-dot-circle-o"></i> Next</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+</body>
+</html>

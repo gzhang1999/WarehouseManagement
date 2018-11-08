@@ -18,16 +18,13 @@
 
 package se.gzhang.scm.wms;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import se.gzhang.scm.wms.authorization.service.UserService;
 import se.gzhang.scm.wms.layout.model.Warehouse;
 import se.gzhang.scm.wms.layout.service.WarehouseService;
-import se.gzhang.scm.wms.menu.service.MenuService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

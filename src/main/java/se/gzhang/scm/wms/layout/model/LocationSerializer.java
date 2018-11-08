@@ -44,9 +44,11 @@ public class LocationSerializer extends StdSerializer<Location> {
         jgen.writeStartObject();
         jgen.writeNumberField("id", location.getId());
         jgen.writeStringField("name", location.getName());
-        jgen.writeStringField("areaName", location.getArea().getName());
+        jgen.writeStringField("area", location.getArea().getName());
         jgen.writeNumberField("areaID", location.getArea().getId());
-        jgen.writeStringField("aisleId", location.getAisleID());
+        jgen.writeStringField("building", location.getArea().getName());
+        jgen.writeNumberField("buildingID", location.getArea().getId());
+        jgen.writeStringField("aisleID", location.getAisleID());
 
         jgen.writeBooleanField("pickable", location.isPickable());
         jgen.writeBooleanField("storable", location.isStorable());
@@ -58,6 +60,7 @@ public class LocationSerializer extends StdSerializer<Location> {
         jgen.writeNumberField("volume", location.getVolume());
 
         jgen.writeStringField("velocity", location.getVelocity().getName());
+        jgen.writeNumberField("velocityID", location.getVelocity().getId());
 
         // write array for pickable uom
         jgen.writeFieldName("vehicleTypes");
