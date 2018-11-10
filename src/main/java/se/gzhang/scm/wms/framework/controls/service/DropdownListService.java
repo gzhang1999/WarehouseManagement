@@ -48,11 +48,8 @@ public class DropdownListService {
                 && !dropdownList.getCommand().equals("")) {
             // Let's execute the SQL and construct another list of dropdown options
             dropdownList.setDropdownOptions(getDropdownOptionsFromSQL(dropdownList));
-
         }
         return dropdownList;
-
-
     }
 
     private List<DropdownOption> getDropdownOptionsFromSQL(DropdownList dropdownList) {

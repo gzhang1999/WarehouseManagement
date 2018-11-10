@@ -107,12 +107,10 @@ var initDataTable = function() {
         datatables.each(function(){
             // Initiate the data table if data-init set to true
             if ($(this).data("init") == true) {
-                console.log("Data table " + $(this).prop("id") + " with scroll X: " + $(this).data("scrollx"));
                 if ($(this).data("custominit") == true) {
                     customInitDataTable($(this).prop("id"));
                 }
                 else if ($(this).data("scrollx") == true) {
-                    console.log("Init data table " + $(this).prop("id") + " with scroll X");
                     $(this).DataTable({
                         "scrollX": true,
                         fixedHeader: true
@@ -195,28 +193,53 @@ var dropdownListCache = {
 var loadDropdownList = function() {
     $('select').each(function(){
         var variable = $(this).data("variable");
-        console.log("init dropdown list: " + variable);
         if (variable != undefined && variable != "") {
-            var url = '/ws/control/dropdown/' + variable;
-            $.ajax({
-                url:url,
-                beforeSend: function() {
-                    if (dropdownListCache.exist(url)) {
-                        var data = dropdownListCache.get(url);
-                        renderSelection(data.variable, data);
-                        dropdownListCache.set(url, data);
-                        return false;
-                    }
-                    return true;
+            // Call AJAX to load the content of the dropdown list
+            // from webservice or cache
+            loadDropdownListContent(variable)
+
+            // Register a keydown action so when the user press F5,
+            // we will clear cache and reload the content from web service
+            $(this).keydown(function(event){
+                // F5 code = 116
+                if(event.which == 116) {
+                    // We won't refresh the whole page
+                    event.preventDefault();
+                    loadDropdownListContentExcludeCache(variable);
                 }
-             })
-             .done(function( res ) {
-                 console.log("init dropdown list: " + res.data.variable);
-                 console.log(">> return : " + JSON.stringify(res.data));
-                 renderSelection(res.data.variable, res.data);
-             });
+
+            })
          }
     });
+}
+
+var loadDropdownListContentExcludeCache = function(variable) {
+    var url = '/ws/control/dropdown/' + variable + "?cache=false";
+    $.ajax({
+        url:url
+    }).done(function( res ) {
+        renderSelection(res.data.variable, res.data);
+        dropdownListCache.set(url, res.data);
+    });
+
+}
+var loadDropdownListContent = function(variable) {
+    var url = '/ws/control/dropdown/' + variable;
+    $.ajax({
+        url:url,
+        beforeSend: function() {
+            if (dropdownListCache.exist(url)) {
+                var data = dropdownListCache.get(url);
+                renderSelection(data.variable, data);
+                return false;
+            }
+            return true;
+        }
+    }).done(function( res ) {
+        renderSelection(res.data.variable, res.data);
+        dropdownListCache.set(url, res.data);
+    });
+
 }
 
 var renderSelection = function(variable, data) {
@@ -257,11 +280,9 @@ var initValidation = function() {
     if(inputForValidation.length != 0) {
         inputForValidation.each(function(){
             var inputControl = $(this);
-            console.log(" Start to add validation function for: " + inputControl.prop("id"));
             inputControl.change(function(){
                 var textValue = $(this).val();
                 var validationMethod = inputControl.data("validation");
-                console.log(" validate : " + inputControl.prop("id") + " with value: " + textValue + " / method: " + validationMethod);
                 var valid = true;
                 var message = "";
                 switch(validationMethod) {

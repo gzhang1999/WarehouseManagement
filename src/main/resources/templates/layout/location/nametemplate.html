@@ -70,11 +70,9 @@
 <script>
     $("#nameTemplateID").change(function(){
         var templateID = $(this).val();
-        console.log("selected ID: " + templateID);
         var url = '/ws/layout/location/nametemplate/query/'+templateID;
         $.ajax({url:url})
               .done(function(res){
-            console.log(JSON.stringify(res));
             var template = res.data;
             $("#templateDetails").empty();
             htmlTitle = "<div class='row'>" +
@@ -106,7 +104,7 @@
                 if (templateItem.fixedValue==true){
                     htmlContent += "<div class='custom-control custom-checkbox col-md-2 px-3'>" +
                                    "    <input type='checkbox' class='custom-control-input' checked disabled> " +
-                                   "    <label class='custom-control-label' >Value Fixed</label> " +
+                                   "    <label class='custom-control-label mx-3' >Value Fixed</label> " +
                                    "</div>" +
                                    "</div>";
                 }

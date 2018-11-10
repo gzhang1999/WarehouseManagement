@@ -5,7 +5,6 @@
                           http://www.springframework.org/schema/webflow/spring-webflow.xsd">
 
     <var name="locationNameTemplate" class="se.gzhang.scm.wms.layout.model.LocationNameTemplate" />
-    <var name="location" class="se.gzhang.scm.wms.layout.model.Location" />
 
     <!-- returning and adding inside flow addLocationFlowModel instance -->
     <on-start>
@@ -32,7 +31,7 @@
             else="singleLocation" />
     </decision-state>
 
-    <view-state id="useNameTemplate" view="layout/location/nametemplate" model="flowScope.addLocationFlowModel">
+    <view-state id="useNameTemplate" view="layout/location/nametemplate">
         <transition on="submit"  to="saveNameTemplate" />
         <transition on="previous"  to="singleOrTemplate" />
     </view-state>
@@ -40,13 +39,13 @@
         <evaluate expression="addLocationFlowHandler.setupNameTemplate(flowScope.addLocationFlowModel, requestParameters)" />
         <transition to="locationInfo" />
     </action-state>
-    <view-state id="singleLocation" view="layout/location/locationinfo" model="location">
+    <view-state id="singleLocation" view="layout/location/singlelocationinfo">
         <transition on="submit" to="success" />
         <transition on="previous"  to="singleOrTemplate" />
     </view-state>
-    <view-state id="locationInfo" view="layout/location/locationinfo" model="location">
+    <view-state id="locationInfo" view="layout/location/locationinfo">
         <transition on="submit" to="success" />
-        <transition on="previous"  to="singleOrTemplate" />
+        <transition on="previous"  to="useNameTemplate" />
     </view-state>
 
     <!-- end state -->

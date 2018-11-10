@@ -239,9 +239,9 @@
         }
         else {
             table.clear();
-
+            var htmlData = "" ;
             $.each(data, function(index, user){
-                var htmlData =
+                htmlData =
                     "<tr>" +
                     "   <td id='userID-" +  user.id + "'>" + user.id + "</td>" +
                     "   <td id='username-" +  user.id + "'>" + user.username + "</td>" +
@@ -261,9 +261,9 @@
                     )+
                     "   </td>" +
                     "</tr>";
-                var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
-                table.rows.add(html).draw();
             });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
         }
     }
 

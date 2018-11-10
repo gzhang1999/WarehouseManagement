@@ -40,7 +40,6 @@ public class LocationSerializer extends StdSerializer<Location> {
     public void serialize(
             Location location, JsonGenerator jgen, SerializerProvider provider)
             throws IOException, JsonProcessingException {
-
         jgen.writeStartObject();
         jgen.writeNumberField("id", location.getId());
         jgen.writeStringField("name", location.getName());
@@ -62,11 +61,18 @@ public class LocationSerializer extends StdSerializer<Location> {
         jgen.writeStringField("velocity", location.getVelocity().getName());
         jgen.writeNumberField("velocityID", location.getVelocity().getId());
 
-        // write array for pickable uom
+
         jgen.writeFieldName("vehicleTypes");
         jgen.writeStartArray();
-        for (VehicleType vehicleType: location.getAccessibleVehicleTypes()) {
-            jgen.writeString(vehicleType.getName());
+        /*****
+         * We will not write location's vehicle type here to the JSON file as
+         * this will cause lots of database query, one for each location. It will
+         * cause performance issue when we need to return lots of locations.
+         ****/
+        if (location.getAccessibleVehicleTypes() != null) {
+            for (VehicleType vehicleType : location.getAccessibleVehicleTypes()) {
+                jgen.writeString(vehicleType.getName());
+            }
         }
         jgen.writeEndArray();
 

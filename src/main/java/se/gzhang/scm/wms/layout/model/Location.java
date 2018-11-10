@@ -67,7 +67,7 @@ public class Location  implements Serializable {
     private double volume;
 
     // Velocity of the location
-    @OneToOne(cascade={CascadeType.ALL}, fetch = FetchType.EAGER)
+    @OneToOne(cascade={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name="velocity_id")
     private Velocity velocity;
 
@@ -77,8 +77,9 @@ public class Location  implements Serializable {
     // pallet jet with handheld
 
     @OneToMany(
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
+            cascade ={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST},
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
     )
     private List<VehicleType> accessibleVehicleTypes;
 

@@ -81,6 +81,18 @@ public class LocationNameTemplateController {
     }
 
     @ResponseBody
+    @RequestMapping(value="/ws/layout/location/nametemplate/delete")
+    public WebServiceResponseWrapper deleteLocationNameTemplate(@RequestParam("templateID") int templateID) {
+
+        LocationNameTemplate locationNameTemplate = locationNameTemplateService.findByLocationNameTemplateID(templateID);
+        if(locationNameTemplate == null) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't find the template by id: " + templateID);
+        }
+        locationNameTemplateService.deleteByLocationNameTemplateID(templateID);
+        return new WebServiceResponseWrapper<LocationNameTemplate>(0, "", locationNameTemplate);
+    }
+
+    @ResponseBody
     @RequestMapping(value="/ws/layout/location/nametemplate/new")
     public WebServiceResponseWrapper createTemplate(@RequestParam("name") String templateName) {
 

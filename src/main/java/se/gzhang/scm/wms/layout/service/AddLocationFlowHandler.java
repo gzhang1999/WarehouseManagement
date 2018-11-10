@@ -51,11 +51,6 @@ public class AddLocationFlowHandler {
 
     public void setupNameTemplate(AddLocationFlowModel addLocationFlowModel, LocalParameterMap parameters){
         Map<String, Object> parameterMap = parameters.asMap();
-        System.out.println("Calling setupNameTemplate with following parameters:");
-        for(Map.Entry<String, Object> entry : parameterMap.entrySet()) {
-            System.out.println("name: " + entry.getKey() + ", value: " + entry.getValue());
-        }
-
 
         int templateID = Integer.parseInt(parameterMap.get("nameTemplateID").toString());
         LocationNameTemplate locationNameTemplate = locationNameTemplateService.findByLocationNameTemplateID(templateID);
@@ -71,14 +66,6 @@ public class AddLocationFlowHandler {
             if (!locationNameTemplateItem.isFixedValue()) {
                 endValue = parameterMap.get("templateItemRangeEndValue-" + itemID).toString();
             }
-            System.out.println("Item ID: " + itemID + " ,\n" +
-                    "Name: " + locationNameTemplateItem.getName() + " ,\n" +
-                    "sequence: " + locationNameTemplateItem.getSequence() + " ,\n" +
-                    "length: " + locationNameTemplateItem.getLength() + " ,\n" +
-                    "locationNameTemplateItemType: " + locationNameTemplateItem.getLocationNameTemplateItemType() + " ,\n" +
-                    "locationNameTemplateItemRangeType: " + locationNameTemplateItem.getLocationNameTemplateItemRangeType() + " ,\n" +
-                    "startValue: " + startValue + " ,\n" +
-                    "endValue: " + endValue);
             locationNameTemplateItem.setEndValue(endValue);
         }
         addLocationFlowModel.setLocationNameTemplate(locationNameTemplate);

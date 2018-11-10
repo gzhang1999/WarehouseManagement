@@ -33,9 +33,13 @@ public class AddLocationFlowModel implements Serializable {
 
     private Location location;
 
+    public AddLocationFlowModel() {
+        useLocationNameTemplateFlag = true;
+        locationNameTemplate = new LocationNameTemplate();
+    }
+
     // Function to get valid name from location name template
     public List<String> getValidName() {
-        System.out.println("Strat to get valid name!");
         List<String> validNameList = new ArrayList<String>();
 
         List<LocationNameTemplateItem> locationNameTemplateItems = locationNameTemplate.getLocationNameTemplateItemList();
@@ -52,7 +56,6 @@ public class AddLocationFlowModel implements Serializable {
         // The third round loop will get a list of possible name from 01a001 to 10D999
         for(LocationNameTemplateItem locationNameTemplateItem : locationNameTemplateItems) {
             validNameList = getValidNameByTemplateItem(validNameList,locationNameTemplateItem);
-            System.out.println(">> after item: " + locationNameTemplateItem.getName() + ", size of the validName is " + validNameList.size());
         }
         return validNameList;
 
@@ -62,7 +65,6 @@ public class AddLocationFlowModel implements Serializable {
         List<String> validNameList = new ArrayList<>();
         // If the valid name list passed in is empty, then we simply return all the valid possible
         // value based on the name tample item
-        System.out.println("## Start to get valid name while originalValidNameList.size is " + originalValidNameList.size());
         if(originalValidNameList.size() == 0){
             int length = locationNameTemplateItem.getLength();
             if (locationNameTemplateItem.isFixedValue() == true) {
@@ -71,15 +73,12 @@ public class AddLocationFlowModel implements Serializable {
             else if (locationNameTemplateItem.getLocationNameTemplateItemType() == LocationNameTemplateItemType.DIGIT) {
                 for(int i = Integer.parseInt(locationNameTemplateItem.getStartValue()); i <= Integer.parseInt(locationNameTemplateItem.getEndValue()); i++) {
                     if (locationNameTemplateItem.getLocationNameTemplateItemRangeType() == LocationNameTemplateItemRangeType.BOTH) {
-                        System.out.print("## 1. Add DIGIT name:" + String.format("%0" + length + "d", i));
                         validNameList.add(String.format("%0" + length + "d", i));
                     }
                     else if (locationNameTemplateItem.getLocationNameTemplateItemRangeType() == LocationNameTemplateItemRangeType.ODD && i % 2 == 1){
-                        System.out.print("## 1. Add DIGIT name:" + String.format("%0" + length + "d", i));
                         validNameList.add(String.format("%0" + length + "d", i));
                     }
                     else if (locationNameTemplateItem.getLocationNameTemplateItemRangeType() == LocationNameTemplateItemRangeType.EVEN && i % 2 == 0){
-                        System.out.print("## 1. Add DIGIT name:" + String.format("%0" + length + "d", i));
                         validNameList.add(String.format("%0" + length + "d", i));
                     }
                 }
@@ -90,7 +89,6 @@ public class AddLocationFlowModel implements Serializable {
                 char endChar = locationNameTemplateItem.getEndValue().charAt(0);
                 for(char alphabet = startChar; alphabet <= endChar; alphabet++ )
                 {
-                    System.out.print("## 1. Add ALPHABET name:" + Character.toString(alphabet));
                     validNameList.add(Character.toString(alphabet));
                 }
             }
@@ -107,15 +105,12 @@ public class AddLocationFlowModel implements Serializable {
                 for(int i = Integer.parseInt(locationNameTemplateItem.getStartValue()); i <= Integer.parseInt(locationNameTemplateItem.getEndValue()); i++) {
 
                     if (locationNameTemplateItem.getLocationNameTemplateItemRangeType() == LocationNameTemplateItemRangeType.BOTH) {
-                        System.out.print("## 2. Add DIGIT name:" + String.format("%0" + length + "d", i));
                         newValidNameList.add(String.format("%0" + length + "d", i));
                     }
                     else if (locationNameTemplateItem.getLocationNameTemplateItemRangeType() == LocationNameTemplateItemRangeType.ODD && i % 2 == 1){
-                        System.out.print("## 2. Add DIGIT name:" + String.format("%0" + length + "d", i));
                         newValidNameList.add(String.format("%0" + length + "d", i));
                     }
                     else if (locationNameTemplateItem.getLocationNameTemplateItemRangeType() == LocationNameTemplateItemRangeType.EVEN && i % 2 == 0){
-                        System.out.print("## 2. Add DIGIT name:" + String.format("%0" + length + "d", i));
                         newValidNameList.add(String.format("%0" + length + "d", i));
 
                     }
@@ -127,13 +122,11 @@ public class AddLocationFlowModel implements Serializable {
                 char endChar = locationNameTemplateItem.getEndValue().charAt(0);
                 for(char alphabet = startChar; alphabet <= endChar; alphabet++ )
                 {
-                    System.out.print("## 2. Add ALPHABET name:" + Character.toString(alphabet));
                     newValidNameList.add(Character.toString(alphabet));
                 }
             }
             for(String originalValidName : originalValidNameList) {
                 for(String newValidName : newValidNameList) {
-                    System.out.print("## 2.1. Concatenate value: " + originalValidName + " & " + newValidName);
                     validNameList.add(originalValidName+newValidName);
                 }
             }

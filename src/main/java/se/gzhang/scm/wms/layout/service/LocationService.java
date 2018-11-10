@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.Building;
 import se.gzhang.scm.wms.layout.model.Location;
-import se.gzhang.scm.wms.layout.repository.AreaRepository;
 import se.gzhang.scm.wms.layout.repository.LocationRepository;
 
 import javax.persistence.criteria.*;
@@ -40,11 +39,18 @@ public class LocationService {
     public Location findByLocationId(int id) {
         return locationRepository.findById(id);
     }
+    public Location findByLocationName(String name) {
+        return locationRepository.findByName(name);
+    }
+    public void deleteByLocationId(int id) {
+        locationRepository.deleteById(id);
+    }
 
     public List<Location> findAll() {
 
         return locationRepository.findAll();
     }
+
 
 
     public List<Location> findLocation(Map<String, String> criteriaList) {
@@ -93,7 +99,6 @@ public class LocationService {
 
             }
         });
-
     }
 
     public Location save(Location location) {

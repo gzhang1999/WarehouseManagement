@@ -36,6 +36,11 @@ public class LocationNameTemplateService {
 
     public LocationNameTemplate findByLocationNameTemplateID(int id) {
         return locationNameTemplateRepository.findById(id);
+
+    }
+
+    public void deleteByLocationNameTemplateID(int id){
+        locationNameTemplateRepository.deleteById(id);
     }
 
     public List<LocationNameTemplate> findAll() {

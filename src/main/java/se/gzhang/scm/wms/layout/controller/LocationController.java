@@ -25,7 +25,6 @@ import org.springframework.web.servlet.ModelAndView;
 import se.gzhang.scm.wms.common.model.Velocity;
 import se.gzhang.scm.wms.common.service.VelocityService;
 import se.gzhang.scm.wms.layout.model.Area;
-import se.gzhang.scm.wms.layout.model.AreaSerializer;
 import se.gzhang.scm.wms.layout.model.Building;
 import se.gzhang.scm.wms.layout.model.Location;
 import se.gzhang.scm.wms.layout.service.AreaService;
@@ -56,8 +55,6 @@ public class LocationController {
     public ModelAndView listLocations() {
         ModelAndView modelAndView = new ModelAndView();
 
-        System.out.println("Find all locations: " + locationService.findAll().size());
-        modelAndView.addObject("locationList", locationService.findAll());
         modelAndView.addObject("applicationID",APPLICATION_ID);
         modelAndView.addObject("formID",FORM_ID);
 
@@ -80,6 +77,18 @@ public class LocationController {
         if (location == null) {
             return WebServiceResponseWrapper.raiseError(10000, "Can't find the location by id: " + locationID);
         }
+        return new WebServiceResponseWrapper<Location>(0, "", location);
+    }
+
+    @ResponseBody
+    @RequestMapping(value="/ws/layout/location/delete")
+    public WebServiceResponseWrapper deleteLocation(@RequestParam("locationID") int locationID) {
+
+        Location location = locationService.findByLocationId(locationID);
+        if (location == null) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't find the location by id: " + locationID);
+        }
+        locationService.deleteByLocationId(locationID);
         return new WebServiceResponseWrapper<Location>(0, "", location);
     }
 
@@ -160,6 +169,68 @@ public class LocationController {
         Location newLocation = locationService.save(location);
 
         return new WebServiceResponseWrapper<Location>(0, "", newLocation);
+    }
+    @ResponseBody
+    @RequestMapping(value="/ws/layout/location/new")
+    public WebServiceResponseWrapper createLocation(@RequestParam("name") String name,
+                                                    @RequestParam("areaID") int areaID,
+                                                    @RequestParam(value="aisleID",required=false) String aisleID,
+                                                    @RequestParam("length") double length,
+                                                    @RequestParam("width") double width,
+                                                    @RequestParam("height") double height,
+                                                    @RequestParam("volume") double volume,
+                                                    @RequestParam("pickable") boolean pickable,
+                                                    @RequestParam("storable") boolean storable,
+                                                    @RequestParam("usable") boolean usable,
+                                                    @RequestParam(value="velocity",required=false) Integer velocityID,
+                                                    @RequestParam(value="coordinateX",required=false) Double coordinateX,
+                                                    @RequestParam(value="coordinateY",required=false) Double coordinateY,
+                                                    @RequestParam(value="coordinateZ",required=false) Double coordinateZ) {
+
+        Location location = locationService.findByLocationName(name);
+        if (location != null) {
+            return WebServiceResponseWrapper.raiseError(10000, "The location " + name  + " already exists");
+        }
+        Area area = areaService.findByAreaId(areaID);
+        if (area == null) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't find the area by id: " + areaID);
+        }
+        if (aisleID == null) {
+            aisleID = "";
+        }
+
+        if (velocityID == null) {
+            velocityID = velocityService.findAll().get(0).getId();
+        }
+        if (coordinateX == null) {
+            coordinateX = 0.0;
+        }
+        if (coordinateY == null) {
+            coordinateY =  0.0;
+        }
+        if (coordinateZ == null) {
+            coordinateZ =  0.0;
+        }
+
+        location = new Location();
+        location.setName(name);
+        location.setArea(area);
+        location.setAisleID(aisleID);
+        location.setLength(length);
+        location.setWidth(width);
+        location.setHeight(height);
+        location.setVolume(volume);
+        location.setPickable(pickable);
+        location.setStorable(storable);
+        location.setUsable(usable);
+        location.setVelocity(velocityService.findByVelocityId(velocityID));
+        location.setCoordinateX(coordinateX);
+        location.setCoordinateY(coordinateY);
+        location.setCoordinateZ(coordinateZ);
+
+        locationService.save(location);
+
+        return new WebServiceResponseWrapper<Location>(0, "", locationService.findByLocationName(name));
     }
 
 }

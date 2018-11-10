@@ -88,6 +88,7 @@
                                             <td th:text="${area.volumeType}" th:id="'areaVolumeType-' + ${area.id}"></td>
                                             <td>
                                                 <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editModal" th:text="#{edit}" th:data-areaid="${area.id}" th:data-areaname="${area.name}" data-action="change" >Edit</button>
+                                                <button class="btn btn-danger" type="button" th:text="#{delete}" onclick="removeArea(event)" th:data-areaid="${area.id}" >Delete Area</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -164,8 +165,9 @@
         }
         else {
             table.clear();
+            var htmlData = "";
             $.each(data, function(index, area){
-                var htmlData =
+                htmlData =
                     "<tr>" +
                     "   <td id='areaName-" +  area.id + "'>" + area.name + "</td>" +
                     "   <td id='areaBuilding-" +  area.id + "'>" + area.building + "</td>" +
@@ -173,11 +175,12 @@
                     "   <td id='areaVolumeType-" +  area.id + "'>" + area.volumeType + "</td>" +
                     "   <td>" +
                     "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-action='change' data-areaid='" + area.id + "' data-areaname='" + area.name+ "'>Edit</button>" +
-                    "   </td>" +
+                    "       <button class='btn btn-danger' type='button' text='Delete' onclick='removeArea(event)' data-areaid='" + area.id + "'>Delete Area</button>" +
+                     "   </td>" +
                     "</tr>";
-                var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
-                table.rows.add(html).draw();
             });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
         }
     }
 
@@ -304,6 +307,31 @@
             }
         });
     })
+
+    var refreshAreaDisplay = function() {
+        $("#area_query").submit();
+    }
+
+    var removeArea = function(event) {
+        var control = $(event.target);
+        var areaID = control.data("areaid");
+        var url = "/ws/layout/area/delete";
+        $.ajax({
+                method:"POST",
+                url : url,
+                data:{
+                     areaID : areaID
+                }
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    refreshAreaDisplay();
+                }
+                else{
+                    console.log("Error when delete location name template: " + JSON.stringify(res))
+                }
+            });
+
+    }
 
 
     </script>

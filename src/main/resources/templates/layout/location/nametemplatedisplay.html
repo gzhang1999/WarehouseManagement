@@ -96,6 +96,7 @@
                                         <td>
                                             <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editModal" th:text="#{edit}" th:data-templateid="${locationNameTemplate.id}" data-action="change" >Edit</button>
                                             <button class="btn btn-warning" type="button" data-toggle="modal" data-target="#editItemModal" th:text="#{location.nametemplate.item.new}" th:data-templateid="${locationNameTemplate.id}" th:data-templatename="${locationNameTemplate.name}" data-action="new" >New Item</button>
+                                            <button class="btn btn-danger" type="button" th:text="#{delete}" onclick="removeTemplate(event)" th:data-templateid="${locationNameTemplate.id}" >Delete Template</button>
                                         </td>
                                     </tr>
                                     </tbody>
@@ -217,7 +218,6 @@
     // It works as a stub function that after we get content from
     // query_form.js, this function will render the datatable
     var renderTable = function(tableID, data, customFields) {
-        console.log("location name template render table with: \n" + JSON.stringify(data));
         var table = $("#" + tableID).DataTable();
         if (data.length == 0) {
             table.clear().draw();
@@ -268,6 +268,7 @@
                     "   <td>" +
                     "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-action='change' data-templateid='" + template.id + "'>Edit</button>" +
                     "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#editItemModal' text='New Item' data-action='new' data-templateid='" + template.id + "'>New Item</button>" +
+                    "       <button class='btn btn-danger' type='button' text='Delete' onclick='removeTemplate(event)' data-templateid='" + template.id + "'>Delete Template</button>" +
                     "   </td>" +
                     "</tr>";
                 var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
@@ -387,7 +388,6 @@
     var removeTemplateItem = function(event) {
         var control = $(event.target);
         var templateItemID = control.data("templateitemid");
-        console.log("templateItemID: " + templateItemID);
         var url = "/ws/layout/location/nametemplate/item/delete";
         $.ajax({
             method:"POST",
@@ -541,6 +541,26 @@
         $("#location_name_template_query").submit();
     }
 
+    var removeTemplate = function(event) {
+        var control = $(event.target);
+        var templateID = control.data("templateid");
+        var url = "/ws/layout/location/nametemplate/delete";
+        $.ajax({
+                method:"POST",
+                url : url,
+                data:{
+                     templateID : templateID
+                }
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    refreshTemplateDisplay(res.data)
+                }
+                else{
+                    console.log("Error when delete location name template: " + JSON.stringify(res))
+                }
+            });
+
+    }
 
 
 </script>

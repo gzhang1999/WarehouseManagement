@@ -78,6 +78,18 @@ public class AreaController {
         return new WebServiceResponseWrapper<Area>(0, "", area);
     }
 
+    @ResponseBody
+    @RequestMapping(value="/ws/layout/area/delete")
+    public WebServiceResponseWrapper deleteArea(@RequestParam("areaID") int areaID) {
+
+        Area area = areaService.findByAreaId(areaID);
+        if (area == null) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't find the area by id: " + areaID);
+        }
+        areaService.deleteAreaByAreaId(areaID);
+        return new WebServiceResponseWrapper<Area>(0, "", area);
+    }
+
 
     @ResponseBody
     @RequestMapping(value="/ws/layout/area/new")

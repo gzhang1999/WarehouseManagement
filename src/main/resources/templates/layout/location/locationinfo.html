@@ -25,7 +25,12 @@
     max-height: 750px;
     overflow-y: auto;
 }
-
+.icon-success {
+    color: #5CB85C;
+}
+.icon-error {
+    color: red;
+}
 </style>
 <div th:replace="fragment/topNav :: headerNav">
 </div>
@@ -47,10 +52,15 @@
                         <div class="card">
                             <div class="card-header">
                                 <span th:text="#{location.nametemplate.allname}"></span>
+                                 /
+                                <span th:text="${addLocationFlowModel.getValidName() == null ? 0 : #lists.size(addLocationFlowModel.getValidName())}"></span>
+                                <span class="mx-2"> locations</span>
                             </div>
                             <div class="card-body">
                                 <ul class="list-group" id="locationList">
-                                    <li th:each="name, iter : ${addLocationFlowModel.getValidName()}" th:text="${name}" th:id="${'location-name-'+iter.index}" class="list-group-item" th:data-locationname="${name}"></li>
+                                    <li th:each="name, iter : ${addLocationFlowModel.getValidName()}" th:text="${name}" th:id="${'location-name-'+iter.index}" class="list-group-item" th:data-locationname="${name}">
+
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -142,7 +152,7 @@
                                     <button type="button" class="btn btn-sm btn-primary" th:text="#{location.flow.step.create}" id="buttonCreateLocation">
                                         <i class="fa fa-dot-circle-o"></i> Create</button>
                                     <button type="submit" class="btn btn-sm btn-primary" name="_eventId_submit" th:text="#{step.complete}">
-                                        <i class="fa fa-dot-circle-o"></i> Next</button>
+                                        <i class="fa fa-dot-circle-o"></i> complete</button>
                                 </div>
                             </form>
                         </div>
@@ -162,8 +172,7 @@
     $("#buttonCreateLocation").click(function(){
         // Create location one by one
         var locationNameArray = $("#locationList li");
-        $("#buttonCreateLocation").prop("disabled", true);
-        console.log(JSON.stringify(locationNameArray));
+        disableLocationInfoControl(true);
         console.log("Totally there're " + locationNameArray.length + " locations to be created");
         var location={};
 
@@ -203,15 +212,19 @@
             }).done(function( res ) {
                 var locationNameControl = $("#location-name-" + index);
                 var locationName = locationNameControl.data("locationname");
+                console.log("index: " + index + "\n" +
+                            "locationName: " + locationName);
                 if (res.status == 0) {
 
-                    var htmlString = locationName + "<span> Success!</span>";
+                    var htmlString = locationName + "<i class='fa fa-check fa-lg mx-4 icon-success'></i>";
                     locationNameControl.html(htmlString);
                 }
                 else{
-                    var htmlString = locationName + "<span> " + res.status + " : " + res.message + "!</span>";
+                    var htmlString = locationName + "<i class='fa fa-times fa-lg mx-4 icon-error' title='Error: " + res.status + " : " + res.message + "'></i>";
                     locationNameControl.html(htmlString);
                 }
+                console.log("html content has been changed to: " + locationNameControl.html());
+
                 // create the next location
                 index++;
 
@@ -219,8 +232,27 @@
             });
         }
         else {
-            $("#buttonCreateLocation").prop("disabled", false);
+            disableLocationInfoControl(false);
         }
+    }
+    var disableLocationInfoControl = function(disabled) {
+
+        $("#buttonCreateLocation").prop("disabled", disabled);
+        $("#locationName").prop("disabled", disabled);
+        $("#areaID").prop("disabled", disabled);
+        $("#aisleID").prop("disabled", disabled);
+        $("#length").prop("disabled", disabled);
+        $("#width").prop("disabled", disabled);
+        $("#height").prop("disabled", disabled);
+        $("#volume").prop("disabled", disabled);
+        $("#pickable").prop("disabled", disabled);
+        $("#storable").prop("disabled", disabled);
+        $("#usable").prop("disabled", disabled);
+        $("#velocity").prop("disabled", disabled);
+        $("#coordinateX").prop("disabled", disabled);
+        $("#coordinateY").prop("disabled", disabled);
+        $("#coordinateZ").prop("disabled", disabled);
+
     }
 
 </script>

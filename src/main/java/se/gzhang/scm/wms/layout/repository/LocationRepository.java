@@ -30,4 +30,6 @@ public interface LocationRepository extends JpaRepository<Location, Integer>, Jp
     List<Location> findAll();
 
     Location findById(int id);
+
+    Location findByName(String name);
 }

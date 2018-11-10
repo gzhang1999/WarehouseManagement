@@ -43,6 +43,9 @@ public class AreaService {
 
         return areaRepository.findAll();
     }
+    public void deleteAreaByAreaId(int id) {
+        areaRepository.deleteById(id);
+    }
 
 
     public List<Area> findArea(Map<String, String> criteriaList) {

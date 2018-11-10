@@ -223,8 +223,9 @@
         }
         else {
             table.clear();
+            var htmlData = "" ;
             $.each(data, function(index, menu){
-                var htmlData =
+                htmlData =
                     "<tr>" +
                     "   <td id='menuID-" +  menu.id + "'>" + menu.id + "</td>" +
                     "   <td id='parentMenuName-" +  menu.id + "'>" + (menu.parentMenuName == undefined ? "" : menu.parentMenuName) + "</td>" +
@@ -242,9 +243,9 @@
                     ) +
                     "   </td>" +
                     "</tr>";
-                var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
-                table.rows.add(html).draw();
             });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
         }
     }
     // Function to pass data into modal

@@ -19,11 +19,9 @@
 package se.gzhang.scm.wms.framework.controls.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import se.gzhang.scm.wms.framework.controls.model.DropdownList;
 import se.gzhang.scm.wms.framework.controls.service.DropdownListService;
 import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
@@ -32,10 +30,18 @@ import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
 public class ControlsController {
     @Autowired
     DropdownListService dropdownListService;
+    @Autowired
+    private CacheManager cacheManager;
 
     @ResponseBody
     @RequestMapping(value="/ws/control/dropdown/{variable}", method = RequestMethod.GET)
-    public WebServiceResponseWrapper getDropdownList(@PathVariable("variable") String variable) {
+    public WebServiceResponseWrapper getDropdownList(@PathVariable("variable") String variable,
+                                                     @RequestParam(name = "cache", required = false,defaultValue = "true") Boolean readFromCache) {
+        if (readFromCache == false) {
+            // Clear the cache of the dropdown list
+            cacheManager.getCache("dropdownList").evict(variable);
+        }
+
         DropdownList dropdownList = dropdownListService.findByVariable(variable);
 
         if(dropdownList == null) {
