@@ -1,0 +1,29 @@
+{
+  "@metadata": {
+    "authors": [
+      "Gary Zhang"
+    ],
+    "last-updated": "2018-11-16",
+    "locale": "cn",
+    "message-documentation": "qqq"
+  },
+  "i18n.load.success":"i18n JSON 加载成功",
+  "Edit": "编辑",
+  "edit": "编辑",
+  "item.footprint.maintain":"维护商品规格",
+  "item.footprint.delete":"删除商品规格",
+  "item.footprint.new":"新增商品规格",
+  "item.footprint":"商品规格",
+  "item.barcode":"商品条码",
+  "here":"这里",
+  "unitOfMeasure":"单位",
+  "quantity":"数量",
+  "length":"长度",
+  "width":"宽度",
+  "height":"高度",
+  "weight":"重量",
+  "stockUOM":"最小规格",
+  "caseUOM":"箱规",
+  "palletUOM":"托盘",
+  "cartonUOM":"允许装箱拣货"
+}

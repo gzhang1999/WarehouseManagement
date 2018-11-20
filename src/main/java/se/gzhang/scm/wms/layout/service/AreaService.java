@@ -39,6 +39,10 @@ public class AreaService {
         return areaRepository.findById(id);
     }
 
+    public Area findByAreaName(String name) {
+        return areaRepository.findByName(name);
+
+    }
     public List<Area> findAll() {
 
         return areaRepository.findAll();

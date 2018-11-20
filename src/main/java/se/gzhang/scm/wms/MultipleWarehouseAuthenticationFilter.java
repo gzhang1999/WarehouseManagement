@@ -95,8 +95,6 @@ public class MultipleWarehouseAuthenticationFilter extends UsernamePasswordAuthe
             throw new BadCredentialsException("Non warehouse is setup");
         }
 
-
-
         return new UsernamePasswordAuthenticationToken(username, password);
     }
 

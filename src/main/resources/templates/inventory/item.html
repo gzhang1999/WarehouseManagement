@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new"  th:text="#{item.new}" >New Item</a>
+                            <a class="badge badge-danger mx-4 float-right" id="itemMassDeleteButton" th:text="#{item.massdelete}" href="#">Delete Item</a>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="item_query" data-display="itemTable" th:action="@{/ws/inventory/item/list}">
+                            <div class="form-group">
+                                <label for="queryItemName" class="col-form-label" th:text="#{item.name}">Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryItemName" name="name" >
+                            </div>
+                            <div class="form-group">
+                                <label for="queryItemDescription" class="col-form-label" th:text="#{item.description}">Description:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryItemDescription" name="description" >
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="item_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="item_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "itemTable" class="table table-striped table-bordered display nowrap" style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
+                                    <thead>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" id="itemSelectAll"/>
+                                        </td>
+                                        <td th:text="#{item.name}">Name</td>
+                                        <td th:text="#{item.description}">Description</td>
+                                        <td></td>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    <tr th:each="item : ${itemList}" th:id="${'row_' + item.id}">
+                                        <td>
+                                            <input type="checkbox" data-action="itemSelector" th:data-itemid="${item.id}"/>
+                                        </td>
+                                        <td >
+                                            <a th:href="#" th:data-itemid="${item.id}" th:text="${item.name}" onclick="showItemDetial(event)"></a>
+                                        </td>
+                                        <td th:text="${item.description}" th:id="'itemDescription-' + ${item.id}"></td>
+                                        <td>
+                                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editModal" th:text="#{edit}" th:data-itemid="${item.id}" th:data-itemname="${item.name}" data-action="change" >Edit</button>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel" th:text="#{item.editmodel.title}">Edit Item</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mx-2 text-danger" id="editModalErrorMessage"></div>
+                    <form>
+                        <div class="form-group">
+                            <label for="editModalItemID" class="col-form-label" th:text="#{item.id}">Item ID:</label>
+                            <input type="text" class="form-control" id="editModalItemID" name="itemID" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalItemName" class="col-form-label" th:text="#{item.name}">Item Name:</label>
+                            <input type="text" class="form-control" id="editModalItemName" name="itemName" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalItemDescription" class="col-form-label" th:text="#{item.description}">Item Description:</label>
+                            <input type="text" class="form-control" id="editModalItemDescription" name="itemDescription">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="itemEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="editFootprintModal" tabindex="-1" role="dialog" aria-labelledby="editFootprintModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editFootprintModalLabel" th:text="#{item.editFootprintmodel.title}">Edit Item Footprint</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mx-2 text-danger" id="editFootprintModalErrorMessage"></div>
+                    <form>
+                        <div class="form-group">
+                            <label for="editFootprintModalItemID" class="col-form-label" th:text="#{item.id}">Item ID:</label>
+                            <input type="text" class="form-control" id="editFootprintModalItemID" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editFootprintModalItemName" class="col-form-label" th:text="#{item.name}">Item Name:</label>
+                            <input type="text" class="form-control" id="editFootprintModalItemName" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editFootprintModalItemDescription" class="col-form-label" th:text="#{item.description}">Item Description:</label>
+                            <input type="text" class="form-control" id="editFootprintModalItemDescription" name="itemDescription" disabled>
+                        </div>
+                        <hr />
+
+                        <div class="form-group">
+                            <label for="editFootprintModalItemFootprintID" class="col-form-label" th:text="#{item.footprint.id}">Item Footprint ID:</label>
+                            <input type="text" class="form-control" id="editFootprintModalItemFootprintID" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editFootprintModalItemFootprintName" class="col-form-label" th:text="#{item.footprint.name}">Item Footprint Name:</label>
+                            <input type="text" class="form-control" id="editFootprintModalItemFootprintName" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editFootprintModalItemFootprintDescription" class="col-form-label" th:text="#{item.footprint.description}">Item Footprint Description:</label>
+                            <input type="text" class="form-control" id="editFootprintModalItemFootprintDescription" name="itemDescription" disabled>
+                        </div>
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input"  id="editFootprintModalItemFootprintDefaultFlag" name="stockFlag">
+                            <label class="custom-control-label" for="editFootprintModalItemFootprintDefaultFlag" th:text="#{item.footprint.default}">Stock Flag:</label>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="itemFootprintEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+
+<script>
+
+    // Function to render table
+    // This function will be called by the javascript from query_form.js
+    // It works as a stub function that after we get content from
+    // query_form.js, this function will render the datatable
+    var renderTable = function(tableID, data, customFields) {
+
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            var htmlData = "";
+            $.each(data, function(index, item){
+                // Add the item to cache so we can reuse it when display
+                // the footprint and barcode details
+                itemListCache.set(item.id, item);
+                htmlData +=
+                    "<tr id='row_" + item.id + "'>" +
+                    "    <td> " +
+                    "        <input type='checkbox' data-action='itemSelector' data-itemid='" + item.id + "' /> " +
+                    "    </td> " +
+                    "   <td><a href='#' data-itemid='" + item.id + "' onclick='showItemDetial(event)'>" + item.name + "</a></td>" +
+                    "   <td id='itemDescription-" +  item.id + "'>" + item.description + "</td>" +
+                    "   <td>" +
+                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-action='change' data-itemid='" + item.id + "' data-itemname='" + item.name+ "'>" + $.i18n("Edit") + "</button>" +
+                     "   </td>" +
+                    "</tr>";
+            });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
+        }
+    }
+
+    // Show the edit modal when the user press
+    // 1. Edit button to modify an existing item
+    // or
+    // 2. New button to create a new item
+    $('#editModal').on('show.bs.modal', function (event) {
+      clearEditModal();
+      var button = $(event.relatedTarget);
+      var action = button.data('action');
+      if (action == 'change') {
+          var itemID = button.data('itemid');
+          var url = '/ws/inventory/item/query/'+itemID;
+          $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var item = res.data
+                      $('#editModalItemID').val(item.id);
+                      $('#editModalItemName').val(item.name);
+                      $('#editModalItemDescription').val(item.description);
+                      $('#editModalErrorMessage').text('');
+                      setEnableOfEditModal(true);
+                      // We will not allow the operator to change the item name
+                      $('#editModalItemName').prop("disabled", true);
+
+                  }
+                  else
+                  {
+                      $('#editModalErrorMessage').text(res.status + " : " + res.message);
+                      setEnableOfEditModal(false);
+
+                  }
+              });
+      }
+      else if (action == 'new') {
+          setEnableOfEditModal(true);
+      }
+
+    })
+
+
+
+    var setEnableOfEditModal = function(enabled) {
+        // Always disable the Item id and name as we can't
+        // change those 2 attribute
+        $('#editModalItemID').prop("disabled", true);
+
+        $('#editModalItemName').prop("disabled", !enabled);
+        $('#editModalItemDescription').prop("disabled", !enabled);
+        $('#itemEditSave').prop("disabled", !enabled);
+    }
+
+
+    var clearEditModal = function() {
+        $('#editModalItemID').val('');
+        $('#editModalItemName').val('');
+        $('#editModalItemDescription').val('');
+        $('#editModalErrorMessage').text('');
+    }
+
+    $('#itemEditSave').click(function(){
+        var itemID = $('#editModalItemID').val();
+        var url = "/ws/inventory/item";
+        // action to log if we are creating a new item
+        // or editing a existing item
+        var actionCode = "new";
+        if (itemID == '') {
+            // item id textbox is empty, let's add
+            // the item
+            url += "/new";
+        }
+        else {
+            // item id textbox is not empty, let's change
+            // the item
+            url += "/edit";
+            actionCode = "edit";
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            actionCode : actionCode,
+            // So far we only allow the user to change the description
+            data:{
+                 itemID: itemID,
+                 name: $('#editModalItemName').val(),
+                 description: $('#editModalItemDescription').val()
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                if (actionCode == "new") {
+                    // wrap the new item with an array type
+                    // as the display table(renderTable) function
+                    // can only process array, even there's only one
+                    // element in the array
+                    var itemList = [];
+                    var item = res.data;
+                    itemList.push(item);
+                    // if we just create an new item, let's just
+                    // display this new item in the display table
+                    renderTable("itemTable", itemList, res.customFields);
+                }
+                else {
+                    // We just changed a existing item,
+                    // Let's update the existing result without affect
+                    // the other records in the display table
+                    var itemID = res.data.id;
+
+                    // $('#itemName-' + itemID).text(res.data.name);
+                    $('#itemDescription-' + itemID).text(res.data.description);
+                }
+
+                $('#editModalErrorMessage').text('');
+
+                $('#editModal').modal('toggle');
+            }
+            else{
+                $('#editModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+
+    // Delete all the selected items
+    $("#itemMassDeleteButton").click(function(){
+        var itemIDList = [];
+
+        $("input[data-action='itemSelector']:checked").each(function(){
+            itemIDList.push($(this).data("itemid"));
+        })
+        massiveDeleteItem(0, itemIDList);
+    })
+
+
+    // Recursively call this function to remove the locations in the list, one
+    // by one by AJAX call due to performance concern
+    var massiveDeleteItem = function(index, itemIDList){
+        if (index < itemIDList.length) {
+            var itemID = itemIDList[index];
+            var url = "/ws/inventory/item/delete";
+            $.ajax({
+                method:"POST",
+                url : url,
+                itemIDList : itemIDList,
+                index : index,
+                data:{
+                     itemID : itemID
+                }
+            }).done(function( res ) {
+                if (res.status != 0) {
+                    console.log("Error when delete item: " + JSON.stringify(res))
+                }
+                // No matter whether we get error or not on current item
+                // we will continue with next item
+                index++;
+                massiveDeleteItem(index, itemIDList);
+            });
+        }
+        // itemIDList.length > 0 to prevent reloading the grid display when the user didn't
+        // choose any item
+        else if (itemIDList.length > 0){
+            // After we delete all the items, let's refresh the item grid display
+            refreshItemDisplay();
+        }
+    }
+
+    // Refresh the item grid display
+    var refreshItemDisplay = function() {
+        $("#item_query").submit();
+        $("#itemSelectAll").prop('checked', false);
+    }
+
+    $("#itemSelectAll").click(function() {
+        if($(this).is(':checked')) {
+            $("input[data-action='itemSelector']:not(:checked)").each(function(){
+                 $(this).prop('checked', true);
+            })
+        }
+        else {
+            $("input[data-action='itemSelector']:checked").each(function(){
+                 $(this).prop('checked', false);
+            })
+
+        }
+    })
+
+    var showItemDetial = function(event) {
+        var control = $(event.target);
+        var itemID = control.data("itemid");
+        displayItemDetail(itemID, false);
+
+
+    }
+
+    var displayItemDetail = function(itemID, refresh) {
+
+        var table = $("#itemTable").DataTable();
+
+        var tr = $("#row_" + itemID);
+        var row = table.row(tr);
+
+        // If refresh is true, it means we will refresh
+        // the display table and always get the latest data
+        // from server.
+        if (refresh == true) {
+            // refresh the row to update the display
+            row.child.hide();
+            tr.removeClass('shown');
+            // Remove the local cache so it can get the fresh data
+            itemListCache.remove(itemID)
+
+        }
+
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+            table.columns.adjust();
+        }
+        else {
+            // If we already cache the item's information, get it from
+            // the local cache.
+            // otherwise, get from server
+            if (itemListCache.exist(itemID)) {
+                row.child(formatItemInfomration(itemListCache.get(itemID))).show();
+                tr.addClass('shown');
+
+                // Setup the data table
+                $("#itemFootprintDisplay-" + itemID).DataTable({
+                    "scrollX": true,
+                    fixedHeader: true
+                });
+                table.columns.adjust();
+            }
+            else {
+                var url = '/ws/inventory/item/query/'+itemID;
+                $.ajax({
+                    url:url
+                }).done(function( res ) {
+                    // save the item information for later use
+                    itemListCache.set(res.data.id, res.data);
+
+                    // display this row
+                    row.child(formatItemInfomration(res.data)).show();
+                    tr.addClass('shown');
+
+                    // Setup the data table
+                    $("#itemFootprintDisplay-" + itemID).DataTable({
+                        "scrollX": true,
+                        fixedHeader: true
+                    });
+                    table.columns.adjust();
+                });
+            }
+        }
+    }
+
+    var formatItemInfomration = function(item) {
+        var footprintHtml = getFormatFootprintDisplay(item);
+
+        var barcodeHtml = "";
+        if (item.footprints.length == 0) {
+            barcodeHtml = "Current Item doesn't have any barcode yet, click <a href='/inventory/item/barcode?itemID=" + item.id + "'>here</a> to add footprint";
+        }
+        var html = "<ul class='nav nav-tabs' role='tablist'> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link active' data-toggle='tab' href='#footprint' role='tab' aria-controls='footprint'>" + $.i18n("item.footprint") + "</a> " +
+                   "    </li> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link' data-toggle='tab' href='#barcode' role='tab' aria-controls='barcode'>" + $.i18n("item.barcode") + "</a> " +
+                   "    </li> " +
+                   "</ul> " +
+                   "<div class='tab-content'> " +
+                   "    <div class='tab-pane active' id='footprint' role='tabpanel'> " +
+                        footprintHtml +
+                   "    </div> " +
+                   "    <div class='tab-pane' id='barcode' role='tabpanel'>" +
+                        barcodeHtml +
+                   "    </div> " +
+                   "</div> ";
+        return html;
+
+    }
+
+    var getFormatFootprintDisplay = function(item) {
+        var footprintHtml = "<div class='card card-accent-success'> " +
+                               "    <div class='card-header'> " +
+                               "        <h5> " +
+                               "            <a class='badge badge-success float-right mx-2' href='/inventory/item/footprint?itemID=" + item.id + "'>" +  $.i18n('item.footprint.maintain') + "</a> " +
+                               "            <a class='badge badge-danger float-right mx-2' onclick= 'massiveDeleteFootprints(event)' data-itemid='" + item.id + "' href='#'>" +  $.i18n('item.footprint.delete') + "</a> " +
+                               "            <a class='badge badge-primary float-right mx-2' data-toggle='modal' href='#editFootprintModal' data-itemid='" + item.id + "' data-itemname='" + item.name + "' data-itemdescription='" + item.description + "' data-action='new'>" +  $.i18n('item.footprint.new') + "</a>" +
+                               "        </h5>" +
+                               "    </div> " +
+                               "    <div class='card-body'> " +
+                               "      <div class='row'> " +
+                               "      <div class='col-md-12'> " +
+                               "        <table id='itemFootprintDisplay-" + item.id + "' class='table table-striped table-bordered display nowrap dataTable no-footer' style='width:100%' role='grid' data-tabletype='datatable' data-init='true'> " +
+                               "            <thead> " +
+                               "                <tr> " +
+                               "                   <th></th> " +
+                               "                   <th>Name</th> " +
+                               "                   <th>Description</th> " +
+                               "                   <th>Default Flag</th> " +
+                               "                   <th>Stock UOM</th> " +
+                               "                   <th>Stock UOM Quantity</th> " +
+                               "                   <th>Case UOM</th> " +
+                               "                   <th>Case UOM Quantity</th> " +
+                               "                   <th>Pallet UOM</th> " +
+                               "                   <th>Pallet UOM Quantity</th> " +
+                               "                   <th></th> " +
+                               "               </tr> " +
+                               "           </thead> " +
+                               "           <tbody>";
+        $.each(item.footprints, function(index, footprint){
+            footprintHtml    += "  <tr>" +
+                                "    <td> " +
+                                "        <input type='checkbox' data-action='itemFootprintSelector' data-itemfootprintid='" + footprint.id + "' /> " +
+                                "    </td> " +
+                                "    <td> "+ footprint.name + "</td> " +
+                                "    <td> "+ footprint.description + "</td> " +
+                                "    <td>" +
+                                     (footprint.default ?
+                                             "<input type='checkbox' checked disabled /> " :
+                                             "<input type='checkbox' disabled /> " ) +
+                                "    </td>" +
+
+                                "    <td> "+ (footprint.stockUnitOfMeasure.unitOfMeasure == undefined ? "" : footprint.stockUnitOfMeasure.unitOfMeasure.description) + "</td> " +
+                                "    <td> "+ (footprint.stockUnitOfMeasure.quantity == undefined ? "" : footprint.stockUnitOfMeasure.quantity) + "</td> " +
+                                "    <td> "+ (footprint.caseUnitOfMeasure.unitOfMeasure == undefined ? "" : footprint.caseUnitOfMeasure.unitOfMeasure.description) + "</td> " +
+                                "    <td> "+ (footprint.caseUnitOfMeasure.quantity == undefined ? "" : footprint.caseUnitOfMeasure.quantity) + "</td> " +
+                                "    <td> "+ (footprint.palletUnitOfMeasure.unitOfMeasure == undefined ? "" : footprint.palletUnitOfMeasure.unitOfMeasure.description) + "</td> " +
+                                "    <td> "+ (footprint.palletUnitOfMeasure.quantity == undefined ? "" : footprint.palletUnitOfMeasure.quantity) + "</td> " +
+                                "    <td>" +
+                                "        <button class='btn btn-primary' type='button' data-toggle='modal' href='#editFootprintModal' data-itemid='" + item.id + "' data-itemname='" + item.name + "' data-itemdescription='" + item.description + "' data-itemfootprintid='" + footprint.id + "' data-itemfootprintname='" + footprint.name + "' data-itemfootprintdescription='" + footprint.description + "' data-itemfootprintdefault='" + footprint.default + "' data-action='change'>" + $.i18n("edit") + "</button>" +
+                                "    </td> " +
+                                "</tr> ";
+        })
+        footprintHtml    += "          </tbody> " +
+                            "        </table> " +
+                            "    </div>  " +
+                            "    </div>  " +
+                            "  </div>  " +
+                            "</div>";
+
+
+        return footprintHtml;
+    }
+
+
+    var itemListCache = {
+        data: {},
+        remove: function (itemID) {
+                    delete itemListCache.data[itemID];
+        },
+        exist: function (itemID) {
+                   return itemListCache.data.hasOwnProperty(itemID) && itemListCache.data[itemID] !== null;
+        },
+        get: function (itemID) {
+                 return itemListCache.data[itemID];
+        },
+        set: function (itemID, cachedData, callback) {
+                  itemListCache.remove(itemID);
+                  itemListCache.data[itemID] = cachedData;
+                  if ($.isFunction(callback)) callback(cachedData);
+        }
+    };
+
+    // Now we are only support creating new footprint from this form.
+    // Users will need to go to the Footprint page to edit the footrint
+    $('#editFootprintModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+
+      $('#editFootprintModalItemID').prop("disabled", true);
+      $('#editFootprintModalItemID').val(button.data('itemid'));
+
+      $('#editFootprintModalItemName').prop("disabled", true);
+      $('#editFootprintModalItemName').val(button.data('itemname'));
+
+      $('#editFootprintModalItemDescription').prop("disabled", true);
+      $('#editFootprintModalItemDescription').val(button.data('itemdescription'));
+
+      if (button.data("action") == "change") {
+          $('#editFootprintModalItemFootprintID').val(button.data('itemfootprintid'));
+          $('#editFootprintModalItemFootprintName').val(button.data('itemfootprintname'));
+          $('#editFootprintModalItemFootprintDescription').val(button.data('itemfootprintdescription'));
+          $('#editFootprintModalItemFootprintDefaultFlag').prop('checked', button.data('itemfootprintdefault'));
+
+      }
+      else {
+          $('#editFootprintModalItemFootprintID').val("");
+          $('#editFootprintModalItemFootprintName').val("");
+          $('#editFootprintModalItemFootprintDescription').val("");
+          $('#editFootprintModalItemFootprintDefaultFlag').prop('checked', false);
+      }
+      $('#editFootprintModalItemFootprintID').prop("disabled", true);
+      $('#editFootprintModalItemFootprintName').prop("disabled", false);
+      $('#editFootprintModalItemFootprintDescription').prop("disabled", false);
+
+
+    })
+
+    $('#itemFootprintEditSave').click(function(){
+
+        var url = "/ws/inventory/item/footprint/";
+        if ($('#editFootprintModalItemFootprintID').val() == "") {
+            url += "new";
+        }
+        else {
+            url += "edit";
+        }
+
+        $.ajax({
+            method:"POST",
+            url : url,
+            // So far we only allow the user to change the description
+            data:{
+                 itemName: $('#editFootprintModalItemName').val(),
+                 name: $('#editFootprintModalItemFootprintName').val(),
+                 itemFootprintID:$('#editFootprintModalItemFootprintID').val(),
+                 description: $('#editFootprintModalItemFootprintDescription').val(),
+                 default:$('#editFootprintModalItemFootprintDefaultFlag').prop('checked')
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                // refresh the display
+                console.log(JSON.stringify(res));
+                $('#editFootprintModalErrorMessage').text('');
+
+                $('#editFootprintModal').modal('toggle');
+
+                displayItemDetail(res.data.item.id, true);
+            }
+            else{
+                $('#editFootprintModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+
+    // Delete all the selected item footprint
+    var massiveDeleteFootprints = function() {
+        var itemFootprintIDList = [];
+
+        $("input[data-action='itemFootprintSelector']:checked").each(function(){
+            itemFootprintIDList.push($(this).data("itemfootprintid"));
+        })
+
+        var control = $(event.target);
+        var itemID = control.data("itemid");
+        massDeleteFootprints(0, itemFootprintIDList, itemID);
+    }
+
+    // Recursively call this function to remove the locations in the list, one
+    // by one by AJAX call due to performance concern
+    var massDeleteFootprints = function(index, itemFootprintIDList, itemID){
+        if (index < itemFootprintIDList.length) {
+            var itemFootprintID = itemFootprintIDList[index];
+            var url = "/ws/inventory/item/footprint/delete";
+            $.ajax({
+                method:"POST",
+                url : url,
+                itemFootprintIDList : itemFootprintIDList,
+                index : index,
+                itemID : itemID,
+                data:{
+                     itemFootprintID : itemFootprintID
+                }
+            }).done(function( res ) {
+                if (res.status != 0) {
+                    console.log("Error when delete item Footprint UOM: " + JSON.stringify(res))
+                }
+                // No matter whether we get error or not on current item
+                // we will continue with next item
+                index++;
+                massDeleteFootprints(index, itemFootprintIDList, itemID);
+            });
+        }
+        // itemFootprintIDList.length > 0 to prevent reloading the grid display when the user didn't
+        // choose any item Footprint
+        else if (itemFootprintIDList.length > 0){
+            displayItemDetail(itemID, true);
+
+        }
+    }
+
+
+
+
+
+
+</script>
+
+</body>
+</html>

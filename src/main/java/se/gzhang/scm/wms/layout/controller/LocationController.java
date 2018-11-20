@@ -111,23 +111,6 @@ public class LocationController {
                                                     @RequestParam("coordinateY") double coordinateY,
                                                     @RequestParam("coordinateZ") double coordinateZ) {
 
-        System.out.println("change location parameters: \n" +
-               ">>  " + "locationID: " + locationID + "\n" +
-                ">>  " + "name: " + name + "\n" +
-                ">>  " + "buildingID: " + buildingID + "\n" +
-                ">>  " + "areaID: " + areaID + "\n" +
-                ">>  " + "aisleID: " + aisleID + "\n" +
-                ">>  " + "length: " + length + "\n" +
-                ">>  " + "width: " + width + "\n" +
-                ">>  " + "height: " + height + "\n" +
-                ">>  " + "volume: " + volume + "\n" +
-                ">>  " + "pickable: " + pickable + "\n" +
-                ">>  " + "storable: " + storable + "\n" +
-                ">>  " + "usable: " + usable + "\n" +
-                ">>  " + "velocity: " + velocityID + "\n" +
-                ">>  " + "coordinateX: " + coordinateX + "\n" +
-                ">>  " + "coordinateY: " + coordinateY + "\n" +
-                ">>  " + "coordinateZ: " + coordinateZ);
         Location location = locationService.findByLocationId(locationID);
         if (location == null) {
             return WebServiceResponseWrapper.raiseError(10000, "Can't find the location by id: " + locationID);

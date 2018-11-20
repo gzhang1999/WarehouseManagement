@@ -37,7 +37,7 @@ public class Area {
     @Column(name = "area_id")
     private Integer id;
 
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -26,20 +26,35 @@
       </div>
 
         <script th:src="@{/js/node_modules/jquery/dist/jquery.min.js}"></script>
+        <script th:src="@{/js/node_modules/jquery-ui-1.12.1/jquery-ui.js}"></script>
         <script th:src="@{/js/node_modules/popper.js/dist/umd/popper.min.js}"></script>
         <script th:src="@{/js/node_modules/bootstrap/dist/js/bootstrap.min.js}"></script>
         <script th:src="@{/js/node_modules/pace-progress/pace.min.js}"></script>
         <script th:src="@{/js/node_modules/perfect-scrollbar/dist/perfect-scrollbar.min.js}"></script>
         <script th:src="@{/js/node_modules/@coreui/coreui/dist/js/coreui.min.js}"></script>
         <!-- Plugins and scripts required by this view-->
-        <script th:src="@{/js/node_modules/chart.js/dist/Chart.min.}"></script>
+<!--
+        <script th:src="@{/js/node_modules/chart.js/dist/Chart.min.js}"></script>
+        -->
         <script th:src="@{/js/node_modules/@coreui/coreui-plugin-chartjs-custom-tooltips/dist/js/custom-tooltips.min.js}"></script>
         <script th:src="@{/js/main.js}"></script>
-        <script type="text/javascript" th:src="@{https://cdn.datatables.net/v/dt/dt-1.10.18/datatables.min.js}"></script>
+      <!--
+      <script type="text/javascript" th:src="@{https://cdn.datatables.net/v/dt/dt-1.10.18/datatables.min.js}"></script>
+      -->
+      <script type="text/javascript" th:src="@{https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js}"></script>
+      <!--
+      <script type="text/javascript" th:src="@{https://cdn.datatables.net/buttons/1.5.4/js/dataTables.buttons.min.js}"></script>
+      <script type="text/javascript" th:src="@{https://cdn.datatables.net/select/1.2.7/js/dataTables.select.min.js}"></script>
+      <script type="text/javascript" th:src="@{/js/DataTable-Editor-1.8.0/js/dataTables.editor.min.js}"></script>
+      -->
 
-
-        <!-- javascript to support multiple language in client size(at server side we will use thymeleaf)-->
-        <script type="text/javascript" th:src="@{/js/i18n.js}"></script>
+      <!-- javascript to support multiple language in client size(at server side we will use thymeleaf)-->
+      <script type="text/javascript" th:src="@{/js/src/i18n/jquery.i18n.js}"></script>
+      <script type="text/javascript" th:src="@{/js/src/i18n/jquery.i18n.messagestore.js}"></script>
+      <script type="text/javascript" th:src="@{/js/src/i18n/jquery.i18n.fallbacks.js}"></script>
+      <script type="text/javascript" th:src="@{/js/src/i18n/jquery.i18n.parser.js}"></script>
+      <script type="text/javascript" th:src="@{/js/src/i18n/jquery.i18n.emitter.js}"></script>
+      <script type="text/javascript" th:src="@{/js/src/i18n/jquery.i18n.language.js}"></script>
 
         <!-- javascript to initialize controls-->
         <script type="text/javascript" th:src="@{/js/control/webpage_controller_init.js}"></script>

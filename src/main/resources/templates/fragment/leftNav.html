@@ -28,14 +28,14 @@
           <li class="nav-item nav-dropdown" th:if="${not #lists.isEmpty(session.parentMenuItemList)}" th:each="parentMenuItem : ${session.parentMenuItemList}">
             <a class="nav-link nav-dropdown-toggle" href="#">
               <i class="nav-icon" th:classappend="${parentMenuItem.iconClass}"></i>
-              <span  th:text="${parentMenuItem.multiLanguageSupportID}"></span>
+              <span  th:text="#{${'menu.application.' + parentMenuItem.multiLanguageSupportID}}"></span>
             </a>
 
             <ul class="nav-dropdown-items" style="margin-left:10px;">
               <li class="nav-item" th:if="${not #lists.isEmpty(parentMenuItem.childMenuList)}" th:each="childMenuItem : ${parentMenuItem.childMenuList}">
                 <a class="nav-link" th:href="@{${childMenuItem.url}}">
                   <i class="nav-icon" th:classappend="${childMenuItem.iconClass}"></i>
-                  <span th:text="${childMenuItem.multiLanguageSupportID}"></span>
+                  <span th:text="#{${'menu.form.' + childMenuItem.multiLanguageSupportID}}"></span>
                 </a>
               </li>
             </ul>

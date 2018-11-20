@@ -23,8 +23,12 @@ import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import se.gzhang.scm.wms.framework.controls.model.DropdownList;
+import se.gzhang.scm.wms.framework.controls.model.DropdownOption;
 import se.gzhang.scm.wms.framework.controls.service.DropdownListService;
 import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 public class ControlsController {
@@ -51,6 +55,29 @@ public class ControlsController {
             return new WebServiceResponseWrapper<DropdownList>(0, "", dropdownList);
 
         }
+
+    }
+
+    @ResponseBody
+    @RequestMapping(value="/ws/control/autocomplete/{variable}", method = RequestMethod.GET)
+    // Auto complete will be treated in the same way as dropdown list but it will only return a list of
+    // String
+    public WebServiceResponseWrapper getAutoCompleteList(@PathVariable("variable") String variable,
+                                                     @RequestParam(name = "cache", required = false,defaultValue = "true") Boolean readFromCache) {
+        if (readFromCache == false) {
+            // Clear the cache of the dropdown list
+            cacheManager.getCache("dropdownList").evict(variable);
+        }
+
+        DropdownList dropdownList = dropdownListService.findByVariable(variable);
+
+        List<String> autoCompleteList = new ArrayList<>();
+        for(DropdownOption dropdownOption : dropdownList.getDropdownOptions()) {
+            autoCompleteList.add(dropdownOption.getValue());
+        }
+
+        return new WebServiceResponseWrapper<List<String>>(0, "", autoCompleteList);
+
 
     }
 }

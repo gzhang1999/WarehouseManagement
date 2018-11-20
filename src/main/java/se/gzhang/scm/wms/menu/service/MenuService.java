@@ -64,9 +64,7 @@ public class MenuService {
 
     @Cacheable("assignedMenuList")
     public List<MenuItem> getAssignedMenuItemList(int userID) {
-
         return getStructuredMenuItemList(userID);
-
 
     }
 

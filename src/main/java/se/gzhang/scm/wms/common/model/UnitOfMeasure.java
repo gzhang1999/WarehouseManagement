@@ -24,13 +24,16 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "uomcod")
+@Table(name = "unit_of_measure")
 public class UnitOfMeasure {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "area_id")
+    @Column(name = "unit_of_measure_id")
     private Integer id;
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "description")
+    private String description;
 }

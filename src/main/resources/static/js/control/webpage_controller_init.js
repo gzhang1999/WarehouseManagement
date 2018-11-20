@@ -314,6 +314,96 @@ var initValidation = function() {
 
 }
 
+
+
+var autoCompleteCache = {
+    data: {},
+    remove: function (variable) {
+                delete autoCompleteCache.data[variable];
+    },
+    exist: function (variable) {
+               return autoCompleteCache.data.hasOwnProperty(variable) && autoCompleteCache.data[variable] !== null;
+    },
+    get: function (variable) {
+             return autoCompleteCache.data[variable];
+    },
+    set: function (variable, cachedData, callback) {
+              autoCompleteCache.remove(variable);
+              autoCompleteCache.data[variable] = cachedData;
+              if ($.isFunction(callback)) callback(cachedData);
+    }
+};
+
+
+var initAutoCompleteControls = function() {
+
+    var inputForAutoComplete = $("input[data-autocomplete]").filter(function () {
+        return $.trim($(this).data("autocomplete")) != '';
+    });
+
+    if(inputForAutoComplete.length != 0) {
+        inputForAutoComplete.each(function(){
+            var inputControl = $(this);
+            var variable = inputControl.data("variable");
+            // If we already have the variable in cache, then
+            // load from cache. Otherwise, get from
+            // server
+            if (autoCompleteCache.exist(variable)) {
+                inputControl.autocomplete({
+                    source: autoCompleteCache.get(variable)
+                });
+            }
+            else {
+                var url = '/ws/control/autocomplete/' + variable;
+                $.ajax({
+                    url:url,
+                    variable:variable
+                }).done(function( res ) {
+
+                    var matchControls = $("input[data-autocomplete]").filter(function () {
+                        return $.trim($(this).data("autocomplete")) != '' && $(this).data("variable") == variable;
+                    });
+
+                    if(matchControls.length != 0) {
+                        matchControls.each(function(){
+
+                            $(this).autocomplete({
+                                source: res.data
+                            });
+                        });
+                    }
+                    autoCompleteCache.set(variable, res.data);
+                });
+
+            }
+
+
+        });
+
+    }
+}
+
+var initI18n = function() {
+    var userLang = navigator.language || navigator.userLanguage;
+    console.log("userLang: " + userLang);
+
+    var fileName = "message_EN.json";
+    var webBrowserLocale = "en"
+    if (userLang == "zh-CN") {
+        fileName = "message_CN.json";
+        webBrowserLocale = "cn";
+    }
+    $.i18n({
+           locale: webBrowserLocale
+           })
+    .load({
+        cn: "/js/control/" + fileName
+    }).done( function() {
+        console.log($.i18n('i18n.load.success'));
+    })
+
+}
+
 $(document).ready( function () {
     initQueryButtons();
     initDataTable();
@@ -322,4 +412,8 @@ $(document).ready( function () {
     loadDropdownList();
 
     initValidation();
+
+    initAutoCompleteControls();
+
+    initI18n();
 });

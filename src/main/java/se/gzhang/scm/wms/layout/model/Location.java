@@ -75,7 +75,6 @@ public class Location  implements Serializable {
     // for example, higher locations can only be accessed by
     // forklift truck while lower locations can be accessed by
     // pallet jet with handheld
-
     @OneToMany(
             cascade ={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST},
             orphanRemoval = true,

@@ -18,6 +18,7 @@
 
 package se.gzhang.scm.wms.authorization.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import se.gzhang.scm.wms.authorization.model.User;
@@ -110,11 +112,21 @@ public class LoginController {
     }
 
     @RequestMapping(value="/home", method = RequestMethod.GET)
-    public ModelAndView home(HttpSession session){
+    public ModelAndView home(HttpServletRequest request){
         ModelAndView modelAndView = new ModelAndView();
 
         // modelAndView.addObject("parentMenuItemList",menuService.getStructuredMenuItemList());
         modelAndView.setViewName("home");
+
+        if ("true".equals(request.getParameter("menureload"))) {
+            System.out.println("Start to reload menu");
+            User currentLoginUser = userService.getCurrentLoginUser();
+            request.getSession().setAttribute("parentMenuItemList",menuService.getAssignedMenuItemList(currentLoginUser.getId()));
+        }
+        else {
+            System.out.println(" no need to reload menu");
+
+        }
 
         return modelAndView;
 

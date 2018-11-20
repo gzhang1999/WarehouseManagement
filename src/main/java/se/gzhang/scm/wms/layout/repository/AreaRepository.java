@@ -30,4 +30,6 @@ public interface AreaRepository extends JpaRepository<Area, Integer>, JpaSpecifi
     List<Area> findAll();
 
     Area findById(int id);
+
+    Area findByName(String name);
 }

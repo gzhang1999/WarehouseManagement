@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<style>
+.ui-autocomplete{
+	z-index:1050;
+}
+</style>
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new"  th:text="#{item.footprint.new}" >New Footprint</a>
+                            <a class="badge badge-danger mx-4 float-right" id="itemFootprintMassDeleteButton" th:text="#{item.footprint.massdelete}" href="#">Delete Item Footprint</a>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="item_footprint_query" data-display="itemFootprintTable" th:action="@{/ws/inventory/item/footprint/list}">
+                            <div class="form-group ui-widget">
+                                <label for="queryItemName" class="col-form-label" th:text="#{item.name}">Item Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryItemName" name="itemName" data-autocomplete="true" data-variable="item">
+                            </div>
+                            <div class="form-group">
+                                <label for="queryItemDescription" class="col-form-label" th:text="#{item.description}">Item Description:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryItemDescription" name="itemDescription" >
+                            </div>
+                            <div class="form-group">
+                                <label for="queryItemFootprintName" class="col-form-label" th:text="#{item.footprint.name}">Footprint Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryItemFootprintName" name="name" >
+                            </div>
+                            <div class="form-group">
+                                <label for="queryItemFootprintDescription" class="col-form-label" th:text="#{item.footprint.description}">Description:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryItemFootprintDescription" name="description" >
+                            </div>
+                            <div class="form-group mx-sm-4">
+                                <input type="checkbox" class="form-control mx-sm-1" id="queryDefaultFlag" name="default" data-cbtype="tri-state">
+                                <label for="queryDefaultFlag" class="col-form-label" th:text="#{item.footprint.default}">Default:</label>
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="item_footprint_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="item_footprint_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "itemFootprintTable" class="table table-striped table-bordered display nowrap" style="width:100%" data-tabletype="datatable" data-init="true"  data-scrollx="true">
+                                    <thead>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" id="itemFootprintSelectAll"/>
+                                        </td>
+                                        <td th:text="#{item.name}">Item Name</td>
+                                        <td th:text="#{item.description}">Item Description</td>
+                                        <td th:text="#{item.footprint.name}">Item Footprint Name</td>
+                                        <td th:text="#{item.footprint.description}">Item Footprint Description</td>
+                                        <td th:text="#{item.footprint.default}">Default Item Footprint</td>
+                                        <td></td>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    <tr th:each="itemFootprint : ${itemFootprintList}" th:id="${'row_' + itemFootprint.id}">
+                                        <td>
+                                            <input type="checkbox" data-action="itemFootprintSelector" th:data-itemfootprintid="${itemFootprint.id}"/>
+                                        </td>
+                                        <td>
+                                            <span th:text="${itemFootprint.item.name}"></span>
+                                        </td>
+                                        <td>
+                                            <span th:text="${itemFootprint.item.description}"></span>
+                                        </td>
+                                        <td>
+                                            <a href="#" th:data-itemfootprintid="${itemFootprint.id}" th:text="${itemFootprint.name}" onclick="showItemFootprintDetial(event)"></a>
+                                        </td>
+                                        <td th:text="${itemFootprint.description}" th:id="'itemFootprintDescription-' + ${itemFootprint.id}"></td>
+
+                                        <td>
+                                            <input  th:id="'itemFootprintDefaultFlag-' + ${itemFootprint.id}" type="checkbox" th:checked="${itemFootprint.defaultFootprint}" disabled/>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editModal" th:text="#{edit}" th:data-itemfootprintid="${itemFootprint.id}" th:data-itemfootprintname="${itemFootprint.name}" data-action="change" >Edit</button>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel" th:text="#{item.footprint.editmodel.title}">Edit Item Footprint</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mx-2 text-danger" id="editModalErrorMessage"></div>
+                    <form>
+                        <div class="form-group">
+                            <label for="editModalItemID" class="col-form-label" th:text="#{item.id}">Item ID:</label>
+                            <input type="text" class="form-control" id="editModalItemID" >
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalItemName" class="col-form-label" th:text="#{item.name}">Item Name:</label>
+                            <input type="text" class="form-control" id="editModalItemName"  data-autocomplete="true" data-variable="item">
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalItemDescription" class="col-form-label" th:text="#{item.description}">Item Description:</label>
+                            <input type="text" class="form-control" id="editModalItemDescription">
+                        </div>
+
+                        <hr />
+
+                        <div class="form-group">
+                            <label for="editModalItemFootprintID" class="col-form-label" th:text="#{item.footprint.id}">Item Footprint ID:</label>
+                            <input type="text" class="form-control" id="editModalItemFootprintID"  disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalItemFootprintName" class="col-form-label" th:text="#{item.footprint.name}">Item Footprint Name:</label>
+                            <input type="text" class="form-control" id="editModalItemFootprintName"  disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalItemFootprintDescription" class="col-form-label" th:text="#{item.footprint.description}">Item Footprint Description:</label>
+                            <input type="text" class="form-control" id="editModalItemFootprintDescription" >
+                        </div>
+
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input"  id="editModalItemFootprintDefaultFlag" name="defaultFlag">
+                            <label class="custom-control-label" for="editModalItemFootprintDefaultFlag" th:text="#{item.footprint.default}">Default:</label>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="itemFootprintEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="editFootprintUOMModal" tabindex="-1" role="dialog" aria-labelledby="editFootprintUOMModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editFootprintUOMModalLabel" th:text="#{item.footprint.uom.editmodel.title}">Edit Item Footprint UOM</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mx-2 text-danger" id="editFootprintUOMModalErrorMessage"></div>
+                    <form>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="editFootprintUOMModalItemName" class="col-form-label" th:text="#{item.name}">Item Name:</label>
+                                <input type="text" class="form-control" id="editFootprintUOMModalItemName" disabled>
+                            </div>
+                            <div class="col-md-8">
+                                <label for="editFootprintUOMModalItemDescription" class="col-form-label" th:text="#{item.description}">Item Description:</label>
+                                <input type="text" class="form-control" id="editFootprintUOMModalItemDescription" disabled>
+                            </div>
+                        </div>
+                        <div class="d-none">
+                                <label for="editFootprintUOMModalItemFootprintID" class="col-form-label" th:text="#{item.footprint.id}">Item Footprint ID:</label>
+                                <input type="text" class="form-control" id="editFootprintUOMModalItemFootprintID"  disabled>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editFootprintUOMModalItemFootprintName" class="col-form-label" th:text="#{item.footprint.name}">Item Footprint Name:</label>
+                                <input type="text" class="form-control" id="editFootprintUOMModalItemFootprintName"  disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editFootprintUOMModalItemFootprintDescription" class="col-form-label" th:text="#{item.footprint.description}">Item Footprint Description:</label>
+                                <input type="text" class="form-control" id="editFootprintUOMModalItemFootprintDescription"  disabled>
+                            </div>
+                        </div>
+
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="editFootprintUOMModalUOMID" class="col-form-label" th:text="#{item.footprint.uom.id}">Item Footprint UOM ID:</label>
+                                <input type="text" class="form-control" id="editFootprintUOMModalUOMID"  disabled>
+                            </div>
+                            <div class="col-md-8">
+                                <label for="editFootprintUOMModalUOM" class="col-form-label" th:text="#{unitOfMeasure}">Unit of Measure:</label>
+                                <select class="form-control" id="editFootprintUOMModalUOM" name="unitOfMeasure" data-variable="unitOfMeasure"></select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editFootprintUOMModalQuantity" class="col-form-label" th:text="#{quantity}">Quantity:</label>
+                                <input type="text" class="form-control" id="editFootprintUOMModalQuantity">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editFootprintUOMModalWeight" class="col-form-label" th:text="#{weight}">Weight:</label>
+                                <input type="text" class="form-control" id="editFootprintUOMModalWeight">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="editFootprintUOMModalLength" class="col-form-label" th:text="#{length}">Length:</label>
+                                <input type="text" class="form-control" id="editFootprintUOMModalLength">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editFootprintUOMModalWidth" class="col-form-label" th:text="#{width}">Width:</label>
+                                <input type="text" class="form-control" id="editFootprintUOMModalWidth">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editFootprintUOMModalHeight" class="col-form-label" th:text="#{height}">Height:</label>
+                                <input type="text" class="form-control" id="editFootprintUOMModalHeight">
+                            </div>
+                        </div>
+
+                        <div class="row px-3">
+                            <div class="col-md-6 custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input"  id="editFootprintUOMModalStockFlag" name="stockFlag">
+                                <label class="custom-control-label" for="editFootprintUOMModalStockFlag" th:text="#{item.footprint.uom.stockFlag}">Stock Flag:</label>
+                            </div>
+                            <div class="col-md-6 custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input"  id="editFootprintUOMModalCaseFlag" name="caseFlag">
+                                <label class="custom-control-label" for="editFootprintUOMModalCaseFlag" th:text="#{item.footprint.uom.caseFlag}">Case Flag:</label>
+                            </div>
+                        </div>
+                        <div class="row px-3">
+                            <div class="col-md-6 custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input"   id="editFootprintUOMModalPalletFlag" name="palletFlag">
+                                <label class="custom-control-label" for="editFootprintUOMModalPalletFlag" th:text="#{item.footprint.uom.palletFlag}">Pallet Flag:</label>
+                            </div>
+                            <div class="col-md-6 custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input"  id="editFootprintUOMModalCartonFlag" name="cartonFlag">
+                                <label class="custom-control-label" for="editFootprintUOMModalCartonFlag" th:text="#{item.footprint.uom.cartonFlag}">Carton Flag:</label>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="itemFootprintUOMEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+
+    // Function to render table
+    // This function will be called by the javascript from query_form.js
+    // It works as a stub function that after we get content from
+    // query_form.js, this function will render the datatable
+    var renderTable = function(tableID, data, customFields) {
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            var htmlData = "";
+            $.each(data, function(index, itemFootprint){
+                // Add the item to cache so we can reuse it when display
+                // the footprint and barcode details
+                console.log("display grid:\n" + JSON.stringify(itemFootprint));
+                itemFootprintListCache.set(itemFootprint.id, itemFootprint);
+                htmlData +=
+                    "<tr id='row_" + itemFootprint.id + "'>" +
+                    "    <td> " +
+                    "        <input type='checkbox' data-action='itemFootprintSelector' data-itemfootprintid='" + itemFootprint.id + "' /> " +
+                    "    </td> " +
+                    "    <td> " +
+                    "        <span>" + itemFootprint.item.name + "</span>" +
+                    "    </td> " +
+                    "    <td> " +
+                    "        <span>" + itemFootprint.item.description + "</span>" +
+                    "    </td> " +
+                    "   <td><a href='#' data-itemfootprintid='" + itemFootprint.id + "' onclick='showItemFootprintDetial(event)'>" + itemFootprint.name + "</a></td>" +
+                    "   <td id='itemFootprintDescription-" +  itemFootprint.id + "'>" + itemFootprint.description + "</td>" +
+                    "   <td>" +
+                        (itemFootprint.default_footprint ?
+                                 "<input id='itemFootprintDefaultFlag-" +  itemFootprint.id + "' type='checkbox' checked disabled /> " :
+                                 "<input id='itemFootprintDefaultFlag-" +  itemFootprint.id + "' type='checkbox' disabled /> " ) +
+
+                    "   </td>" +
+                    "   <td>" +
+                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-action='change' data-itemfootprintid='" + itemFootprint.id + "' data-itemfootprintname='" + itemFootprint.name+ "'>" + $.i18n("edit") + "</button>" +
+                     "   </td>" +
+                    "</tr>";
+            });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
+        }
+    }
+
+    // Show the edit modal when the user press
+    // 1. Edit button to modify an existing item
+    // or
+    // 2. New button to create a new item
+    $('#editModal').on('show.bs.modal', function (event) {
+      clearEditModal();
+      var button = $(event.relatedTarget);
+      var action = button.data('action');
+      if (action == 'change') {
+          var itemFootprintID = button.data('itemfootprintid');
+          var url = '/ws/inventory/item/footprint/query/'+itemFootprintID;
+          $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      console.log("editModal on show:\n" + JSON.stringify(res));
+                      var itemFootprint = res.data
+                      $('#editModalItemID').val(itemFootprint.item.id);
+                      $('#editModalItemName').val(itemFootprint.item.name);
+                      $('#editModalItemDescription').val(itemFootprint.item.description);
+
+                      $('#editModalItemFootprintID').val(itemFootprint.id);
+                      $('#editModalItemFootprintName').val(itemFootprint.name);
+                      $('#editModalItemFootprintDescription').val(itemFootprint.description);
+                      $('#editModalItemFootprintDefaultFlag').prop('checked', itemFootprint.default_footprint);
+
+                      $('#editModalErrorMessage').text('');
+                      setEnableOfEditModal(true);
+                      // We will not allow the operator to change the item name
+                      $('#editModalItemFootprintName').prop("disabled", true);
+
+                  }
+                  else
+                  {
+                      $('#editModalErrorMessage').text(res.status + " : " + res.message);
+                      setEnableOfEditModal(false);
+
+                  }
+              });
+      }
+      else if (action == 'new') {
+          setEnableOfEditModal(true);
+          // We create a new item footprint, enable the item name field so that
+          // the operator can specify the item of the footprint
+          $('#editModalItemName').prop("disabled", false);
+      }
+
+    })
+
+    var setEnableOfEditModal = function(enabled) {
+        // Always disable the Item id and name as we can't
+        // change those 2 attribute
+        $('#editModalItemID').prop("disabled", true);
+        $('#editModalItemName').prop("disabled", true);
+        $('#editModalItemDescription').prop("disabled", true);
+
+        $('#editModalItemFootprintID').prop("disabled", true);
+        $('#editModalItemFootprintName').prop("disabled", !enabled);
+        $('#editModalItemFootprintDescription').prop("disabled", !enabled);
+        $('#editModalItemFootprintDefaultFlag').prop("disabled", !enabled);
+        $('#itemFootprintEditSave').prop("disabled", !enabled);
+    }
+
+
+    var clearEditModal = function() {
+        $('#editModalItemID').val('');
+        $('#editModalItemName').val('');
+        $('#editModalItemDescription').val('');
+
+        $('#editModalItemFootprintID').val('');
+        $('#editModalItemFootprintName').val('');
+        $('#editModalItemFootprintDescription').val('');
+        $('#editModalItemFootprintDefaultFlag').prop('checked', false);
+
+
+        $('#editModalErrorMessage').text('');
+    }
+
+    $('#itemFootprintEditSave').click(function(){
+        var itemFootprintID = $('#editModalItemFootprintID').val();
+        var url = "/ws/inventory/item/footprint";
+        // action to log if we are creating a new item
+        // or editing a existing item
+        var actionCode = "new";
+        if (itemFootprintID == '') {
+            // item id textbox is empty, let's add
+            // the item
+            url += "/new";
+        }
+        else {
+            // item id textbox is not empty, let's change
+            // the item
+            url += "/edit";
+            actionCode = "edit";
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            actionCode : actionCode,
+            // So far we only allow the user to change the description
+            data:{
+                 itemFootprintID: itemFootprintID,
+                 itemName: $('#editModalItemName').val(),
+                 name: $('#editModalItemFootprintName').val(),
+                 description: $('#editModalItemFootprintDescription').val(),
+                 default:$('#editModalItemFootprintDefaultFlag').prop('checked')
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                if (actionCode == "new") {
+                    // wrap the new item with an array type
+                    // as the display table(renderTable) function
+                    // can only process array, even there's only one
+                    // element in the array
+                    var itemFootprintList = [];
+                    var itemFootprint = res.data;
+                    itemFootprintList.push(itemFootprint);
+                    // if we just create an new item footprint, let's just
+                    // display this new item footprint in the display table
+                    renderTable("itemFootprintTable", itemFootprintList, res.customFields);
+                }
+                else {
+                    // We just changed a existing item footprint,
+                    // Let's update the existing result without affect
+                    // the other records in the display table
+                    var itemFootprintID = res.data.id;
+
+                    // $('#itemFootprintName-' + itemFootprintID).text(res.data.name);
+                    $('#itemFootprintDescription-' + itemFootprintID).text(res.data.description);
+                    $('#itemFootprintDefaultFlag-' + itemFootprintID).prop("checked", res.data.default_footprint);
+                    refreshItemFootprintDisplay();
+                }
+
+                $('#editModalErrorMessage').text('');
+
+                $('#editModal').modal('toggle');
+            }
+            else{
+                $('#editModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+
+    // Delete all the selected items
+    $("#itemFootprintMassDeleteButton").click(function(){
+        var itemFootprintIDList = [];
+
+        $("input[data-action='itemFootprintSelector']:checked").each(function(){
+            itemFootprintIDList.push($(this).data("itemfootprintid"));
+        })
+        massiveDeleteItemFootprint(0, itemFootprintIDList);
+    })
+
+
+    // Recursively call this function to remove the locations in the list, one
+    // by one by AJAX call due to performance concern
+    var massiveDeleteItemFootprint = function(index, itemFootprintIDList){
+        if (index < itemFootprintIDList.length) {
+            var itemFootprintID = itemFootprintIDList[index];
+            var url = "/ws/inventory/item/footprint/delete";
+            $.ajax({
+                method:"POST",
+                url : url,
+                itemFootprintIDList : itemFootprintIDList,
+                index : index,
+                data:{
+                     itemFootprintID : itemFootprintID
+                }
+            }).done(function( res ) {
+                if (res.status != 0) {
+                    console.log("Error when delete item Footprint: " + JSON.stringify(res))
+                }
+                // Remove the footprint information from local cache
+                itemFootprintListCache.remove(itemFootprintIDList[index]);
+                // No matter whether we get error or not on current item
+                // we will continue with next item
+                index++;
+                massiveDeleteItemFootprint(index, itemFootprintIDList);
+            });
+        }
+        // itemFootprintIDList.length > 0 to prevent reloading the grid display when the user didn't
+        // choose any item Footprint
+        else if (itemFootprintIDList.length > 0){
+            // After we delete all the item footprints, let's refresh the item footprint grid display
+            refreshItemFootprintDisplay();
+        }
+    }
+
+    // Refresh the item footprint grid display
+    var refreshItemFootprintDisplay = function() {
+        $("#item_footprint_query").submit();
+        $("#itemFootprintSelectAll").prop('checked', false);
+    }
+
+    $("#itemFootprintSelectAll").click(function() {
+        if($(this).is(':checked')) {
+            $("input[data-action='itemFootprintSelector']:not(:checked)").each(function(){
+                 $(this).prop('checked', true);
+            })
+        }
+        else {
+            $("input[data-action='itemFootprintSelector']:checked").each(function(){
+                 $(this).prop('checked', false);
+            })
+
+        }
+    })
+
+    var showItemFootprintDetial = function(event) {
+        var control = $(event.target);
+        var itemFootprintID = control.data("itemfootprintid");
+        showItemFootprintDetailByFootprintID(itemFootprintID, false);
+    }
+
+    var showItemFootprintDetailByFootprintID = function(itemFootprintID, forceShow) {
+        var table = $("#itemFootprintTable").DataTable();
+        console.log("Start to show footprint details with forceShow:" + forceShow);
+
+        var tr = $("#row_" + itemFootprintID);
+        var row = table.row(tr);
+        if (forceShow == true) {
+            // refresh the row to update the display
+            row.child.hide();
+            tr.removeClass('shown');
+            itemFootprintListCache.remove(itemFootprintID)
+        }
+
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            // If the item footprint already exists in the local cache,
+            // display the information from cache
+            // Otherwise, get from server
+            if (itemFootprintListCache.exist(itemFootprintID)) {
+                row.child(formatItemFootprintInformation(itemFootprintListCache.get(itemFootprintID))).show();
+                tr.addClass('shown');
+
+                // Setup the data table
+                $("#itemFootprintUOMDisplay-" + itemFootprintID).DataTable({
+                    "scrollX": true
+                });
+            }
+            else {
+                var url = '/ws/inventory/item/footprint/query/'+itemFootprintID;
+                $.ajax({
+                    url:url
+                }).done(function( res ) {
+                    itemFootprintListCache.set(res.data.id, res.data);
+                    row.child(formatItemFootprintInformation(res.data)).show();
+                    tr.addClass('shown');
+                    // Setup the data table
+                    $("#itemFootprintUOMDisplay-" + itemFootprintID).DataTable({
+                        "scrollX": true
+                    });
+                });
+            }
+        }
+    }
+
+
+    var formatItemFootprintInformation = function(itemFootprint) {
+        var footprintUOMHtml = "<div class='card card-accent-success'> " +
+                               "    <div class='card-header'> " +
+                               "      <h5> " +
+                               "        <a class='badge badge-success float-right' data-toggle='modal' href='#editFootprintUOMModal' data-action='new' data-itemfootprintid='" + itemFootprint.id + "'>" + $.i18n("item.footprint.new") + "</a> " +
+                               "        <a class='badge badge-danger mx-4 float-right' id='itemFootprintUOMMassDeleteButton' onclick='massiveDeleteItemFootprintUOMs(event)' href='#' data-itemfootprintid='" + itemFootprint.id + "'>" + $.i18n("item.footprint.delete") + "</a> " +
+                               "      </h5> " +
+                               "    </div> " +
+                               "    <div class='card-body'> " +
+                               "      <div class='row'> " +
+                               "      <div class='col-md-12'> " +
+                               "        <table id='itemFootprintUOMDisplay-" + itemFootprint.id + "' class='display' style='width:100%' data-tabletype='datatable'> " +
+                               "            <thead> " +
+                               "                <tr> " +
+                               "                   <th></th> " +
+                               "                   <th>" + $.i18n("unitOfMeasure")+ "</th> " +
+                               "                   <th>" + $.i18n("quantity")+ "</th> " +
+                               "                   <th>" + $.i18n("length")+ "</th> " +
+                               "                   <th>" + $.i18n("width")+ "</th> " +
+                               "                   <th>" + $.i18n("height")+ "</th> " +
+                               "                   <th>" + $.i18n("weight")+ "</th> " +
+                               "                   <th>" + $.i18n("stockUOM")+ "</th> " +
+                               "                   <th>" + $.i18n("caseUOM")+ "</th> " +
+                               "                   <th>" + $.i18n("palletUOM")+ "</th> " +
+                               "                   <th>" + $.i18n("cartonUOM")+ "</th> " +
+                               "                   <th></th> " +
+                               "               </tr> " +
+                               "           </thead> " +
+                               "           <tbody> ";
+        $.each(itemFootprint.footprintUOMs, function(index, footprintUOM){
+            footprintUOMHtml += "<tr> " +
+                                "    <td> " +
+                                "        <input type='checkbox' data-action='itemFootprintUOMSelector' data-itemfootprintuomid='" + footprintUOM.id + "' /> " +
+                                "    </td> " +
+                                "    <td> "+ footprintUOM.unitOfMeasure.description + "</td> " +
+                                "    <td> "+ footprintUOM.quantity + "</td> " +
+                                "    <td> "+ footprintUOM.length + "</td> " +
+                                "    <td> "+ footprintUOM.width + "</td> " +
+                                "    <td> "+ footprintUOM.height + "</td> " +
+                                "    <td> "+ footprintUOM.weight + "</td> " +
+                                "   <td>" +
+                                    (footprintUOM.stockUOM ?
+                                             "<input type='checkbox' checked disabled /> " :
+                                             "<input type='checkbox' disabled /> " ) +
+                                "   </td>" +
+                                "   <td>" +
+                                    (footprintUOM.caseUOM ?
+                                             "<input type='checkbox' checked disabled /> " :
+                                             "<input type='checkbox' disabled /> " ) +
+                                "   </td>" +
+                                "   <td>" +
+                                    (footprintUOM.palletUOM ?
+                                             "<input type='checkbox' checked disabled /> " :
+                                             "<input type='checkbox' disabled /> " ) +
+                                "   </td>" +
+                                "   <td>" +
+                                    (footprintUOM.cartonUOM ?
+                                             "<input type='checkbox' checked disabled /> " :
+                                             "<input type='checkbox' disabled /> " ) +
+                                "   </td>" +
+                                "    <td>" +
+                                "        <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editFootprintUOMModal' text='edit' data-action='change' data-itemfootprintuomid='" + footprintUOM.id + "'>" + $.i18n("edit") + "</button>" +
+                                "    </td> " +
+                                "</tr> ";
+        });
+        footprintUOMHtml += "           </tbody> " +
+                            "        </table> " +
+                            "    </div>  " +
+                            "    </div>  " +
+                            "  </div>  " +
+                            "</div>";
+
+
+        return footprintUOMHtml;
+
+    }
+
+    var itemFootprintListCache = {
+        data: {},
+        remove: function (itemFootprintID) {
+                    delete itemFootprintListCache.data[itemFootprintID];
+        },
+        exist: function (itemFootprintID) {
+                   return itemFootprintListCache.data.hasOwnProperty(itemFootprintID) && itemFootprintListCache.data[itemFootprintID] !== null;
+        },
+        get: function (itemFootprintID) {
+                 return itemFootprintListCache.data[itemFootprintID];
+        },
+        set: function (itemFootprintID, cachedData) {
+                  itemFootprintListCache.remove(itemFootprintID);
+                  itemFootprintListCache.data[itemFootprintID] = cachedData;
+        }
+    };
+
+    // Show the edit modal when the user press
+    // 1. Edit button to modify an existing item
+    // or
+    // 2. New button to create a new item
+    $('#editFootprintUOMModal').on('show.bs.modal', function (event) {
+      clearFootprintUOMEditModal();
+      var button = $(event.relatedTarget);
+      var action = button.data('action');
+      var itemFootprintID = button.data('itemfootprintid');
+      if (action == 'change') {
+          var itemFootprintUOMID = button.data('itemfootprintuomid');
+          var url = '/ws/inventory/item/footprint/uom/query/'+itemFootprintUOMID;
+          $.ajax({url:url})
+              .done(function( res ) {
+                  console.log("editFootprintUOMModal on show:\n" + JSON.stringify(res));
+                  if (res.status == 0)
+                  {
+                      var itemFootprintUOM = res.data
+                      $('#editFootprintUOMModalItemName').val(itemFootprintUOM.footprint.item.name);
+                      $('#editFootprintUOMModalItemDescription').val(itemFootprintUOM.footprint.item.description);
+
+                      $('#editFootprintUOMModalItemFootprintID').val(itemFootprintUOM.footprint.id);
+                      $('#editFootprintUOMModalItemFootprintName').val(itemFootprintUOM.footprint.name);
+                      $('#editFootprintUOMModalItemFootprintDescription').val(itemFootprintUOM.footprint.description);
+
+                      $('#editFootprintUOMModalUOMID').val(itemFootprintUOM.id);
+                      $('#editFootprintUOMModalUOM').val(itemFootprintUOM.unitOfMeasure.name);
+                      $('#editFootprintUOMModalQuantity').val(itemFootprintUOM.quantity);
+                      $('#editFootprintUOMModalWeight').val(itemFootprintUOM.weight);
+                      $('#editFootprintUOMModalLength').val(itemFootprintUOM.length);
+                      $('#editFootprintUOMModalWidth').val(itemFootprintUOM.width);
+                      $('#editFootprintUOMModalHeight').val(itemFootprintUOM.height);
+
+
+                      $('#editFootprintUOMModalStockFlag').prop('checked', itemFootprintUOM.stockUOM);
+                      $('#editFootprintUOMModalCaseFlag').prop('checked', itemFootprintUOM.caseUOM);
+                      $('#editFootprintUOMModalPalletFlag').prop('checked', itemFootprintUOM.palletUOM);
+                      $('#editFootprintUOMModalCartonFlag').prop('checked', itemFootprintUOM.cartonUOM);
+
+                      $('#editModalErrorMessage').text('');
+                      setFootprintUOMEnableOfEditModal(true);
+                      // The user are not allowed to change the UOM
+                      $('#editFootprintUOMModalUOM').prop("disabled", true);
+
+                  }
+                  else
+                  {
+                      $('#editModalErrorMessage').text(res.status + " : " + res.message);
+                      setFootprintUOMEnableOfEditModal(false);
+
+                  }
+              });
+      }
+      else if (action == 'new') {
+          // If we are adding a new UOM, let's disable the item / footprint information
+          if (itemFootprintListCache.exist(itemFootprintID)) {
+              var itemFootprint = itemFootprintListCache.get(itemFootprintID);
+              $('#editFootprintUOMModalItemName').val(itemFootprint.item.name);
+              $('#editFootprintUOMModalItemDescription').val(itemFootprint.item.description);
+
+              $('#editFootprintUOMModalItemFootprintID').val(itemFootprint.id);
+              $('#editFootprintUOMModalItemFootprintName').val(itemFootprint.name);
+              $('#editFootprintUOMModalItemFootprintDescription').val(itemFootprint.description);
+          }
+          setFootprintUOMEnableOfEditModal(true);
+      }
+
+    })
+
+    var setFootprintUOMEnableOfEditModal = function(enabled) {
+        // Always disable the Item id and name as we can't
+        // change those 2 attribute
+        $('#editFootprintUOMModalItemName').prop("disabled", true);
+        $('#editFootprintUOMModalItemDescription').prop("disabled", true);
+
+        $('#editFootprintUOMModalItemFootprintID').prop("disabled", true);
+        $('#editFootprintUOMModalItemFootprintName').prop("disabled", true);
+        $('#editFootprintUOMModalItemFootprintDescription').prop("disabled", true);
+
+        $('#editFootprintUOMModalUOMID').prop("disabled", true);
+
+        // Stock UOM is calculated based on quantity. We will only display but not
+        // allow the user to change it
+        $('#editFootprintUOMModalStockFlag').prop("disabled", true);
+
+        $('#editFootprintUOMModalUOM').prop("disabled", !enabled);
+        $('#editFootprintUOMModalQuantity').prop("disabled", !enabled);
+        $('#editFootprintUOMModalWeight').prop("disabled", !enabled);
+        $('#editFootprintUOMModalLength').prop("disabled", !enabled);
+        $('#editFootprintUOMModalWidth').prop("disabled", !enabled);
+        $('#editFootprintUOMModalHeight').prop("disabled", !enabled);
+        $('#editFootprintUOMModalCaseFlag').prop("disabled", !enabled);
+        $('#editFootprintUOMModalPalletFlag').prop("disabled", !enabled);
+        $('#editFootprintUOMModalCartonFlag').prop("disabled", !enabled);
+
+
+        $('#itemFootprintUOMEditSave').prop("disabled", !enabled);
+    }
+
+
+    var clearFootprintUOMEditModal = function() {
+        $('#editFootprintUOMModalItemName').val('');
+        $('#editFootprintUOMModalItemDescription').val('');
+        $('#editFootprintUOMModalItemFootprintID').val('');
+
+        $('#editFootprintUOMModalItemFootprintName').val('');
+        $('#editFootprintUOMModalItemFootprintDescription').val('');
+
+        $('#editFootprintUOMModalUOMID').val('');
+        $('#editFootprintUOMModalUOM').val('');
+
+        $('#editFootprintUOMModalQuantity').val('');
+        $('#editFootprintUOMModalWeight').val('');
+        $('#editFootprintUOMModalLength').val('');
+        $('#editFootprintUOMModalWidth').val('');
+        $('#editFootprintUOMModalHeight').val('');
+
+        $('#editFootprintUOMModalStockFlag').prop('checked', false);
+        $('#editFootprintUOMModalCaseFlag').prop('checked', false);
+        $('#editFootprintUOMModalPalletFlag').prop('checked', false);
+        $('#editFootprintUOMModalCartonFlag').prop('checked', false);
+
+        $('#editModalErrorMessage').text('');
+    }
+
+    $('#itemFootprintUOMEditSave').click(function(){
+        var itemFootprintUOMID = $('#editFootprintUOMModalUOMID').val();
+        var url = "/ws/inventory/item/footprint/uom";
+        // action to log if we are creating a new item
+        // or editing a existing item
+        var actionCode = "new";
+        if (itemFootprintUOMID == '') {
+            // item id textbox is empty, let's add
+            // the item
+            url += "/new";
+        }
+        else {
+            // item id textbox is not empty, let's change
+            // the item
+            url += "/edit";
+            actionCode = "edit";
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            actionCode : actionCode,
+            data:{
+                 itemFootprintUOMID: itemFootprintUOMID,
+                 itemFootprintID: $('#editFootprintUOMModalItemFootprintID').val(),
+                 unitOfMeasure: $('#editFootprintUOMModalUOM').val(),
+                 quantity: $('#editFootprintUOMModalQuantity').val(),
+                 weight: $('#editFootprintUOMModalWeight').val(),
+                 length: $('#editFootprintUOMModalLength').val(),
+                 width: $('#editFootprintUOMModalWidth').val(),
+                 height: $('#editFootprintUOMModalHeight').val(),
+                 caseFlag: $('#editFootprintUOMModalCaseFlag').prop('checked'),
+                 palletFlag: $('#editFootprintUOMModalPalletFlag').prop('checked'),
+                 cartonFlag: $('#editFootprintUOMModalCartonFlag').prop('checked')
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                // After we change the item footprint UOM, let's remove it from the cache
+                // then refresh the display
+                itemFootprintListCache.remove(res.data.footprint.id)
+                showItemFootprintDetailByFootprintID(res.data.footprint.id, true);
+                $('#editModalErrorMessage').text('');
+
+                $('#editFootprintUOMModal').modal('toggle');
+            }
+            else{
+                $('#editModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+
+    // Delete all the selected items
+    var massiveDeleteItemFootprintUOMs = function(){
+        // Get the UOM ID list that selected
+        var itemFootprintUOMIDList = [];
+
+        $("input[data-action='itemFootprintUOMSelector']:checked").each(function(){
+            itemFootprintUOMIDList.push($(this).data("itemfootprintuomid"));
+        });
+
+        // Get the footprint ID so we can refresh the UOM display after we remove
+        // the UOM
+        var control = $(event.target);
+        var footprintID = control.data("itemfootprintid");
+
+        massiveDeleteItemFootprintUOM(0, itemFootprintUOMIDList, footprintID);
+    }
+
+
+    // Recursively call this function to remove the locations in the list, one
+    // by one by AJAX call due to performance concern
+    var massiveDeleteItemFootprintUOM = function(index, itemFootprintUOMIDList, footprintID){
+        if (index < itemFootprintUOMIDList.length) {
+            var itemFootprintUOMID = itemFootprintUOMIDList[index];
+            var url = "/ws/inventory/item/footprint/uom/delete";
+            $.ajax({
+                method:"POST",
+                url : url,
+                itemFootprintUOMIDList : itemFootprintUOMIDList,
+                index : index,
+                footprintID : footprintID,
+                data:{
+                     itemFootprintUOMID : itemFootprintUOMID
+                }
+            }).done(function( res ) {
+                if (res.status != 0) {
+                    console.log("Error when delete item Footprint UOM: " + JSON.stringify(res))
+                }
+                // No matter whether we get error or not on current item
+                // we will continue with next item
+                index++;
+                massiveDeleteItemFootprintUOM(index, itemFootprintUOMIDList, footprintID);
+            });
+        }
+        // itemFootprintUOMIDList.length > 0 to prevent reloading the grid display when the user didn't
+        // choose any item Footprint uom
+        else if (itemFootprintUOMIDList.length > 0){
+            console.log("refresh after remove UOM, footprintID:" + footprintID);
+            itemFootprintListCache.remove(footprintID);
+            showItemFootprintDetailByFootprintID(footprintID, true);
+
+        }
+    }
+
+</script>
+</body>
+</html>

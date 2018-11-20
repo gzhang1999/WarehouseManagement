@@ -167,7 +167,7 @@
             table.clear();
             var htmlData = "";
             $.each(data, function(index, area){
-                htmlData =
+                htmlData +=
                     "<tr>" +
                     "   <td id='areaName-" +  area.id + "'>" + area.name + "</td>" +
                     "   <td id='areaBuilding-" +  area.id + "'>" + area.building + "</td>" +
@@ -231,7 +231,7 @@
         $('#editModalBuilding').prop("disabled", !enabled);
         $('#editModalAreaType').prop("disabled", !enabled);
         $('#editModalVolumeType').prop("disabled", !enabled);
-        $('#userEditSave').prop("disabled", !enabled);
+        $('#areaEditSave').prop("disabled", !enabled);
     }
 
 

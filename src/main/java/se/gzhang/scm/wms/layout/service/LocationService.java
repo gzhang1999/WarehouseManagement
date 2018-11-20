@@ -21,13 +21,17 @@ package se.gzhang.scm.wms.layout.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import se.gzhang.scm.wms.common.model.Velocity;
+import se.gzhang.scm.wms.common.service.VelocityService;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.Building;
 import se.gzhang.scm.wms.layout.model.Location;
 import se.gzhang.scm.wms.layout.repository.LocationRepository;
+import se.gzhang.scm.wms.system.tools.service.FileUploadOptionService;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +39,15 @@ import java.util.Map;
 public class LocationService {
     @Autowired
     private LocationRepository locationRepository;
+
+    @Autowired
+    private AreaService areaService;
+
+    @Autowired
+    private VelocityService velocityService;
+
+    @Autowired
+    private FileUploadOptionService fileUploadOptionService;
 
     public Location findByLocationId(int id) {
         return locationRepository.findById(id);
@@ -106,5 +119,132 @@ public class LocationService {
         Location newLocation = locationRepository.save(location);
         locationRepository.flush();
         return newLocation;
+    }
+
+    public List<Location> loadFromFile(String[] columnNameList, List<String> locations, String processID) {
+
+        List<Location> locationList = new ArrayList<>();
+
+        int currentLocationIndex=0;
+        int totalLocationCount = locations.size();
+
+        for(String locationString : locations) {
+
+            String[] locationAttributeList = locationString.split(",");
+            if (columnNameList.length != locationAttributeList.length) {
+                continue;
+            }
+            // A local temporary map to store the area according to the area name
+            // so that we don't have to get the area again and again for the
+            // locations from the same area
+            Map<String, Area> areaMap = new HashMap<>();
+
+            System.out.println("########################################");
+
+            Area area = null;
+            String locationName="", aisle="";
+            double length=0.0,width=0.0,height=0.0, volume=0.0;
+            double coordinateX=0.0, coordinateY=0.0, coordinateZ=0.0;
+            boolean pickable=false, storable=false, usable=false;
+            Velocity velocity=null;
+
+
+            for(int i = 0; i < columnNameList.length; i++) {
+                String columnName = columnNameList[i];
+                String locationAttribute = locationAttributeList[i];
+                System.out.println(">> " + columnName + " : " + locationAttribute);
+                if (columnName.equalsIgnoreCase("area")){
+                    if (areaMap.containsKey(locationAttribute)) {
+                        area = areaMap.get(locationAttribute);
+                    }
+                    else {
+                        area = getAreaByName(locationAttribute);
+                        areaMap.put(locationAttribute, area);
+                    }
+                }
+                else if (columnName.equalsIgnoreCase("location")){
+                    locationName = locationAttribute;
+                }
+                else if (columnName.equalsIgnoreCase("length")){
+                    length = Double.parseDouble(locationAttribute);
+
+                }
+                else if (columnName.equalsIgnoreCase("width")){
+                    width = Double.parseDouble(locationAttribute);
+
+                }
+                else if (columnName.equalsIgnoreCase("height")){
+                    height = Double.parseDouble(locationAttribute);
+
+                }
+                else if (columnName.equalsIgnoreCase("x")){
+                    coordinateX = Double.parseDouble(locationAttribute);
+
+                }
+                else if (columnName.equalsIgnoreCase("y")){
+                    coordinateY = Double.parseDouble(locationAttribute);
+
+                }
+                else if (columnName.equalsIgnoreCase("z")){
+                    coordinateZ = Double.parseDouble(locationAttribute);
+
+                }
+                else if (columnName.equalsIgnoreCase("pickable")){
+                    pickable = locationAttribute.equalsIgnoreCase("1");
+                }
+                else if (columnName.equalsIgnoreCase("storable")){
+                    storable = locationAttribute.equalsIgnoreCase("1");
+
+                }
+                else if (columnName.equalsIgnoreCase("usable")){
+                    usable = locationAttribute.equalsIgnoreCase("1");
+
+                }
+                else if (columnName.equalsIgnoreCase("aisle")){
+                    aisle = locationAttribute;
+
+                }
+                else if (columnName.equalsIgnoreCase("volume")){
+
+                    volume = Double.parseDouble(locationAttribute);
+                }
+                else if (columnName.equalsIgnoreCase("velocity")){
+                    velocity = velocityService.findByVelocityName(locationAttribute);
+                }
+            }
+
+            // If location already exists, let's change the existing location
+            // otherwise, let's create a new location
+            Location location = findByLocationName(locationName);
+            if (location == null){
+                location = new Location();
+                location.setName(locationName);
+            }
+            location.setArea(area);
+            location.setAisleID(aisle);
+            location.setPickable(pickable);
+            location.setStorable(storable);
+            location.setUsable(usable);
+            location.setLength(length);
+            location.setWidth(width);
+            location.setHeight(height);
+            location.setVolume(volume);
+            location.setVelocity(velocity);
+            location.setCoordinateX(coordinateX);
+            location.setCoordinateY(coordinateY);
+            location.setCoordinateZ(coordinateZ);
+
+            locationList.add(save(location));
+            System.out.println("########################################\n\n");
+
+            currentLocationIndex++;
+            System.out.println(">> Set progress of id " + processID + " to " + ((currentLocationIndex * 100) / totalLocationCount));
+            fileUploadOptionService.setUploadProgress(processID,(currentLocationIndex * 100) / totalLocationCount);
+        }
+        return locationList;
+    }
+
+    private Area getAreaByName(String areaName) {
+        return areaService.findByAreaName(areaName);
     }
 }
