@@ -45,6 +45,10 @@ public class WarehouseService {
         return warehouseRepository.findAll();
     }
 
+    public Warehouse findByWarehouseName(String name){
+        return warehouseRepository.findByName(name);
+    }
+
     // Return all the users that have access to the warehouse
     public List<User> getAccessibleUsers(Warehouse warehouse) {
         List<User> accessibleUserList = userService.findAll();

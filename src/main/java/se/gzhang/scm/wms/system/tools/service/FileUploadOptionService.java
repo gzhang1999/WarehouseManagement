@@ -21,15 +21,19 @@ package se.gzhang.scm.wms.system.tools.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import se.gzhang.scm.wms.inventory.model.ItemFootprint;
+import se.gzhang.scm.wms.inventory.model.ItemFootprintUOM;
+import se.gzhang.scm.wms.inventory.service.ItemBarcodeService;
+import se.gzhang.scm.wms.inventory.service.ItemFootprintService;
+import se.gzhang.scm.wms.inventory.service.ItemFootprintUOMService;
+import se.gzhang.scm.wms.inventory.service.ItemService;
 import se.gzhang.scm.wms.layout.service.LocationService;
 import se.gzhang.scm.wms.system.tools.model.FileUploadOption;
+import se.gzhang.scm.wms.system.tools.model.FileUploadProcess;
 import se.gzhang.scm.wms.system.tools.repository.FileUploadOptionRepository;
 
 import javax.persistence.criteria.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class FileUploadOptionService {
@@ -40,9 +44,24 @@ public class FileUploadOptionService {
     @Autowired
     LocationService locationService;
 
+    @Autowired
+    ItemService itemService;
+
+    @Autowired
+    ItemFootprintService itemFootprintService;
+
+    @Autowired
+    ItemFootprintUOMService itemFootprintUOMService;
+    @Autowired
+    ItemBarcodeService itemBarcodeService;
+
+    private static final int  MAX_PROCESS_COUNT = 999;
+    // Max kept days: 5 days = 432000 seconds
+    private static final int  MAX_KEEP_SECONDS = 432000;
+
     // A map to track the upload progress. Each upload attempt
     // will be assigned with a unique ID
-    private Map<String, Integer> uploadProgress = new HashMap<>();
+    private Map<String, FileUploadProcess> fileUploadProcessHashMap = new HashMap<>();
 
 
     public List<FileUploadOption> findAll() {
@@ -108,27 +127,80 @@ public class FileUploadOptionService {
         System.out.println("fileContent.size(): " + fileContent.size());
         // Remove first row so we will only have location information in the content
         fileContent.remove(0);
+        // Setup the process with the current total number of record in the file
+        initialFileUploadProcess(processID, fileContent.size());
+
+        System.out.println("## File Upload Process / Set total number count" );
+        System.out.println("## " + getFileUploadProgress(processID));
+
         System.out.println("fileContent.size(): " + fileContent.size());
 
         if(optionName.equalsIgnoreCase("Location")) {
-
             locationService.loadFromFile(columnName,fileContent, processID);
         }
+        else if(optionName.equalsIgnoreCase("Item")) {
+            itemService.loadFromFile(columnName,fileContent, processID);
+        }
+        else if(optionName.equalsIgnoreCase("ItemFootprint")) {
+            itemFootprintService.loadFromFile(columnName,fileContent, processID);
+        }
+        else if(optionName.equalsIgnoreCase("ItemFootprintUOM")) {
+            itemFootprintUOMService.loadFromFile(columnName,fileContent, processID);
+        }
+        else if(optionName.equalsIgnoreCase("ItemBarcode")) {
+            itemBarcodeService.loadFromFile(columnName,fileContent, processID);
+        }
+        getFileUploadProgress(processID).markFinished();
     }
 
-    public int getUploadProgress(String processID) {
-        if (uploadProgress.containsKey(processID)) {
-            return uploadProgress.get(processID);
+    public FileUploadProcess getFileUploadProgress(String processID) {
+        if (fileUploadProcessHashMap.containsKey(processID)) {
+            return fileUploadProcessHashMap.get(processID);
         }
         else {
-            uploadProgress.put(processID, 0);
-            return 0;
+            FileUploadProcess fileUploadProcess = new FileUploadProcess(processID);
+            fileUploadProcessHashMap.put(processID, fileUploadProcess);
+            // When we have too many process instance in the map, we will
+            // clear the older process that already finished
+            if (fileUploadProcessHashMap.size() >= MAX_PROCESS_COUNT) {
+                clearFileUploadProcessHashMap();
+            }
+            return fileUploadProcess;
         }
     }
 
-    public void setUploadProgress(String processID, int progress) {
-        uploadProgress.put(processID,progress);
+    public void initialFileUploadProcess(String processID, int totalRecordCount) {
+        FileUploadProcess fileUploadProcess = getFileUploadProgress(processID);
+        fileUploadProcess.setTotalRecordCount(totalRecordCount);
+        fileUploadProcess.setCurrentRecordNumber(0);
+
+    }
+    public void setFileUploadProgress(String processID, int currentRecordNumber) {
+        FileUploadProcess fileUploadProcess = getFileUploadProgress(processID);
+        fileUploadProcess.setCurrentRecordNumber(currentRecordNumber);
+
     }
 
+    // When we loaded one record, this function will add one
+    // to the current Record Number and success(or fail) record number
+    public void increaseRecordNumberLoaded(String processID, boolean successful) {
+        FileUploadProcess fileUploadProcess = getFileUploadProgress(processID);
+        fileUploadProcess.setCurrentRecordNumber(fileUploadProcess.getCurrentRecordNumber() + 1);
+        if (successful) {
+            fileUploadProcess.setSuccessfullyLoadedRecordNumber(fileUploadProcess.getSuccessfullyLoadedRecordNumber() + 1);
+        }
+        else  {
+            fileUploadProcess.setFailLoadedRecordNumber(fileUploadProcess.getFailLoadedRecordNumber() + 1);
+        }
+    }
+
+    private void clearFileUploadProcessHashMap() {
+        for(Iterator<Map.Entry<String, FileUploadProcess>> iterator = fileUploadProcessHashMap.entrySet().iterator(); iterator.hasNext(); ) {
+            Map.Entry<String, FileUploadProcess> entry = iterator.next();
+            if(entry.getValue().isFinished() && entry.getValue().secondsSinceFinished() > MAX_KEEP_SECONDS) {
+                iterator.remove();
+            }
+        }
+    }
 
 }

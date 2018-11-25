@@ -16,14 +16,25 @@
  * limitations under the License.
  */
 
-package se.gzhang.scm.wms.exception;
+package se.gzhang.scm.wms.inventory.model;
 
-public class GenericException extends RuntimeException {
-    private int code;
-    private String message;
-    public GenericException(int code, String message) {
-        super(message);
-        this.code = code;
-        this.message = message;
-    }
+import lombok.Data;
+
+import javax.persistence.*;
+
+@Data
+@Entity
+@Table(name = "inventory_status")
+public class InventoryStatus {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "inventory_status_id")
+    private Integer id;
+
+    @Column(name="name")
+    private String name;
+
+    @Column(name="description")
+    private String description;
+
 }

@@ -38,7 +38,6 @@ import javax.persistence.criteria.Root;
 import java.util.*;
 
 @Service("menuService")
-
 @PropertySource("classpath:application.properties")
 public class MenuService {
 

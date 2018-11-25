@@ -16,14 +16,20 @@
  * limitations under the License.
  */
 
-package se.gzhang.scm.wms.exception;
+package se.gzhang.scm.wms.inventory.repository;
 
-public class GenericException extends RuntimeException {
-    private int code;
-    private String message;
-    public GenericException(int code, String message) {
-        super(message);
-        this.code = code;
-        this.message = message;
-    }
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import se.gzhang.scm.wms.inventory.model.InventoryActivity;
+import se.gzhang.scm.wms.inventory.model.InventoryStatus;
+
+import java.util.List;
+
+@Repository
+public interface InventoryStatusRepository extends JpaRepository<InventoryStatus, Integer> {
+    List<InventoryStatus> findAll();
+
+    InventoryStatus findById(int id);
+    InventoryStatus findByName(String name);
 }
+

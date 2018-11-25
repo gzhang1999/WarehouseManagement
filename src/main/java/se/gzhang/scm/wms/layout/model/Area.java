@@ -69,6 +69,9 @@ public class Area {
     @Column(name = "volume_type")
     private VolumeType volumeType;
 
+    @Column(name = "allow_consolidation")
+    private Boolean allowConsolidation;
+
 
     @Override
     public boolean equals(Object o) {

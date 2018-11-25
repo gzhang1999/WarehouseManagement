@@ -404,6 +404,48 @@ var initI18n = function() {
 
 }
 
+var initCryptoCurrent = function() {
+    var eosAmount = 0;
+    var ethAmount = 1.02;
+    var bnbAmount = 296.21;
+
+    // Get the price
+
+    var eosPrice = 3.83;
+    var ethPrice = 140.3;
+    var bnbPrice = 6.07;
+
+    var eosValue = Number((eosAmount * eosPrice).toFixed(2));
+    var ethValue = Number((ethAmount * ethPrice).toFixed(2));
+    var bnbValue = Number((bnbAmount * bnbPrice).toFixed(2));
+
+    var acountValue = eosValue + ethValue + bnbValue;
+
+    var eosPercent = Number((eosValue * 100 / acountValue).toFixed(2));
+    var ethPercent = Number((ethValue * 100 / acountValue).toFixed(2));
+    var bnbPercent = Number((bnbValue * 100 / acountValue).toFixed(2));
+
+                console.log("eosPrice: " + eosPrice + "\n" +
+                            "eosAmount: " + eosAmount + "\n" +
+                            "eosValue: " + eosValue + "\n" +
+                            "eosPercent: " + eosPercent + "\n" +
+                            "ethPrice: " + ethPrice + "\n" +
+                            "ethAmount: " + ethAmount + "\n" +
+                            "ethValue: " + ethValue + "\n" +
+                            "ethPercent: " + ethPercent + "\n" +
+                            "bnbPrice: " + bnbPrice + "\n" +
+                            "bnbAmount: " + bnbAmount + "\n" +
+                            "bnbValue: " + bnbValue + "\n" +
+                            "bnbPercent: " + bnbPercent)
+    var eosInfo = eosPrice + " / " + eosAmount + " / " + eosValue + " / " + eosPercent + "%";
+    var ethInfo = ethPrice + " / " + ethAmount + " / " + ethValue + " / " + ethPercent + "%";
+    var bnbInfo = bnbPrice + " / " + bnbAmount + " / " + bnbValue + " / " + bnbPercent + "%";
+                $("#eosInfo").text(eosInfo);
+                $("#ethInfo").text(ethInfo);
+                $("#bnbInfo").text(bnbInfo);
+
+}
+
 $(document).ready( function () {
     initQueryButtons();
     initDataTable();
@@ -416,4 +458,6 @@ $(document).ready( function () {
     initAutoCompleteControls();
 
     initI18n();
+
+    initCryptoCurrent();
 });

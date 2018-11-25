@@ -30,4 +30,6 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Integer>, 
     List<Warehouse> findAll();
 
     Warehouse findById(int id);
+
+    Warehouse findByName(String name);
 }

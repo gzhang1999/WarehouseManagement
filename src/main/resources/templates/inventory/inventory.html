@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <a class="badge badge-success float-right" data-toggle="modal" href="#editInventoryModalLabel" data-action="new"  th:text="#{inventory.new}" >New Inventory</a>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="inventory_query" data-display="inventoryTable" th:action="@{/ws/inventory/inventory/list}">
+                            <div class="form-group">
+                                <label for="queryBuildingID" class="col-form-label" th:text="#{building}">Building:</label>
+                                <select class="form-control  mx-sm-4 my-sm-2" id="queryBuildingID" name="buildingID" data-variable="building"></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="queryAreaID" class="col-form-label" th:text="#{area}">Area:</label>
+                                <select class="form-control  mx-sm-4 my-sm-2" id="queryAreaID" name="areaID" data-variable="area"></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="queryLocationName" class="col-form-label" th:text="#{location.name}">Name:</label>
+                                <input type="text" class="form-control mx-sm-4 my-sm-2" id="queryLocationName" name="locationName" >
+                            </div>
+                            <div class="form-group">
+                                <label for="queryAisleID" class="col-form-label" th:text="#{location.aisle}">Aisle:</label>
+                                <input type="text" class="form-control mx-sm-4 my-sm-2" id="queryAisleID" name="aisleID" >
+                            </div>
+                            <div class="form-group">
+                                <label for="queryInventoryLPN" class="col-form-label" th:text="#{inventory.lpn}">LPN:</label>
+                                <input type="text" class="form-control mx-sm-4 my-sm-2" id="queryInventoryLPN" name="lpn" >
+                            </div>
+                            <div class="form-group">
+                                <label for="queryItemName" class="col-form-label" th:text="#{item.name}">Item Name:</label>
+                                <input type="text" class="form-control mx-sm-4 my-sm-2" id="queryItemName" name="itemName" >
+                            </div>
+                            <div class="form-group">
+                                <label for="queryItemDescription" class="col-form-label" th:text="#{item.description}">Item Description:</label>
+                                <input type="text" class="form-control mx-sm-4 my-sm-2" id="queryItemDescription" name="itemDescription" >
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="inventory_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="inventory_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "inventoryTable" class="table table-striped table-bordered display nowrap" style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
+                                    <thead>
+                                    <tr>
+                                        <td th:text="#{building}">Building</td>
+                                        <td th:text="#{area.name}">Area</td>
+                                        <td th:text="#{location.name}">Location</td>
+                                        <td th:text="#{inventory.lpn}">LPN</td>
+                                        <td th:text="#{item.name}">Item</td>
+                                        <td th:text="#{item.description}">Item Description</td>
+                                        <td th:text="#{client.name}">Client</td>
+                                        <td th:text="#{item.footprint}">Footprint</td>
+                                        <td th:text="#{inventory.unitQuantity}">Quantity</td>
+                                        <td></td>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    <tr th:each="inventory : ${inventoryList}" th:id="${'row_' + inventory.id}">
+                                        <td th:text="${inventory.location.area.building.name}"></td>
+                                        <td th:text="${inventory.location.area.name}"></td>
+                                        <td th:text="${inventory.location.name}"></td>
+                                        <td th:text="${inventory.lpn}"></td>
+                                        <td th:text="${inventory.item.name}"></td>
+                                        <td th:text="${inventory.item.description}"></td>
+                                        <td th:text="${inventory.item.client.name}"></td>
+                                        <td th:text="${inventory.itemFootprint.name}"></td>
+                                        <td th:text="${inventory.quantity}"></td>
+                                        <td>
+                                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editInventoryModalLabel" th:text="#{edit}" th:data-inventoryid="${inventory.id}" data-action="change" >Edit Inventory</button>
+                                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editInventoryModalLabel" th:text="#{delete}" th:data-inventoryid="${inventory.id}" data-action="delete" >Delete Inventory</button>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for editing existing record or add new inventory record-->
+    <div class="modal fade" id="editInventoryModal" tabindex="-1" role="dialog" aria-labelledby="editInventoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editInventoryModalLabel" th:text="#{inventory.editmodal.title}">Edit Inventory</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-danger px-2" id="editInventoryModalErrorMessage"></div>
+                    <div class="container col-md-12">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="editInventoryModalAreaName" class="col-form-label" th:text="#{area}">Area:</label>
+                                <input type="text" class="form-control" id="editInventoryModalAreaName" data-variable="area">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editInventoryModalLocationID" class="col-form-label" th:text="#{location.id}">Location ID:</label>
+                                <input type="text" class="form-control" id="editInventoryModalLocationID">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editInventoryModalLocationName" class="col-form-label" th:text="#{location}">Location:</label>
+                                <input type="text" class="form-control" id="editInventoryModalLocationName">
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="editInventoryModalItem" class="col-form-label" th:text="#{item}">Item:</label>
+                                <input type="text" class="form-control" id="editInventoryModalItem" data-autocomplete="true" data-variable="item">
+                            </div>
+                            <div class="col-md-8">
+                                <label for="editInventoryModalItemDescription" class="col-form-label" th:text="#{item.description}">Item:</label>
+                                <input type="text" class="form-control" id="editInventoryModalItemDescription">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="editInventoryModalItemFootprint" class="col-form-label" th:text="#{item.footprint}">Footprint:</label>
+                                <select class="form-control" id="editInventoryModalItemFootprint"></select>
+                            </div>
+                            <div class="col-md-8">
+                                <label for="editInventoryModalItemFootprintDescription" class="col-form-label" th:text="#{item.footprint.description}">Footprint:</label>
+                                <input type="text" class="form-control" id="editInventoryModalItemFootprintDescription">
+                            </div>
+                        </div>
+                        <div class="row" id="editInventoryModalItemFootprintUOMGrid">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="editInventoryModalInventoryID" class="col-form-label" th:text="#{inventory.id}">ID:</label>
+                                <input type="text" class="form-control" id="editInventoryModalInventoryID">
+                            </div>
+                            <div class="col-md-9">
+                                <label for="editInventoryModalLPN" class="col-form-label" th:text="#{inventory.lpn}">LPN:</label>
+                                <input type="text" class="form-control" id="editInventoryModalLPN">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editInventoryModalQuantity" class="col-form-label" th:text="#{quantity}">Quantity:</label>
+                                <input type="text" class="form-control" id="editInventoryModalQuantity">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editInventoryModalUOM" class="col-form-label" th:text="#{unitOfMeasure}">Unit Of Measure:</label>
+                                <select class="form-control" id="editInventoryModalUOM" name="unitOfMeasure"></select>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="editInventoryModalReasonCode" class="col-form-label" th:text="#{inventory.adjust.reason.code}">Adjustment Reason Code:</label>
+                                <select class="form-control" id="editInventoryModalReasonCode" name="reasonCode" data-variable="invadjReasonCode"></select>
+                            </div>
+                            <div class="col-md-9">
+                                <label for="editInventoryModalReason" class="col-form-label" th:text="#{inventory.adjust.reason}">Adjustment Reason:</label>
+                                <input type="text" class="form-control" id="editInventoryModalReason">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="inventoryEditSave" th:text="#{save}">Save</button>
+                    <button type="button" class="btn btn-danger" id="inventoryEditDelete" th:text="#{delete}">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+
+<script>
+
+    var renderTable = function(tableID, data, customFields) {
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            var htmlData = "";
+            $.each(data, function(index, inventory){
+                 console.log("render table:\n" + JSON.stringify(inventory));
+                 htmlData +=
+                    "<tr id='row_" + inventory.id + "'>" +
+                    "   <td>" + inventory.location.area.building.name + "</td>" +
+                    "   <td>" + inventory.location.area.name + "</td>" +
+                    "   <td>" + inventory.location.name + "</td>" +
+                    "   <td>" + inventory.lpn + "</td>" +
+                    "   <td>" + inventory.itemFootprint.item.name + "</td>" +
+                    "   <td>" + inventory.itemFootprint.item.description + "</td>" +
+                    "   <td>" + inventory.itemFootprint.item.client.name + "</td>" +
+                    "   <td>" + inventory.itemFootprint.name + "</td>" +
+                    "   <td>" + inventory.quantity+ "</td>" +
+                    "   <td>" +
+                    "        <button class='btn btn-primary' type='button' data-toggle='modal' href='#editInventoryModal' data-inventoryid='" + inventory.id + "' data-action='change'>" + $.i18n("inventory.edit") + "</button>" +
+                    "        <button class='btn btn-primary' type='button' data-toggle='modal' href='#editInventoryModal' data-inventoryid='" + inventory.id + "' data-action='delete'>" + $.i18n("inventory.delete") + "</button>" +
+                    "   </td>" +
+                    "</tr>";
+            });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
+        }
+    }
+
+    $('#editInventoryModal').on('show.bs.modal', function (event) {
+      clearInventoryEditModal();
+      var button = $(event.relatedTarget);
+      var action = button.data('action');
+
+      if (action == "new") {
+
+
+          setEnableOfInventoryEditModal(true);
+          $('#inventoryEditSave').prop("disabled", false);
+          $('#inventoryEditDelete').prop("disabled", true);
+          $('#editInventoryModalAreaName').prop("disabled", false);
+          $('#editInventoryModalLocationID').prop("disabled", false);
+          $('#editInventoryModalLocationName').prop("disabled", false);
+      }
+      else {
+          // if we are deleting or editing a existing item,
+          // let's get the latest inventory information from server
+          var inventoryID = button.data('inventoryid');
+          var url = '/ws/inventory/inventory/query/'+inventoryID;
+
+          $.ajax({
+              url:url,
+              action:action
+          }).done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var inventory = res.data
+                      $('#editInventoryModalAreaName').val(inventory.location.area.name);
+                      $('#editInventoryModalLocationID').val(inventory.location.id);
+                      $('#editInventoryModalLocationName').val(inventory.location.name);
+
+                      $('#editInventoryModalItem').val(inventory.itemFootprint.item.name);
+                      $('#editInventoryModalItemDescription').val(inventory.itemFootprint.item.description);
+
+                      // display the item footprint in the dropdown list with only one
+                      // available record
+                      var itemFootprintSelection = $("#editInventoryModalItemFootprint");
+                      itemFootprintSelection.empty();
+                      itemFootprintSelection.append("<option value='" + inventory.itemFootprint.id + "'>" + inventory.itemFootprint.name + "</option>");
+
+                      $('#editInventoryModalItemFootprintDescription').val(inventory.itemFootprint.description);
+
+                      $('#editInventoryModalInventoryID').val(inventory.id);
+                      $('#editInventoryModalLPN').val(inventory.lpn);
+                      $('#editInventoryModalQuantity').val(inventory.quantity);
+
+                      setEnableOfInventoryEditModal(true);
+
+                      // The user is only allowed to change the quantity
+                      $('#editInventoryModalItem').prop("disabled", true);
+                      $('#editInventoryModalItemDescription').prop("disabled", true);
+                      $('#editInventoryModalItemFootprint').prop("disabled", true);
+                      $('#editInventoryModalItemFootprintDescription').prop("disabled", true);
+
+                      $('#editInventoryModalInventoryID').prop("disabled", true);
+                      $('#editInventoryModalLPN').prop("disabled", true);
+
+
+                      // Show the details of the footprint to assist the user
+                      var footprintUOMGrid =
+                                      "<table class='table table-striped table-bordered display nowrap mt-3' style='width:100%'>" +
+                                      "  <thead> " +
+                                      "    <tr> " +
+                                      "        <th>" + $.i18n("unitOfMeasure") + "</th> " +
+                                      "        <th>" + $.i18n("quantity") + "</th> " +
+                                      "    </tr> " +
+                                      "  </thead> " +
+                                      "  <tbody> ";
+
+                      var itemFootprintUOMSelection = $("#editInventoryModalUOM");
+                      itemFootprintUOMSelection.empty();
+                      $.each(inventory.itemFootprint.itemFootprintUOMs, function(index, itemFootprintUOM) {
+                          footprintUOMGrid += "<tr> " +
+                                              "    <td>" + itemFootprintUOM.unitOfMeasure.description + "</td> " +
+                                              "    <td>" + itemFootprintUOM.quantity + "</td> " +
+                                              "</tr>";
+
+                          itemFootprintUOMSelection.append("<option value='" + itemFootprintUOM.unitOfMeasure.name + "'>" + itemFootprintUOM.unitOfMeasure.description + "</option>");
+                      });
+                      itemFootprintUOMSelection.val(inventory.itemFootprint.stockUOM.name);
+
+                      footprintUOMGrid += " </tbody> " +
+                                          "</table>"
+                      $('#editInventoryModalItemFootprintUOMGrid').html(footprintUOMGrid);
+
+                      if (action == "delete") {
+                          $('#editInventoryModalQuantity').prop("disabled", true);
+                          $('#editInventoryModalUOM').prop("disabled", true);
+
+                          $('#inventoryEditSave').prop("disabled", true);
+                          $('#inventoryEditDelete').prop("disabled", false);
+                      }
+                      else {
+                          $('#inventoryEditSave').prop("disabled", false);
+                          $('#inventoryEditDelete').prop("disabled", true);
+                      }
+                  }
+                  else
+                  {
+                      $('#editModalErrorMessage').text(res.status + " : " + res.message);
+                      setEnableOfInventoryEditModal(false);
+                  }
+              });
+      }
+
+
+
+    })
+
+    var setEnableOfInventoryEditModal = function(enabled) {
+        // Always disable the area and location info
+        $('#editInventoryModalAreaName').prop("disabled", true);
+        $('#editInventoryModalLocationID').prop("disabled", true);
+        $('#editInventoryModalLocationName').prop("disabled", true);
+
+        $('#editInventoryModalItem').prop("disabled", !enabled);
+        // The user can choose item then description will be populated automatically
+        $('#editInventoryModalItemDescription').prop("disabled", true);
+
+        $('#editInventoryModalItemFootprint').prop("disabled", !enabled);
+        // The user can choose item footprint then description will be populated automatically
+        $('#editInventoryModalItemFootprintDescription').prop("disabled",true);
+
+        $('#editInventoryModalInventoryID').prop("disabled", true);
+        $('#editInventoryModalLPN').prop("disabled", !enabled);
+        $('#editInventoryModalQuantity').prop("disabled", !enabled);
+        $('#editInventoryModalUOM').prop("disabled", !enabled);
+
+        $('#editInventoryModalReasonCode').prop("disabled", !enabled);
+        $('#editInventoryModalReason').prop("disabled", !enabled);
+
+        $('#inventoryEditSave').prop("disabled", !enabled);
+        $('#inventoryEditDelete').prop("disabled", !enabled);
+
+    }
+
+
+    var clearInventoryEditModal = function() {
+
+        $('#editInventoryModalAreaName').val('');
+        $('#editInventoryModalLocationID').val('');
+        $('#editInventoryModalLocationName').val('');
+
+        $('#editInventoryModalItem').val('');
+        $('#editInventoryModalItemDescription').val('');
+        $('#editInventoryModalItemFootprint').val('');
+        $('#editInventoryModalItemFootprintDescription').val('');
+
+        $('#editInventoryModalItemFootprintUOMGrid').html('');
+
+        $('#editInventoryModalInventoryID').val('');
+        $('#editInventoryModalLPN').val('');
+        $('#editInventoryModalQuantity').val('');
+        $('#editInventoryModalUOM').html('');
+
+        $('#editInventoryModalReasonCode').val('');
+        $('#editInventoryModalReason').val('');
+    }
+
+    $("#editInventoryModalItem").focusout(function(){
+        // When we fill in the item, automatically populate the description
+        // and fill the dropdown list of the footprint
+        var itemName = $("#editInventoryModalItem").val();
+        if (itemName != "") {
+            var url = '/ws/inventory/item/query/name/' + itemName;
+            $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var item = res.data
+                      $('#editInventoryModalItemDescription').val(item.description);
+                      $("#editInventoryModalItemFootprintDescription").val("");
+
+                      // List all the available footprint of the item
+                      var itemFootprintSelection = $("#editInventoryModalItemFootprint");
+                      itemFootprintSelection.empty();
+                      itemFootprintSelection.append("<option value=''></option>");
+                      $.each(item.footprints, function(i, footprint){
+                            itemFootprintSelection.append("<option value='" + footprint.id + "'>" + footprint.name + "</option>");
+                      });
+
+                  }
+                  else
+                  {
+                      $('#editModalErrorMessage').text(res.status + " : " + res.message);
+
+                  }
+              });
+        }
+
+    })
+
+    $("#editInventoryModalItemFootprint").focusout(function(){
+        // When we fill in the item footprint, automatically populate the description
+        var footprintID =  $("#editInventoryModalItemFootprint").val();
+        $('#editInventoryModalItemFootprintDescription').val("");
+        if (footprintID != null) {
+            var url = '/ws/inventory/item/footprint/query/' + footprintID;
+            $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var itemFootprint = res.data
+                      // Fill the description of the item footprint
+                      $('#editInventoryModalItemFootprintDescription').val(itemFootprint.description);
+
+                      // Show the details of the footprint to assist the user
+                      var footprintUOMGrid =
+                                      "<table class='table table-striped table-bordered display nowrap mt-3' style='width:100%'>" +
+                                      "  <thead> " +
+                                      "    <tr> " +
+                                      "        <th>" + $.i18n("unitOfMeasure") + "</th> " +
+                                      "        <th>" + $.i18n("quantity") + "</th> " +
+                                      "    </tr> " +
+                                      "  </thead> " +
+                                      "  <tbody> ";
+
+                      // List all the available uom of the item footprint
+                      var itemFootprintUOMSelection = $("#editInventoryModalUOM");
+                      itemFootprintUOMSelection.empty();
+                      itemFootprintUOMSelection.append("<option value=''></option>");
+
+                      // Loop the footprint UOM to
+                      // 1. fill in the grid to display all the UOMs
+                      // 2. Fill in the dropdown list of the UOM so the user can choose one
+                      $.each(itemFootprint.footprintUOMs, function(index, footprintUOM){
+                          footprintUOMGrid += "<tr> " +
+                                              "    <td>" + footprintUOM.unitOfMeasure.description + "</td> " +
+                                              "    <td>" + footprintUOM.quantity + "</td> " +
+                                              "</tr>";
+
+                          itemFootprintUOMSelection.append("<option value='" + footprintUOM.unitOfMeasure.name + "'>" + footprintUOM.unitOfMeasure.description + "</option>");
+                      });
+                      footprintUOMGrid += " </tbody> " +
+                                          "</table>"
+                      $('#editInventoryModalItemFootprintUOMGrid').html(footprintUOMGrid);
+
+                  }
+                  else
+                  {
+                      $('#editInventoryModalErrorMessage').text(res.status + " : " + res.message);
+
+                  }
+              });
+
+        }
+
+    })
+
+
+    $("#editInventoryModalAreaName").focusout(function(){
+        // Every time we changed the area, we will setup the auto fill control
+        // for the location
+        var areaName = $("#editInventoryModalAreaName").val();
+        if (areaName != null && areaName != "") {
+            var variable = areaName + "-location";
+            if (autoCompleteCache.exist(variable)) {
+                inputControl.autocomplete({
+                    source: autoCompleteCache.get(variable)
+                });
+            }
+            else {
+                // Get all the locations by area and setup as the auto fill of
+                // the location control
+                var url = "/ws/layout/location/list";
+
+                $.ajax({
+                    method:"POST",
+                    url : url,
+                    data:{
+                         areaName: areaName
+                    }
+                }).done(function( res ) {
+                    console.log("areaName's locations: " + JSON.stringify(res));
+                    var locationNameList = [];
+                    var locationIDList = [];
+
+                    $.each(res.data, function(index, location){
+                        locationNameList.push(location.name);
+                        locationIDList.push(location.id);
+                    });
+                    $( "#editInventoryModalLocationID" ).autocomplete({
+                        source: locationIDList
+                    });
+                    $( "#editInventoryModalLocationName" ).autocomplete({
+                        source: locationNameList
+                    });
+                });
+            }
+        }
+    });
+
+    $("#editInventoryModalLocationID").focusout(function(){
+
+        var locationID = $("#editInventoryModalLocationID").val();
+        if (locationID != null && locationID != "") {
+
+            var url = "/ws/layout/location/query/" + locationID;
+
+            $.ajax({url : url})
+                .done(function( res ) {
+                    console.log("get location by id: " + JSON.stringify(res));
+
+                    $( "#editInventoryModalAreaName" ).val(res.data.area.id);
+                    $( "#editInventoryModalLocationName" ).val(res.data.name);
+            });
+        }
+    });
+    $("#editInventoryModalLocationName").focusout(function(){
+
+        var locationName = $("#editInventoryModalLocationName").val();
+        if (locationName != null && locationName != "") {
+
+            var url = "/ws/layout/location/list";
+
+            $.ajax({
+                    method:"POST",
+                    url : url,
+                    data:{
+                         name: locationName
+                    }
+            }).done(function( res ) {
+                console.log("get location by name: " + JSON.stringify(res));
+
+                $( "#editInventoryModalAreaName" ).val(res.data.area.id);
+                $( "#editInventoryModalLocationID" ).val(res.data.id);
+            });
+        }
+    });
+    $('#inventoryEditSave').click(function(){
+        var inventoryID = $('#editInventoryModalInventoryID').val();
+        var url = "/ws/inventory/inventory";
+        if (inventoryID == '') {
+            url += "/new";
+        }
+        else {
+            // In this form, the uesr is only allowed to change the quantity
+            url += "/adjustQuantity";
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            data:{
+                 inventoryID: inventoryID,
+                 locationID: $('#editInventoryModalLocationID').val(),
+                 itemFootprintID: $('#editInventoryModalItemFootprint').val(),
+                 lpn: $('#editInventoryModalLPN').val(),
+                 quantity: $('#editInventoryModalQuantity').val(),
+                 itemFootprintUOM: $('#editInventoryModalUOM').val(),
+                 reasonCode: $('#editInventoryModalReasonCode').val(),
+                 reason: $('#editInventoryModalReason').val()
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                var locationID = res.data.location.id;
+
+                displayLocationDetail(locationID, true);
+
+                $('#editInventoryModalErrorMessage').text('');
+
+                $('#editInventoryModal').modal('toggle');
+            }
+            else{
+                $('#editInventoryModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+    $('#inventoryEditDelete').click(function(){
+        var inventoryID = $('#editInventoryModalInventoryID').val();
+        var url = "/ws/inventory/inventory/delete";
+        $.ajax({
+            method:"POST",
+            url : url,
+            data:{
+                 inventoryID: inventoryID,
+                 reasonCode: $('#editInventoryModalReasonCode').val(),
+                 reason: $('#editInventoryModalReason').val()
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                var locationID = res.data.location.id;
+
+                displayLocationDetail(locationID, true);
+
+                $('#editInventoryModalErrorMessage').text('');
+
+                $('#editInventoryModal').modal('toggle');
+            }
+            else{
+                $('#editInventoryModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+
+</script>
+</body>
+</html>

@@ -23,6 +23,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import se.gzhang.scm.wms.common.model.Velocity;
 import se.gzhang.scm.wms.common.service.VelocityService;
+import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.Building;
 import se.gzhang.scm.wms.layout.model.Location;
@@ -67,10 +68,6 @@ public class LocationService {
 
 
     public List<Location> findLocation(Map<String, String> criteriaList) {
-        System.out.println("Find location with following criteria");
-        for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
-            System.out.println("name: " + entry.getKey() + " , value: " + entry.getValue());
-        }
         return locationRepository.findAll(new Specification<Location>() {
             @Override
             public Predicate toPredicate(Root<Location> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
@@ -86,10 +83,20 @@ public class LocationService {
                     if(criteriaList.containsKey("areaID") && !criteriaList.get("areaID").isEmpty()) {
                         predicates.add(criteriaBuilder.equal(joinArea.get("id"), criteriaList.get("areaID")));
                     }
+                    if(criteriaList.containsKey("areaName") && !criteriaList.get("areaName").isEmpty()) {
+                        predicates.add(criteriaBuilder.equal(joinArea.get("name"), criteriaList.get("areaName")));
+                    }
                 }
-                else if (criteriaList.containsKey("areaID") && !criteriaList.get("areaID").isEmpty()) {
+                else if ((criteriaList.containsKey("areaID") && !criteriaList.get("areaID").isEmpty()) ||
+                        (criteriaList.containsKey("areaName") && !criteriaList.get("areaName").isEmpty())) {
                     Join<Location, Area> joinArea = root.join("area",JoinType.INNER);
-                    predicates.add(criteriaBuilder.equal(joinArea.get("id"), criteriaList.get("areaID")));
+
+                    if(criteriaList.containsKey("areaID") && !criteriaList.get("areaID").isEmpty()) {
+                        predicates.add(criteriaBuilder.equal(joinArea.get("id"), criteriaList.get("areaID")));
+                    }
+                    if(criteriaList.containsKey("areaName") && !criteriaList.get("areaName").isEmpty()) {
+                        predicates.add(criteriaBuilder.equal(joinArea.get("name"), criteriaList.get("areaName")));
+                    }
                 }
 
                 if(criteriaList.containsKey("name") && !criteriaList.get("name").isEmpty()) {
@@ -123,10 +130,13 @@ public class LocationService {
 
     public List<Location> loadFromFile(String[] columnNameList, List<String> locations, String processID) {
 
+
         List<Location> locationList = new ArrayList<>();
 
-        int currentLocationIndex=0;
-        int totalLocationCount = locations.size();
+        // A local temporary map to store the area according to the area name
+        // so that we don't have to get the area again and again for the
+        // locations from the same area
+        Map<String, Area> areaMap = new HashMap<>();
 
         for(String locationString : locations) {
 
@@ -134,117 +144,127 @@ public class LocationService {
             if (columnNameList.length != locationAttributeList.length) {
                 continue;
             }
-            // A local temporary map to store the area according to the area name
-            // so that we don't have to get the area again and again for the
-            // locations from the same area
-            Map<String, Area> areaMap = new HashMap<>();
+            try {
+                Location location = setupLocation(columnNameList, locationAttributeList, areaMap);
 
-            System.out.println("########################################");
+                locationList.add(save(location));
 
-            Area area = null;
-            String locationName="", aisle="";
-            double length=0.0,width=0.0,height=0.0, volume=0.0;
-            double coordinateX=0.0, coordinateY=0.0, coordinateZ=0.0;
-            boolean pickable=false, storable=false, usable=false;
-            Velocity velocity=null;
+                fileUploadOptionService.increaseRecordNumberLoaded(processID, true);
 
-
-            for(int i = 0; i < columnNameList.length; i++) {
-                String columnName = columnNameList[i];
-                String locationAttribute = locationAttributeList[i];
-                System.out.println(">> " + columnName + " : " + locationAttribute);
-                if (columnName.equalsIgnoreCase("area")){
-                    if (areaMap.containsKey(locationAttribute)) {
-                        area = areaMap.get(locationAttribute);
-                    }
-                    else {
-                        area = getAreaByName(locationAttribute);
-                        areaMap.put(locationAttribute, area);
-                    }
-                }
-                else if (columnName.equalsIgnoreCase("location")){
-                    locationName = locationAttribute;
-                }
-                else if (columnName.equalsIgnoreCase("length")){
-                    length = Double.parseDouble(locationAttribute);
-
-                }
-                else if (columnName.equalsIgnoreCase("width")){
-                    width = Double.parseDouble(locationAttribute);
-
-                }
-                else if (columnName.equalsIgnoreCase("height")){
-                    height = Double.parseDouble(locationAttribute);
-
-                }
-                else if (columnName.equalsIgnoreCase("x")){
-                    coordinateX = Double.parseDouble(locationAttribute);
-
-                }
-                else if (columnName.equalsIgnoreCase("y")){
-                    coordinateY = Double.parseDouble(locationAttribute);
-
-                }
-                else if (columnName.equalsIgnoreCase("z")){
-                    coordinateZ = Double.parseDouble(locationAttribute);
-
-                }
-                else if (columnName.equalsIgnoreCase("pickable")){
-                    pickable = locationAttribute.equalsIgnoreCase("1");
-                }
-                else if (columnName.equalsIgnoreCase("storable")){
-                    storable = locationAttribute.equalsIgnoreCase("1");
-
-                }
-                else if (columnName.equalsIgnoreCase("usable")){
-                    usable = locationAttribute.equalsIgnoreCase("1");
-
-                }
-                else if (columnName.equalsIgnoreCase("aisle")){
-                    aisle = locationAttribute;
-
-                }
-                else if (columnName.equalsIgnoreCase("volume")){
-
-                    volume = Double.parseDouble(locationAttribute);
-                }
-                else if (columnName.equalsIgnoreCase("velocity")){
-                    velocity = velocityService.findByVelocityName(locationAttribute);
-                }
             }
+            catch (GenericException ex) {
 
-            // If location already exists, let's change the existing location
-            // otherwise, let's create a new location
-            Location location = findByLocationName(locationName);
-            if (location == null){
-                location = new Location();
-                location.setName(locationName);
+                fileUploadOptionService.increaseRecordNumberLoaded(processID, false);
             }
-            location.setArea(area);
-            location.setAisleID(aisle);
-            location.setPickable(pickable);
-            location.setStorable(storable);
-            location.setUsable(usable);
-            location.setLength(length);
-            location.setWidth(width);
-            location.setHeight(height);
-            location.setVolume(volume);
-            location.setVelocity(velocity);
-            location.setCoordinateX(coordinateX);
-            location.setCoordinateY(coordinateY);
-            location.setCoordinateZ(coordinateZ);
-
-            locationList.add(save(location));
-            System.out.println("########################################\n\n");
-
-            currentLocationIndex++;
-            System.out.println(">> Set progress of id " + processID + " to " + ((currentLocationIndex * 100) / totalLocationCount));
-            fileUploadOptionService.setUploadProgress(processID,(currentLocationIndex * 100) / totalLocationCount);
         }
         return locationList;
     }
 
     private Area getAreaByName(String areaName) {
         return areaService.findByAreaName(areaName);
+    }
+
+    private Location setupLocation(String[] columnNameList, String[] locationAttributeList, Map<String, Area> areaMap)
+        throws GenericException {
+
+        Area area = null;
+        String locationName="", aisle="";
+        double length=0.0,width=0.0,height=0.0, volume=0.0;
+        double coordinateX=0.0, coordinateY=0.0, coordinateZ=0.0;
+        boolean pickable=false, storable=false, usable=false;
+        Velocity velocity=null;
+
+
+        for(int i = 0; i < columnNameList.length; i++) {
+            String columnName = columnNameList[i];
+            String locationAttribute = locationAttributeList[i];
+            if (columnName.equalsIgnoreCase("area")){
+                if (areaMap.containsKey(locationAttribute)) {
+                    area = areaMap.get(locationAttribute);
+                }
+                else {
+                    area = getAreaByName(locationAttribute);
+                    if (area == null) {
+                        throw new GenericException(10000, "can't find area with code: " + locationAttribute);
+                    }
+                    areaMap.put(locationAttribute, area);
+                }
+            }
+            else if (columnName.equalsIgnoreCase("location")){
+                locationName = locationAttribute;
+            }
+            else if (columnName.equalsIgnoreCase("length")){
+                length = Double.parseDouble(locationAttribute);
+
+            }
+            else if (columnName.equalsIgnoreCase("width")){
+                width = Double.parseDouble(locationAttribute);
+
+            }
+            else if (columnName.equalsIgnoreCase("height")){
+                height = Double.parseDouble(locationAttribute);
+
+            }
+            else if (columnName.equalsIgnoreCase("x")){
+                coordinateX = Double.parseDouble(locationAttribute);
+
+            }
+            else if (columnName.equalsIgnoreCase("y")){
+                coordinateY = Double.parseDouble(locationAttribute);
+
+            }
+            else if (columnName.equalsIgnoreCase("z")){
+                coordinateZ = Double.parseDouble(locationAttribute);
+
+            }
+            else if (columnName.equalsIgnoreCase("pickable")){
+                pickable = locationAttribute.equalsIgnoreCase("1");
+            }
+            else if (columnName.equalsIgnoreCase("storable")){
+                storable = locationAttribute.equalsIgnoreCase("1");
+
+            }
+            else if (columnName.equalsIgnoreCase("usable")){
+                usable = locationAttribute.equalsIgnoreCase("1");
+
+            }
+            else if (columnName.equalsIgnoreCase("aisle")){
+                aisle = locationAttribute;
+
+            }
+            else if (columnName.equalsIgnoreCase("volume")){
+
+                volume = Double.parseDouble(locationAttribute);
+            }
+            else if (columnName.equalsIgnoreCase("velocity")){
+                velocity = velocityService.findByVelocityName(locationAttribute);
+                if (velocity == null) {
+                    velocity = velocityService.findAll().get(0);
+                }
+            }
+        }
+
+        // If location already exists, let's change the existing location
+        // otherwise, let's create a new location
+        Location location = findByLocationName(locationName);
+        if (location == null){
+            location = new Location();
+            location.setName(locationName);
+        }
+        location.setArea(area);
+        location.setAisleID(aisle);
+        location.setPickable(pickable);
+        location.setStorable(storable);
+        location.setUsable(usable);
+        location.setLength(length);
+        location.setWidth(width);
+        location.setHeight(height);
+        location.setVolume(volume);
+        location.setVelocity(velocity);
+        location.setCoordinateX(coordinateX);
+        location.setCoordinateY(coordinateY);
+        location.setCoordinateZ(coordinateZ);
+
+        return location;
     }
 }

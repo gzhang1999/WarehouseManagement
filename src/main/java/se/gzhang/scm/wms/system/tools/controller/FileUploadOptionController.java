@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import se.gzhang.scm.wms.system.tools.model.FileUploadOption;
+import se.gzhang.scm.wms.system.tools.model.FileUploadProcess;
 import se.gzhang.scm.wms.system.tools.service.FileUploadOptionService;
 import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
 
@@ -67,7 +68,9 @@ public class FileUploadOptionController {
     @ResponseBody
     @RequestMapping(value="/ws/systemtool/fileupload/upload/{name}")
     public WebServiceResponseWrapper uploadFile(@PathVariable("name") String fileUploadOptionName,
-                                                @RequestParam("file") MultipartFile multipartFile) {
+                                                @RequestParam("file") MultipartFile multipartFile,
+                                                @RequestParam(value = "processID", required = false) String processID) {
+        System.out.println("start upload file with process: " + processID);
         BufferedReader br;
         List<String> fileContent = new ArrayList<>();
         int lineNumber = 0;
@@ -84,20 +87,28 @@ public class FileUploadOptionController {
             System.err.println(e.getMessage());
         }
 
-        // Get it a unique process ID so that the web client can track the progress if needed
-        String processID = UUID.randomUUID().toString();
         fileUploadOptionService.loadFile(fileContent , fileUploadOptionName, processID);
 
-        String jsonMessage = "{\"processID\": \"" + processID + "\"}";
-        return new WebServiceResponseWrapper<String>(0, "", jsonMessage);
+        return new WebServiceResponseWrapper<FileUploadProcess>(0, "", fileUploadOptionService.getFileUploadProgress(processID));
     }
 
     @ResponseBody
     @RequestMapping(value="/ws/systemtool/fileupload/upload/progress/{processID}")
-    public WebServiceResponseWrapper uploadFile(@PathVariable("processID") String processID) {
-        int progress = fileUploadOptionService.getUploadProgress(processID);
-        String jsonMessage = "{\"processID\": \"" + processID + "\", \"progress\": " + progress + "}";
-        return new WebServiceResponseWrapper<String>(0, "", jsonMessage);
+    public WebServiceResponseWrapper getFileUploadProcess(@PathVariable("processID") String processID) {
+        FileUploadProcess fileUploadProcess = fileUploadOptionService.getFileUploadProgress(processID);
+        return new WebServiceResponseWrapper<FileUploadProcess>(0, "", fileUploadProcess);
+
+
+    }
+    @ResponseBody
+    @RequestMapping(value="/ws/systemtool/fileupload/upload/progress/new")
+    public WebServiceResponseWrapper startUploadProcess() {
+        String processID = UUID.randomUUID().toString();
+        // fileUploadOptionService.getFileUploadProgress will create a new process if it doesn't exists yet
+        // and regiest it in a map
+        FileUploadProcess fileUploadProcess =  fileUploadOptionService.getFileUploadProgress(processID);
+        System.out.println("## Initial process with ID: " + processID);
+        return new WebServiceResponseWrapper<FileUploadProcess>(0, "", fileUploadProcess);
 
 
     }

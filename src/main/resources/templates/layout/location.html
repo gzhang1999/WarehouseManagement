@@ -38,8 +38,10 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <a class="badge badge-success float-right" th:text="#{location.new}" th:href="@{/flowAddLocation}">New Location</a>
-                        <a class="badge badge-danger mx-4 float-right" id="locaitonMassDeleteButton" th:text="#{location.massdelete}" href="#">Delete Locations</a>
+                        <h5>
+                            <a class="badge badge-success float-right" th:text="#{location.new}" th:href="@{/flowAddLocation}">New Location</a>
+                            <a class="badge badge-danger mx-4 float-right" id="locaitonMassDeleteButton" th:text="#{location.massdelete}" href="#">Delete Locations</a>
+                        </h5>
                     </div>
                     <div class="card-body">
                         <form class="form-inline" id="location_query" data-display="locationTable" th:action="@{/ws/layout/location/list}">
@@ -107,16 +109,18 @@
                                             <td th:text="#{location.storable}">Storable Flag</td>
                                             <td th:text="#{location.usable}">Usable Flag</td>
                                             <td th:text="#{location.velocity}">Velocity</td>
+                                            <!--
                                             <td th:text="#{location.accessibleVehicleType}">Accessible Vehicle Type</td>
                                             <td th:text="#{location.coordinateX}">Coordinate X</td>
                                             <td th:text="#{location.coordinateY}">Coordinate Y</td>
                                             <td th:text="#{location.coordinateZ}">Coordinate Z</td>
+                                            -->
                                             <td></td>
                                         </tr>
                                     </thead>
 
                                     <tbody>
-                                        <tr th:each="location : ${locationList}">
+                                        <tr th:each="location : ${locationList}" th:id="${'row_' + location.id}">
                                             <td>
                                                 <input type="checkbox" data-action="locationSelector" th:data-locationid="${location.id}"/>
                                             </td>
@@ -138,12 +142,15 @@
                                                 <input th:id="'usableFlag-' + ${location.id}" type="checkbox" th:checked="${location.usable}" disabled/>
                                             </td>
                                             <td th:text="${location.velocity.name}" th:id="'velocity-' + ${location.id}"></td>
+                                            <!--
                                             <td th:text="${#strings.listJoin(#messages.listMsg(location.accessibleVehicleTypes), ',')}" th:id="'accessibleVehicleType-' + ${location.id}"></td>
                                             <td th:text="${location.coordinateX}" th:id="'coordinateX-' + ${location.id}"></td>
                                             <td th:text="${location.coordinateY}" th:id="'coordinateY-' + ${location.id}"></td>
                                             <td th:text="${location.coordinateZ}" th:id="'coordinateZ-' + ${location.id}"></td>
+                                            -->
                                             <td>
                                                 <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editModal" th:text="#{edit}" th:data-locationid="${location.id}" th:data-locationname="${location.name}" data-action="change" >Edit</button>
+                                                <button class="btn btn-primary" type="button" th:text="#{detail}" th:data-locationid="${location.id}" onclick="showLocationDetail(event)">Detail</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -263,6 +270,98 @@
         </div>
     </div>
 
+    <!-- Modal for editing existing record or add new inventory record-->
+    <div class="modal fade" id="editInventoryModal" tabindex="-1" role="dialog" aria-labelledby="editInventoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editInventoryModalLabel" th:text="#{inventory.editmodal.title}">Edit Inventory</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row text-danger px-2" id="editInventoryModalErrorMessage"></div>
+                    <div class="container col-md-12">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="editInventoryModalAreaName" class="col-form-label" th:text="#{area}">Area:</label>
+                                <input type="text" class="form-control" id="editInventoryModalAreaName" disabled>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editInventoryModalLocationID" class="col-form-label" th:text="#{location.id}">Location ID:</label>
+                                <input type="text" class="form-control" id="editInventoryModalLocationID" disabled>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editInventoryModalLocationName" class="col-form-label" th:text="#{location}">Location:</label>
+                                <input type="text" class="form-control" id="editInventoryModalLocationName" disabled>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="editInventoryModalItem" class="col-form-label" th:text="#{item}">Item:</label>
+                                <input type="text" class="form-control" id="editInventoryModalItem" data-autocomplete="true" data-variable="item">
+                            </div>
+                            <div class="col-md-8">
+                                <label for="editInventoryModalItemDescription" class="col-form-label" th:text="#{item.description}">Item:</label>
+                                <input type="text" class="form-control" id="editInventoryModalItemDescription">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="editInventoryModalItemFootprint" class="col-form-label" th:text="#{item.footprint}">Footprint:</label>
+                                <select class="form-control" id="editInventoryModalItemFootprint"></select>
+                            </div>
+                            <div class="col-md-8">
+                                <label for="editInventoryModalItemFootprintDescription" class="col-form-label" th:text="#{item.footprint.description}">Footprint:</label>
+                                <input type="text" class="form-control" id="editInventoryModalItemFootprintDescription">
+                            </div>
+                        </div>
+                        <div class="row" id="editInventoryModalItemFootprintUOMGrid">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="editInventoryModalInventoryID" class="col-form-label" th:text="#{inventory.id}">ID:</label>
+                                <input type="text" class="form-control" id="editInventoryModalInventoryID">
+                            </div>
+                            <div class="col-md-9">
+                                <label for="editInventoryModalLPN" class="col-form-label" th:text="#{inventory.lpn}">LPN:</label>
+                                <input type="text" class="form-control" id="editInventoryModalLPN">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editInventoryModalQuantity" class="col-form-label" th:text="#{quantity}">Quantity:</label>
+                                <input type="text" class="form-control" id="editInventoryModalQuantity">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editInventoryModalUOM" class="col-form-label" th:text="#{unitOfMeasure}">Unit Of Measure:</label>
+                                <select class="form-control" id="editInventoryModalUOM" name="unitOfMeasure"></select>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="editInventoryModalReasonCode" class="col-form-label" th:text="#{inventory.adjust.reason.code}">Adjustment Reason Code:</label>
+                                <select class="form-control" id="editInventoryModalReasonCode" name="reasonCode" data-variable="invadjReasonCode"></select>
+                            </div>
+                            <div class="col-md-9">
+                                <label for="editInventoryModalReason" class="col-form-label" th:text="#{inventory.adjust.reason}">Adjustment Reason:</label>
+                                <input type="text" class="form-control" id="editInventoryModalReason">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="inventoryEditSave" th:text="#{save}">Save</button>
+                    <button type="button" class="btn btn-danger" id="inventoryEditDelete" th:text="#{delete}">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
 </div>
@@ -285,7 +384,7 @@
             var htmlData = "";
             $.each(data, function(index, location){
                  htmlData +=
-                    "<tr>" +
+                    "<tr id='row_" + location.id + "'>" +
                     "    <td> " +
                     "        <input type='checkbox' data-action='locationSelector' data-locationid='" + location.id + "' /> " +
                     "    </td> " +
@@ -314,12 +413,14 @@
                                  "<input id='usableFlag-" +  location.id + "' type='checkbox' disabled /> " ) +
                     "   </td>" +
                     "   <td id='velocity-" +  location.id + "'>" + location.velocity + "</td>" +
-                    "   <td id='accessibleVehicleType-" +  location.id + "'>" + getAccessibleVehicleType(location.accessibleVehicleType) + "</td>" +
-                    "   <td id='coordinateX-" +  location.id + "'>" + location.coordinateX + "</td>" +
-                    "   <td id='coordinateY-" +  location.id + "'>" + location.coordinateY + "</td>" +
-                    "   <td id='coordinateZ-" +  location.id + "'>" + location.coordinateZ + "</td>" +
+
+                    // "   <td id='accessibleVehicleType-" +  location.id + "'>" + getAccessibleVehicleType(location.accessibleVehicleType) + "</td>" +
+                    // "   <td id='coordinateX-" +  location.id + "'>" + location.coordinateX + "</td>" +
+                    // "   <td id='coordinateY-" +  location.id + "'>" + location.coordinateY + "</td>" +
+                    // "   <td id='coordinateZ-" +  location.id + "'>" + location.coordinateZ + "</td>" +
                     "   <td>" +
-                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-action='change' data-locationid='" + location.id + "' data-locationname='" + location.name+ "'>Edit</button>" +
+                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-action='change' data-locationid='" + location.id + "' data-locationname='" + location.name+ "'>" + $.i18n("edit")+ "</button>" +
+                    "       <button class='btn btn-primary' type='button' data-locationid='" + location.id + "' onclick='showLocationDetail(event)'>" + $.i18n("detail") + "</button>"
                     "   </td>" +
                     "</tr>";
             });
@@ -388,6 +489,8 @@
         $('#editModalCoordinateX').prop("disabled", !enabled);
         $('#editModalCoordinateY').prop("disabled", !enabled);
         $('#editModalCoordinateZ').prop("disabled", !enabled);
+
+        $('#locationEditSave').prop("disabled", !enabled);
     }
 
 
@@ -481,7 +584,6 @@
         var locationIDList = [];
 
         $("input[data-action='locationSelector']:checked").each(function(){
-            console.log("start to remove location: " + $(this).data("locationid"));
             locationIDList.push($(this).data("locationid"));
         })
         massiveDeleteLocation(0, locationIDList);
@@ -492,7 +594,6 @@
     var massiveDeleteLocation = function(index, locationIDList){
         if (index < locationIDList.length) {
             var locationID = locationIDList[index];
-            console.log("AJAX call to remove location: " + locationID);
             var url = "/ws/layout/location/delete";
             $.ajax({
                 method:"POST",
@@ -538,6 +639,524 @@
             })
 
         }
+    })
+
+
+    var showLocationDetail = function(event) {
+        var control = $(event.target);
+        var locationID = control.data("locationid");
+        displayLocationDetail(locationID, false);
+    }
+
+    var displayLocationDetail = function(locationID, refresh) {
+
+        var table = $("#locationTable").DataTable();
+
+        var tr = $("#row_" + locationID);
+        var row = table.row(tr);
+
+        // If refresh is true, it means we will refresh
+        // the display table and always get the latest data
+        // from server.
+        if (refresh == true) {
+            // refresh the row to update the display
+            row.child.hide();
+            tr.removeClass('shown');
+            // Remove the local cache so it can get the fresh data
+            locationListCache.remove(locationID)
+
+        }
+
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+            table.columns.adjust();
+        }
+        else {
+            // If we already cache the item's information, get it from
+            // the local cache.
+            // otherwise, get from server
+            if (locationListCache.exist(locationID)) {
+                row.child(formatLocationInfomration(locationListCache.get(locationID))).show();
+                tr.addClass('shown');
+
+                // Setup the data table
+                $("#inventoryDisplay-" + locationID).DataTable({
+                    "scrollX": true,
+                    fixedHeader: true
+                });
+                table.columns.adjust();
+            }
+            else {
+                var url = '/ws/layout/location/query/'+locationID;
+                $.ajax({
+                    url:url
+                }).done(function( res ) {
+                    // save the item information for later use
+                    locationListCache.set(res.data.id, res.data);
+
+                    // display this row
+                    row.child(formatLocationInfomration(res.data)).show();
+                    tr.addClass('shown');
+
+                    // Setup the data table
+                    $("#inventoryDisplay-" + locationID).DataTable({
+                        "scrollX": true,
+                        fixedHeader: true
+                    });
+                    table.columns.adjust();
+                });
+            }
+        }
+    }
+
+    var formatLocationInfomration = function(location) {
+        var inventoryHtml = getFormatInventoryDisplay(location);
+        var vehicleAccessHtml = getFormatVehicleAccessDisplay(location);
+        var coordinateHtml = getFormatCoordinateDisplay(location);
+
+        var html = "<ul class='nav nav-tabs' role='tablist'> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link active' data-toggle='tab' href='#inventory' role='tab' aria-controls='inventory'>" + $.i18n("location.inventory") + "</a> " +
+                   "    </li> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link' data-toggle='tab' href='#accessVehicle' role='tab' aria-controls='accessVehicle'>" + $.i18n("location.accessVehicle") + "</a> " +
+                   "    </li> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link' data-toggle='tab' href='#coordinate' role='tab' aria-controls='coordinate'>" + $.i18n("location.coordinate") + "</a> " +
+                   "    </li> " +
+                   "</ul> " +
+                   "<div class='tab-content'> " +
+                   "    <div class='tab-pane active' id='inventory' role='tabpanel'> " +
+                        inventoryHtml +
+                   "    </div> " +
+                   "    <div class='tab-pane' id='accessVehicle' role='tabpanel'>" +
+                        vehicleAccessHtml +
+                   "    </div> " +
+                   "    <div class='tab-pane' id='coordinate' role='tabpanel'>" +
+                        coordinateHtml +
+                   "    </div> " +
+                   "</div> ";
+        return html;
+
+    }
+
+    var getFormatInventoryDisplay = function(location) {
+        var inventoryHtml = "<div class='card card-accent-success'> " +
+                               "    <div class='card-header'> " +
+                               "        <h5> " +
+                               "            <a class='badge badge-primary float-right mx-2' data-toggle='modal' href='#editInventoryModal' data-locationid='" + location.id + "' data-locationname ='" + location.name + "' data-areaname ='" + location.area + "' data-action='new'>" +  $.i18n('inventory.new') + "</a>" +
+                               "        </h5>" +
+                               "    </div> " +
+                               "    <div class='card-body'> " +
+                               "      <div class='row'> " +
+                               "      <div class='col-md-12'> " +
+                               "        <table id='inventoryDisplay-" + location.id + "' class='table table-striped table-bordered display nowrap dataTable no-footer' style='width:100%' role='grid' data-tabletype='datatable' data-init='true'> " +
+                               "            <thead> " +
+                               "                <tr> " +
+                               "                   <th>" + $.i18n("lpn") + "</th> " +
+                               "                   <th>" + $.i18n("item") + "</th> " +
+                               "                   <th>" + $.i18n("footprint") + "</th> " +
+                               "                   <th>" + $.i18n("quantity") + "</th> " +
+                               "                   <th></th> " +
+                               "               </tr> " +
+                               "           </thead> " +
+                               "           <tbody>";
+        $.each(location.inventoryList, function(index, inventory){
+            inventoryHtml    += "  <tr>" +
+                                "    <td> "+ inventory.lpn + "</td> " +
+                                "    <td> "+ inventory.footprint.item.description + "</td> " +
+                                "    <td> "+ inventory.footprint.description + "</td> " +
+                                "    <td> "+ inventory.quantity + "</td> " +
+                                "    <td>" +
+                                "        <button class='btn btn-primary' type='button' data-toggle='modal' href='#editInventoryModal' data-inventoryid='" + inventory.id + "' data-action='change'>" + $.i18n("inventory.edit") + "</button>" +
+                                "        <button class='btn btn-primary' type='button' data-toggle='modal' href='#editInventoryModal' data-inventoryid='" + inventory.id + "' data-action='delete'>" + $.i18n("inventory.delete") + "</button>" +
+                                "    </td> " +
+                                "</tr> ";
+        });
+        inventoryHtml    += "          </tbody> " +
+                            "        </table> " +
+                            "    </div>  " +
+                            "    </div>  " +
+                            "  </div>  " +
+                            "</div>";
+
+
+        return inventoryHtml;
+    }
+
+    var getFormatVehicleAccessDisplay = function(location) {
+
+        var vehicleAccessHtml = "<div class='card card-accent-success'> " +
+                                "    <div class='card-header'> " +
+                                "        <h5> " +
+                                    $.i18n("location.vehicleAccess") +
+                                "        </h5>" +
+                                "    </div> " +
+                                "    <div class='card-body'> ";
+        $.each(location.vehicleAccess, function(index, vehicleAccess){
+            vehicleAccessHtml +="       <div class='row'> " +
+                                    vehicleAccess +
+                                "       </div>";
+        });
+        vehicleAccessHtml += "       </div> " +
+                             " </div> ";
+        return vehicleAccessHtml;
+    }
+
+    var getFormatCoordinateDisplay = function(location) {
+        var coordinateHtml = "<div class='card card-accent-success'> " +
+                             "    <div class='card-header'> " +
+                             "        <h5> " +
+                                $.i18n("location.coordinate") +
+                             "        </h5>" +
+                             "    </div> " +
+                             "    <div class='card-body'> " +
+                             "        <ul> " +
+                             "            <li> " + $.i18n("location.coordinateX") + ": " + location.coordinateX + " </li>" +
+                             "            <li> " + $.i18n("location.coordinateY") + ": " + location.coordinateY + " </li>" +
+                             "            <li> " + $.i18n("location.coordinateZ") + ": " + location.coordinateZ + " </li>" +
+                             "        </ul> " +
+                             "    </div>" +
+                             "</div>";
+        return coordinateHtml;
+
+    }
+
+    var locationListCache = {
+        data: {},
+        remove: function (locationID) {
+                    delete locationListCache.data[locationID];
+        },
+        exist: function (locationID) {
+                   return locationListCache.data.hasOwnProperty(locationID) && locationListCache.data[locationID] !== null;
+        },
+        get: function (locationID) {
+                 return locationListCache.data[locationID];
+        },
+        set: function (locationID, cachedData, callback) {
+                  locationListCache.remove(locationID);
+                  locationListCache.data[locationID] = cachedData;
+                  if ($.isFunction(callback)) callback(cachedData);
+        }
+    };
+
+    $('#editInventoryModal').on('show.bs.modal', function (event) {
+      clearInventoryEditModal();
+      var button = $(event.relatedTarget);
+      var action = button.data('action');
+
+      if (action == "new") {
+
+          $('#editInventoryModalAreaName').val(button.data('areaname'));
+          $('#editInventoryModalLocationID').val(button.data('locationid'));
+          $('#editInventoryModalLocationName').val(button.data('locationname'));
+
+          setEnableOfInventoryEditModal(true);
+          $('#inventoryEditSave').prop("disabled", false);
+          $('#inventoryEditDelete').prop("disabled", true);
+      }
+      else {
+          // if we are deleting or editing a existing item,
+          // let's get the latest inventory information from server
+          var inventoryID = button.data('inventoryid');
+          var url = '/ws/inventory/inventory/query/'+inventoryID;
+
+          $.ajax({
+              url:url,
+              action:action
+          }).done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var inventory = res.data
+                      $('#editInventoryModalAreaName').val(inventory.location.area.name);
+                      $('#editInventoryModalLocationID').val(inventory.location.id);
+                      $('#editInventoryModalLocationName').val(inventory.location.name);
+
+                      $('#editInventoryModalItem').val(inventory.itemFootprint.item.name);
+                      $('#editInventoryModalItemDescription').val(inventory.itemFootprint.item.description);
+
+                      // display the item footprint in the dropdown list with only one
+                      // available record
+                      var itemFootprintSelection = $("#editInventoryModalItemFootprint");
+                      itemFootprintSelection.empty();
+                      itemFootprintSelection.append("<option value='" + inventory.itemFootprint.id + "'>" + inventory.itemFootprint.name + "</option>");
+
+                      $('#editInventoryModalItemFootprintDescription').val(inventory.itemFootprint.description);
+
+                      $('#editInventoryModalInventoryID').val(inventory.id);
+                      $('#editInventoryModalLPN').val(inventory.lpn);
+                      $('#editInventoryModalQuantity').val(inventory.quantity);
+
+                      setEnableOfInventoryEditModal(true);
+
+                      // The user is only allowed to change the quantity
+                      $('#editInventoryModalItem').prop("disabled", true);
+                      $('#editInventoryModalItemDescription').prop("disabled", true);
+                      $('#editInventoryModalItemFootprint').prop("disabled", true);
+                      $('#editInventoryModalItemFootprintDescription').prop("disabled", true);
+
+                      $('#editInventoryModalInventoryID').prop("disabled", true);
+                      $('#editInventoryModalLPN').prop("disabled", true);
+
+
+                      // Show the details of the footprint to assist the user
+                      var footprintUOMGrid =
+                                      "<table class='table table-striped table-bordered display nowrap mt-3' style='width:100%'>" +
+                                      "  <thead> " +
+                                      "    <tr> " +
+                                      "        <th>" + $.i18n("unitOfMeasure") + "</th> " +
+                                      "        <th>" + $.i18n("quantity") + "</th> " +
+                                      "    </tr> " +
+                                      "  </thead> " +
+                                      "  <tbody> ";
+
+                      var itemFootprintUOMSelection = $("#editInventoryModalUOM");
+                      itemFootprintUOMSelection.empty();
+                      $.each(inventory.itemFootprint.itemFootprintUOMs, function(index, itemFootprintUOM) {
+                          footprintUOMGrid += "<tr> " +
+                                              "    <td>" + itemFootprintUOM.unitOfMeasure.description + "</td> " +
+                                              "    <td>" + itemFootprintUOM.quantity + "</td> " +
+                                              "</tr>";
+
+                          itemFootprintUOMSelection.append("<option value='" + itemFootprintUOM.unitOfMeasure.name + "'>" + itemFootprintUOM.unitOfMeasure.description + "</option>");
+                      });
+                      itemFootprintUOMSelection.val(inventory.itemFootprint.stockUOM.name);
+
+                      footprintUOMGrid += " </tbody> " +
+                                          "</table>"
+                      $('#editInventoryModalItemFootprintUOMGrid').html(footprintUOMGrid);
+
+                      if (action == "delete") {
+                          $('#editInventoryModalQuantity').prop("disabled", true);
+                          $('#editInventoryModalUOM').prop("disabled", true);
+
+                          $('#inventoryEditSave').prop("disabled", true);
+                          $('#inventoryEditDelete').prop("disabled", false);
+                      }
+                      else {
+                          $('#inventoryEditSave').prop("disabled", false);
+                          $('#inventoryEditDelete').prop("disabled", true);
+                      }
+                  }
+                  else
+                  {
+                      $('#editModalErrorMessage').text(res.status + " : " + res.message);
+                      setEnableOfInventoryEditModal(false);
+                  }
+              });
+      }
+
+
+
+    })
+
+    var setEnableOfInventoryEditModal = function(enabled) {
+        // Always disable the area and location info
+        $('#editInventoryModalAreaName').prop("disabled", true);
+        $('#editInventoryModalLocationID').prop("disabled", true);
+        $('#editInventoryModalLocationName').prop("disabled", true);
+
+        $('#editInventoryModalItem').prop("disabled", !enabled);
+        // The user can choose item then description will be populated automatically
+        $('#editInventoryModalItemDescription').prop("disabled", true);
+
+        $('#editInventoryModalItemFootprint').prop("disabled", !enabled);
+        // The user can choose item footprint then description will be populated automatically
+        $('#editInventoryModalItemFootprintDescription').prop("disabled",true);
+
+        $('#editInventoryModalInventoryID').prop("disabled", true);
+        $('#editInventoryModalLPN').prop("disabled", !enabled);
+        $('#editInventoryModalQuantity').prop("disabled", !enabled);
+        $('#editInventoryModalUOM').prop("disabled", !enabled);
+
+        $('#editInventoryModalReasonCode').prop("disabled", !enabled);
+        $('#editInventoryModalReason').prop("disabled", !enabled);
+
+        $('#inventoryEditSave').prop("disabled", !enabled);
+        $('#inventoryEditDelete').prop("disabled", !enabled);
+
+    }
+
+
+    var clearInventoryEditModal = function() {
+
+        $('#editInventoryModalAreaName').val('');
+        $('#editInventoryModalLocationID').val('');
+        $('#editInventoryModalLocationName').val('');
+
+        $('#editInventoryModalItem').val('');
+        $('#editInventoryModalItemDescription').val('');
+        $('#editInventoryModalItemFootprint').val('');
+        $('#editInventoryModalItemFootprintDescription').val('');
+
+        $('#editInventoryModalItemFootprintUOMGrid').html('');
+
+        $('#editInventoryModalInventoryID').val('');
+        $('#editInventoryModalLPN').val('');
+        $('#editInventoryModalQuantity').val('');
+        $('#editInventoryModalUOM').html('');
+
+        $('#editInventoryModalReasonCode').val('');
+        $('#editInventoryModalReason').val('');
+    }
+
+    $("#editInventoryModalItem").focusout(function(){
+        // When we fill in the item, automatically populate the description
+        // and fill the dropdown list of the footprint
+        var itemName = $("#editInventoryModalItem").val();
+        if (itemName != "") {
+            var url = '/ws/inventory/item/query/name/' + itemName;
+            $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var item = res.data
+                      $('#editInventoryModalItemDescription').val(item.description);
+                      $("#editInventoryModalItemFootprintDescription").val("");
+
+                      // List all the available footprint of the item
+                      var itemFootprintSelection = $("#editInventoryModalItemFootprint");
+                      itemFootprintSelection.empty();
+                      itemFootprintSelection.append("<option value=''></option>");
+                      $.each(item.footprints, function(i, footprint){
+                            itemFootprintSelection.append("<option value='" + footprint.id + "'>" + footprint.name + "</option>");
+                      });
+
+                  }
+                  else
+                  {
+                      $('#editModalErrorMessage').text(res.status + " : " + res.message);
+
+                  }
+              });
+        }
+
+    })
+
+    $("#editInventoryModalItemFootprint").focusout(function(){
+        // When we fill in the item footprint, automatically populate the description
+        var footprintID =  $("#editInventoryModalItemFootprint").val();
+        $('#editInventoryModalItemFootprintDescription').val("");
+        if (footprintID != null) {
+            var url = '/ws/inventory/item/footprint/query/' + footprintID;
+            $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var itemFootprint = res.data
+                      // Fill the description of the item footprint
+                      $('#editInventoryModalItemFootprintDescription').val(itemFootprint.description);
+
+                      // Show the details of the footprint to assist the user
+                      var footprintUOMGrid =
+                                      "<table class='table table-striped table-bordered display nowrap mt-3' style='width:100%'>" +
+                                      "  <thead> " +
+                                      "    <tr> " +
+                                      "        <th>" + $.i18n("unitOfMeasure") + "</th> " +
+                                      "        <th>" + $.i18n("quantity") + "</th> " +
+                                      "    </tr> " +
+                                      "  </thead> " +
+                                      "  <tbody> ";
+
+                      // List all the available uom of the item footprint
+                      var itemFootprintUOMSelection = $("#editInventoryModalUOM");
+                      itemFootprintUOMSelection.empty();
+                      itemFootprintUOMSelection.append("<option value=''></option>");
+
+                      // Loop the footprint UOM to
+                      // 1. fill in the grid to display all the UOMs
+                      // 2. Fill in the dropdown list of the UOM so the user can choose one
+                      $.each(itemFootprint.footprintUOMs, function(index, footprintUOM){
+                          footprintUOMGrid += "<tr> " +
+                                              "    <td>" + footprintUOM.unitOfMeasure.description + "</td> " +
+                                              "    <td>" + footprintUOM.quantity + "</td> " +
+                                              "</tr>";
+
+                          itemFootprintUOMSelection.append("<option value='" + footprintUOM.unitOfMeasure.name + "'>" + footprintUOM.unitOfMeasure.description + "</option>");
+                      });
+                      footprintUOMGrid += " </tbody> " +
+                                          "</table>"
+                      $('#editInventoryModalItemFootprintUOMGrid').html(footprintUOMGrid);
+
+                  }
+                  else
+                  {
+                      $('#editInventoryModalErrorMessage').text(res.status + " : " + res.message);
+
+                  }
+              });
+
+        }
+
+    })
+
+
+    $('#inventoryEditSave').click(function(){
+        var inventoryID = $('#editInventoryModalInventoryID').val();
+        var url = "/ws/inventory/inventory";
+        if (inventoryID == '') {
+            url += "/new";
+        }
+        else {
+            // In this form, the uesr is only allowed to change the quantity
+            url += "/adjustQuantity";
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            data:{
+                 inventoryID: inventoryID,
+                 locationID: $('#editInventoryModalLocationID').val(),
+                 itemFootprintID: $('#editInventoryModalItemFootprint').val(),
+                 lpn: $('#editInventoryModalLPN').val(),
+                 quantity: $('#editInventoryModalQuantity').val(),
+                 itemFootprintUOM: $('#editInventoryModalUOM').val(),
+                 reasonCode: $('#editInventoryModalReasonCode').val(),
+                 reason: $('#editInventoryModalReason').val()
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                var locationID = res.data.location.id;
+
+                displayLocationDetail(locationID, true);
+
+                $('#editInventoryModalErrorMessage').text('');
+
+                $('#editInventoryModal').modal('toggle');
+            }
+            else{
+                $('#editInventoryModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+    $('#inventoryEditDelete').click(function(){
+        var inventoryID = $('#editInventoryModalInventoryID').val();
+        var url = "/ws/inventory/inventory/delete";
+        $.ajax({
+            method:"POST",
+            url : url,
+            data:{
+                 inventoryID: inventoryID,
+                 reasonCode: $('#editInventoryModalReasonCode').val(),
+                 reason: $('#editInventoryModalReason').val()
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                var locationID = res.data.location.id;
+
+                displayLocationDetail(locationID, true);
+
+                $('#editInventoryModalErrorMessage').text('');
+
+                $('#editInventoryModal').modal('toggle');
+            }
+            else{
+                $('#editInventoryModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
     })
 
     </script>

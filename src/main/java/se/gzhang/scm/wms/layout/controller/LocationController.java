@@ -88,6 +88,10 @@ public class LocationController {
         if (location == null) {
             return WebServiceResponseWrapper.raiseError(10000, "Can't find the location by id: " + locationID);
         }
+
+        if (location.getInventoryList() != null && location.getInventoryList().size() > 0) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't remove the location: " + location.getName() + " as there's inventory insde");
+        }
         locationService.deleteByLocationId(locationID);
         return new WebServiceResponseWrapper<Location>(0, "", location);
     }

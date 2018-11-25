@@ -174,8 +174,8 @@
                     "   <td id='areaType-" +  area.id + "'>" + area.areaType + "</td>" +
                     "   <td id='areaVolumeType-" +  area.id + "'>" + area.volumeType + "</td>" +
                     "   <td>" +
-                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-action='change' data-areaid='" + area.id + "' data-areaname='" + area.name+ "'>Edit</button>" +
-                    "       <button class='btn btn-danger' type='button' text='Delete' onclick='removeArea(event)' data-areaid='" + area.id + "'>Delete Area</button>" +
+                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-action='change' data-areaid='" + area.id + "' data-areaname='" + area.name+ "'>" + $.i18n("edit")+ "</button>" +
+                    "       <button class='btn btn-danger' type='button' onclick='removeArea(event)' data-areaid='" + area.id + "'>" + $.i18n("delete")+ "</button>" +
                      "   </td>" +
                     "</tr>";
             });

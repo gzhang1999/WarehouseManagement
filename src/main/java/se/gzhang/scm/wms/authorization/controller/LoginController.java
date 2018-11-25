@@ -37,6 +37,14 @@ import se.gzhang.scm.wms.authorization.model.User;
 import se.gzhang.scm.wms.authorization.service.UserService;
 import se.gzhang.scm.wms.menu.service.MenuService;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.DecimalFormat;
+
 @Controller
 public class LoginController {
 
@@ -129,9 +137,6 @@ public class LoginController {
         }
 
         return modelAndView;
-
     }
-
-
 
 }

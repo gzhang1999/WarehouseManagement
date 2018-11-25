@@ -21,12 +21,16 @@ package se.gzhang.scm.wms.inventory.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import se.gzhang.scm.wms.common.model.Client;
+import se.gzhang.scm.wms.common.model.UnitOfMeasure;
 import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.inventory.model.ItemFootprint;
 import se.gzhang.scm.wms.inventory.repository.ItemFootprintRepository;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.Building;
+import se.gzhang.scm.wms.layout.model.Warehouse;
+import se.gzhang.scm.wms.system.tools.service.FileUploadOptionService;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
@@ -38,6 +42,10 @@ import java.util.Map;
 public class ItemFootprintService {
     @Autowired
     ItemFootprintRepository itemFootprintRepository;
+    @Autowired
+    private FileUploadOptionService fileUploadOptionService;
+    @Autowired
+    private ItemService itemService;
 
     public List<ItemFootprint> findAll(){
 
@@ -112,13 +120,15 @@ public class ItemFootprintService {
         });
     }
 
-
     public ItemFootprint save(ItemFootprint itemFootprint) throws GenericException{
+        return save(itemFootprint, false);
+    }
+
+    public ItemFootprint save(ItemFootprint itemFootprint, boolean ignoreDefaultFootprintValidation) throws GenericException{
         // If current footprint is default footprint, automatically revoke
         // the default footprint from other footprint of the same item, if any.
         // If current footprint is not default fooprint, make sure we have
         // at least one default footprint fo the same item
-        System.out.println("itemFootprint.isDefaultFootprint():" + itemFootprint.isDefaultFootprint());
         if (itemFootprint.isDefaultFootprint()) {
             // make sure there's no other default footprint from same item
             Map<String, String> criteriaList = new HashMap<>();
@@ -134,7 +144,7 @@ public class ItemFootprintService {
                 }
             }
         }
-        else {
+        else if (!ignoreDefaultFootprintValidation){
             // current footprint is not default footprint, let's make sure we at least have
             // one default footprint code
             Map<String, String> criteriaList = new HashMap<>();
@@ -142,13 +152,11 @@ public class ItemFootprintService {
             criteriaList.put("default", "true");
             List<ItemFootprint> defaultItemFootprintList = findItemFootprints(criteriaList);
             boolean defaultFootprintExists = false;
-            System.out.println("defaultItemFootprintList.size():" + defaultItemFootprintList.size());
             if (defaultItemFootprintList.size() > 0) {
                 // Since we have not saved current footprint, let's make sure we have default
                 // footprint code other than current footprint
                 for(ItemFootprint defaultItemFootprint : defaultItemFootprintList) {
 
-                    System.out.println("defaultItemFootprint.getId() / itemFootprint.getId():" + defaultItemFootprint.getId() + " / " + itemFootprint.getId());
                     if (defaultItemFootprint.getId() != itemFootprint.getId()) {
                         defaultFootprintExists = true;
                     }
@@ -200,5 +208,87 @@ public class ItemFootprintService {
         }
         itemFootprintRepository.deleteById(id);
 
+    }
+
+    public List<ItemFootprint> loadFromFile(String[] columnNameList, List<String> itemFootprints, String processID) {
+
+
+        List<ItemFootprint> itemFootprintList = new ArrayList<>();
+
+
+        for(String itemFootprintString : itemFootprints) {
+
+            String[] itemFootprintAttributeList = itemFootprintString.split(",");
+            if (columnNameList.length != itemFootprintAttributeList.length) {
+                continue;
+            }
+            try {
+                ItemFootprint itemFootprint = setupItemFootprint(columnNameList, itemFootprintAttributeList);
+
+                ItemFootprint newItemFootprint = save(itemFootprint, true);
+                itemFootprintList.add(newItemFootprint);
+
+                fileUploadOptionService.increaseRecordNumberLoaded(processID, true);
+            }
+            catch (GenericException ex) {
+
+                fileUploadOptionService.increaseRecordNumberLoaded(processID, false);
+            }
+        }
+        return itemFootprintList;
+    }
+
+    private ItemFootprint setupItemFootprint(String[] columnNameList, String[] itemFootprintAttributeList)
+            throws GenericException {
+
+        String itemFootprintName="", description="", itemName="", defaultFootprint="";
+
+        for(int i = 0; i < columnNameList.length; i++) {
+
+            String columnName = columnNameList[i];
+            String itemFootprintAttribute = itemFootprintAttributeList[i];
+            if (columnName.equalsIgnoreCase("name")){
+                itemFootprintName = itemFootprintAttribute;
+            }
+            else if (columnName.equalsIgnoreCase("description")){
+                description = itemFootprintAttribute;
+            }
+            else if (columnName.equalsIgnoreCase("itemName")){
+                itemName = itemFootprintAttribute;
+            }
+            else if (columnName.equalsIgnoreCase("defaultFootprint")){
+                defaultFootprint = itemFootprintAttribute;
+            }
+        }
+
+        Item item = itemService.findByItemName(itemName);
+        if (item == null) {
+            throw new GenericException(10000,"Can't find item by name " + itemName);
+        }
+
+        Map<String, String> criteriaList = new HashMap<>();
+        criteriaList.put("itemName", itemName);
+        criteriaList.put("name", itemFootprintName);
+
+        List<ItemFootprint> itemFootprintList = findItemFootprints(criteriaList);
+        ItemFootprint itemFootprint = null;
+        if (itemFootprintList.size() == 1) {
+            itemFootprint = itemFootprintList.get(0);
+        }
+
+        if (itemFootprint == null) {
+            itemFootprint = new ItemFootprint();
+            itemFootprint.setName(itemFootprintName);
+        }
+        itemFootprint.setDescription(description);
+        itemFootprint.setItem(item);
+        if ("1".equals(defaultFootprint) || "true".equalsIgnoreCase(defaultFootprint) || "T".equalsIgnoreCase("defaultFootprint")) {
+            itemFootprint.setDefaultFootprint(true);
+        }
+        else {
+            itemFootprint.setDefaultFootprint(false);
+        }
+
+        return itemFootprint;
     }
 }

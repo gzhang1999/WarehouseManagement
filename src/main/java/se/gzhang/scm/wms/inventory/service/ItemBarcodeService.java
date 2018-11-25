@@ -21,14 +21,18 @@ package se.gzhang.scm.wms.inventory.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.inventory.model.ItemBarcode;
+import se.gzhang.scm.wms.inventory.model.ItemBarcodeType;
 import se.gzhang.scm.wms.inventory.model.ItemFootprint;
 import se.gzhang.scm.wms.inventory.repository.ItemBarcodeRepository;
 import se.gzhang.scm.wms.inventory.repository.ItemRepository;
+import se.gzhang.scm.wms.system.tools.service.FileUploadOptionService;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +40,12 @@ import java.util.Map;
 public class ItemBarcodeService {
     @Autowired
     ItemBarcodeRepository itemBarcodeRepository;
+    @Autowired
+    private FileUploadOptionService fileUploadOptionService;
+    @Autowired
+    private ItemService itemService;
+    @Autowired
+    private ItemBarcodeTypeService itemBarcodeTypeService;
 
     public List<ItemBarcode> findAll(){
 
@@ -57,10 +67,6 @@ public class ItemBarcodeService {
     }
 
     public List<ItemBarcode> findItemBarcodes(Map<String, String> criteriaList) {
-        System.out.println("Find item with following criteria");
-        for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
-            System.out.println("name: " + entry.getKey() + " , value: " + entry.getValue());
-        }
         return itemBarcodeRepository.findAll(new Specification<ItemBarcode>() {
             @Override
             public Predicate toPredicate(Root<ItemBarcode> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
@@ -86,8 +92,8 @@ public class ItemBarcodeService {
                 if(criteriaList.containsKey("id") && !criteriaList.get("id").isEmpty()) {
                     predicates.add(criteriaBuilder.equal(root.get("id"), criteriaList.get("id")));
                 }
-                if(criteriaList.containsKey("name") && !criteriaList.get("name").isEmpty()) {
-                    predicates.add(criteriaBuilder.equal(root.get("name"), criteriaList.get("name")));
+                if(criteriaList.containsKey("barcode") && !criteriaList.get("barcode").isEmpty()) {
+                    predicates.add(criteriaBuilder.equal(root.get("barcode"), criteriaList.get("barcode")));
                 }
                 if(criteriaList.containsKey("description") && !criteriaList.get("description").isEmpty()) {
                     predicates.add(criteriaBuilder.like(root.get("description"), criteriaList.get("description")));
@@ -104,5 +110,80 @@ public class ItemBarcodeService {
         ItemBarcode newItemBarcode = itemBarcodeRepository.save(itemBarcode);
         itemBarcodeRepository.flush();
         return newItemBarcode;
+    }
+
+    public List<ItemBarcode> loadFromFile(String[] columnNameList, List<String> itemBarcodes, String processID) {
+
+
+        List<ItemBarcode> itemBarcodeList = new ArrayList<>();
+
+
+        for(String itemBarcodeString : itemBarcodes) {
+
+            String[] itemBarcodeAttributeList = itemBarcodeString.split(",");
+            if (columnNameList.length != itemBarcodeAttributeList.length) {
+                continue;
+            }
+            try {
+                ItemBarcode itemBarcode = setupItemBarcode(columnNameList, itemBarcodeAttributeList);
+
+                itemBarcodeList.add(save(itemBarcode));
+
+                fileUploadOptionService.increaseRecordNumberLoaded(processID, true);
+            }
+            catch (GenericException ex) {
+
+                fileUploadOptionService.increaseRecordNumberLoaded(processID, false);
+            }
+        }
+        return itemBarcodeList;
+    }
+
+    private ItemBarcode setupItemBarcode(String[] columnNameList, String[] itemBarcodeAttributeList)
+            throws GenericException {
+
+        String barcodeString="", barcodeType="", itemName="";
+
+        for(int i = 0; i < columnNameList.length; i++) {
+
+            String columnName = columnNameList[i];
+            String itemBarcodeAttribute = itemBarcodeAttributeList[i];
+            if (columnName.equalsIgnoreCase("barcode")){
+                barcodeString = itemBarcodeAttribute;
+            }
+            else if (columnName.equalsIgnoreCase("type")){
+                barcodeType = itemBarcodeAttribute;
+            }
+            else if (columnName.equalsIgnoreCase("itemName")){
+                itemName = itemBarcodeAttribute;
+            }
+        }
+
+        Item item = itemService.findByItemName(itemName);
+        if (item == null) {
+            throw new GenericException(10000,"Can't find item by name " + itemName);
+        }
+        ItemBarcodeType itemBarcodeType = itemBarcodeTypeService.findByItemBarcodeTypeName(barcodeType);
+        if (itemBarcodeType == null) {
+            throw new GenericException(10000,"Can't find item barcode by type " + barcodeType);
+        }
+
+        Map<String, String> criteriaList = new HashMap<>();
+        criteriaList.put("itemName", itemName);
+        criteriaList.put("barcode", barcodeString);
+        List<ItemBarcode> itemBarcodeList = findItemBarcodes(criteriaList);
+        ItemBarcode itemBarcode = null;
+        if (itemBarcodeList.size() == 1) {
+            itemBarcode = itemBarcodeList.get(0);
+        }
+
+        if (itemBarcode == null) {
+            itemBarcode = new ItemBarcode();
+        }
+        itemBarcode.setBarcode(barcodeString);
+        itemBarcode.setItemBarcodeType(itemBarcodeType);
+        itemBarcode.setItem(item);
+
+        return itemBarcode;
     }
 }

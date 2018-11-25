@@ -23,6 +23,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import se.gzhang.scm.wms.common.model.VehicleType;
+import se.gzhang.scm.wms.inventory.model.Inventory;
 
 import java.io.IOException;
 
@@ -64,14 +65,42 @@ public class LocationSerializer extends StdSerializer<Location> {
 
         jgen.writeFieldName("vehicleTypes");
         jgen.writeStartArray();
-        /*****
-         * We will not write location's vehicle type here to the JSON file as
-         * this will cause lots of database query, one for each location. It will
-         * cause performance issue when we need to return lots of locations.
-         ****/
         if (location.getAccessibleVehicleTypes() != null) {
             for (VehicleType vehicleType : location.getAccessibleVehicleTypes()) {
                 jgen.writeString(vehicleType.getName());
+            }
+        }
+        jgen.writeEndArray();
+
+        jgen.writeFieldName("inventoryList");
+        jgen.writeStartArray();
+        if (location.getInventoryList() != null) {
+            for (Inventory inventory : location.getInventoryList()) {
+                jgen.writeStartObject();
+                jgen.writeNumberField("id", inventory.getId());
+                jgen.writeStringField("lpn", inventory.getLpn());
+                jgen.writeNumberField("quantity", inventory.getQuantity());
+
+
+                // Item footprint information
+                jgen.writeFieldName("footprint");
+                jgen.writeStartObject();
+                if (inventory.getItemFootprint() != null) {
+                    jgen.writeNumberField("id", inventory.getItemFootprint().getId());
+                    jgen.writeStringField("name", inventory.getItemFootprint().getName());
+                    jgen.writeStringField("description", inventory.getItemFootprint().getDescription());
+                    // Item information
+                    jgen.writeFieldName("item");
+                    jgen.writeStartObject();
+                    if (inventory.getItemFootprint().getItem() != null) {
+                        jgen.writeNumberField("id", inventory.getItemFootprint().getItem().getId());
+                        jgen.writeStringField("name", inventory.getItemFootprint().getItem().getName());
+                        jgen.writeStringField("description", inventory.getItemFootprint().getItem().getDescription());
+                    }
+                    jgen.writeEndObject();
+                }
+                jgen.writeEndObject();
+                jgen.writeEndObject();
             }
         }
         jgen.writeEndArray();

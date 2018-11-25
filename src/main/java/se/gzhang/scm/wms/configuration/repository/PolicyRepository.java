@@ -16,14 +16,17 @@
  * limitations under the License.
  */
 
-package se.gzhang.scm.wms.exception;
+package se.gzhang.scm.wms.configuration.repository;
 
-public class GenericException extends RuntimeException {
-    private int code;
-    private String message;
-    public GenericException(int code, String message) {
-        super(message);
-        this.code = code;
-        this.message = message;
-    }
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import se.gzhang.scm.wms.configuration.model.Policy;
+
+import java.util.List;
+
+@Repository
+public interface PolicyRepository extends JpaRepository<Policy, Integer> {
+    List<Policy> findAll();
+
+    Policy findByName(String name);
 }

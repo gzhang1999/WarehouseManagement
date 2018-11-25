@@ -22,9 +22,11 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import se.gzhang.scm.wms.common.model.VehicleType;
 import se.gzhang.scm.wms.common.model.Velocity;
+import se.gzhang.scm.wms.inventory.model.Inventory;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -83,6 +85,12 @@ public class Location  implements Serializable {
     private List<VehicleType> accessibleVehicleTypes;
 
 
+    @OneToMany(
+            mappedBy = "location",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Inventory> inventoryList = new ArrayList<>();
     // Coordinate used for labor management
     @Column(name = "coordinate_x")
     private double coordinateX;
@@ -96,6 +104,7 @@ public class Location  implements Serializable {
         if (this == o) return true;
         if (!(o instanceof Location )) return false;
         return id != null && id.equals(((Location) o).id);
+
     }
 
 }

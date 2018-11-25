@@ -21,15 +21,17 @@ package se.gzhang.scm.wms.inventory.service;
 import org.hibernate.mapping.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import se.gzhang.scm.wms.common.model.UnitOfMeasure;
+import se.gzhang.scm.wms.common.service.UnitOfMeasureService;
 import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.inventory.model.ItemFootprint;
 import se.gzhang.scm.wms.inventory.model.ItemFootprintUOM;
 import se.gzhang.scm.wms.inventory.repository.ItemFootprintRepository;
 import se.gzhang.scm.wms.inventory.repository.ItemFootprintUOMRepository;
+import se.gzhang.scm.wms.system.tools.service.FileUploadOptionService;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ItemFootprintUOMService {
@@ -38,6 +40,12 @@ public class ItemFootprintUOMService {
 
     @Autowired
     ItemFootprintService itemFootprintService;
+    @Autowired
+    ItemService itemService;
+    @Autowired
+    UnitOfMeasureService unitOfMeasureService;
+    @Autowired
+    private FileUploadOptionService fileUploadOptionService;
 
     public List<ItemFootprintUOM> findAll(){
 
@@ -45,8 +53,11 @@ public class ItemFootprintUOMService {
     }
 
     public ItemFootprintUOM findByItemFootprintUOMId(int id){
+
         return itemFootprintUOMRepository.findById(id);
+
     }
+
     public List<ItemFootprintUOM> findByItemFootprintId(int footprintID){
         return itemFootprintService.findByItemFootprintId(footprintID).getItemFootprintUOMs();
     }
@@ -133,5 +144,130 @@ public class ItemFootprintUOMService {
             }
             itemFootprintUOMRepository.flush();
         }
+    }
+
+
+    public List<ItemFootprintUOM> loadFromFile(String[] columnNameList, List<String> itemFootprintUOMs, String processID) {
+
+
+        List<ItemFootprintUOM> itemFootprintUOMList = new ArrayList<>();
+
+
+        for(String itemFootprintUOMString : itemFootprintUOMs) {
+
+            String[] itemFootprintUOMAttributeList = itemFootprintUOMString.split(",");
+            if (columnNameList.length != itemFootprintUOMAttributeList.length) {
+                continue;
+            }
+            try {
+                ItemFootprintUOM itemFootprintUOM = setupItemFootprintUOM(columnNameList, itemFootprintUOMAttributeList);
+
+                itemFootprintUOMList.add(save(itemFootprintUOM));
+
+                fileUploadOptionService.increaseRecordNumberLoaded(processID, true);
+
+            }
+            catch (GenericException ex) {
+
+                fileUploadOptionService.increaseRecordNumberLoaded(processID, false);
+            }
+        }
+        return itemFootprintUOMList;
+    }
+
+    private ItemFootprintUOM setupItemFootprintUOM(String[] columnNameList, String[] itemFootprintUOMAttributeList)
+            throws GenericException {
+
+        String itemFootprintName="", itemName="", uom="";
+        int quantity = 0;
+        double length=0,width=0,height=0,weight=0;
+        boolean caseUOM=false,palletUOM=false,cartonUOM=false;
+
+        for(int i = 0; i < columnNameList.length; i++) {
+
+            String columnName = columnNameList[i];
+            String itemFootprintUOMAttribute = itemFootprintUOMAttributeList[i];
+            if (columnName.equalsIgnoreCase("itemName")){
+                itemName = itemFootprintUOMAttribute;
+            }
+            else if (columnName.equalsIgnoreCase("footprintName")){
+                itemFootprintName = itemFootprintUOMAttribute;
+            }
+            else if (columnName.equalsIgnoreCase("uom")){
+                uom = itemFootprintUOMAttribute;
+            }
+            else if (columnName.equalsIgnoreCase("quantity")){
+                quantity = Integer.parseInt(itemFootprintUOMAttribute);
+            }
+            else if (columnName.equalsIgnoreCase("length")){
+                length = Double.parseDouble(itemFootprintUOMAttribute);
+            }
+            else if (columnName.equalsIgnoreCase("width")){
+                width = Double.parseDouble(itemFootprintUOMAttribute);
+            }
+            else if (columnName.equalsIgnoreCase("height")){
+                height = Double.parseDouble(itemFootprintUOMAttribute);
+            }
+            else if (columnName.equalsIgnoreCase("weight")){
+                weight = Double.parseDouble(itemFootprintUOMAttribute);
+            }
+            else if (columnName.equalsIgnoreCase("caseUOM")){
+                caseUOM = ("1".equalsIgnoreCase(itemFootprintUOMAttribute) ||
+                           "T".equalsIgnoreCase(itemFootprintUOMAttribute) ||
+                           "true".equalsIgnoreCase(itemFootprintUOMAttribute));
+            }
+            else if (columnName.equalsIgnoreCase("palletUOM")){
+                palletUOM = ("1".equalsIgnoreCase(itemFootprintUOMAttribute) ||
+                             "T".equalsIgnoreCase(itemFootprintUOMAttribute) ||
+                             "true".equalsIgnoreCase(itemFootprintUOMAttribute));
+            }
+            else if (columnName.equalsIgnoreCase("cartonUOM")){
+                cartonUOM = ("1".equalsIgnoreCase(itemFootprintUOMAttribute) ||
+                             "T".equalsIgnoreCase(itemFootprintUOMAttribute) ||
+                             "true".equalsIgnoreCase(itemFootprintUOMAttribute));
+            }
+        }
+
+        Item item = itemService.findByItemName(itemName);
+        if (item == null) {
+            throw new GenericException(10000,"Can't find item by name " + itemName);
+        }
+
+        Map<String, String> criteriaList = new HashMap<>();
+        criteriaList.put("itemName", itemName);
+        criteriaList.put("name", itemFootprintName);
+        List<ItemFootprint> itemFootprintList = itemFootprintService.findItemFootprints(criteriaList);
+        if (itemFootprintList == null || itemFootprintList.size() != 1) {
+            throw new GenericException(10000,"Can't find item footprint by name " + itemFootprintName);
+        }
+        ItemFootprint itemFootprint = itemFootprintList.get(0);
+
+        UnitOfMeasure unitOfMeasure = unitOfMeasureService.findByUOMName(uom);
+        if (unitOfMeasure == null) {
+            throw new GenericException(10000,"Can't find unit of measure by name " + uom);
+        }
+
+        ItemFootprintUOM itemFootprintUOM =  null;
+        List<ItemFootprintUOM> itemFootprintUOMList = findByItemFootprintId(itemFootprint.getId());
+        for(ItemFootprintUOM itemFootprintUOMIterator : itemFootprintUOMList) {
+            if (itemFootprintUOMIterator.getUnitOfMeasure().getId() == unitOfMeasure.getId()) {
+                itemFootprintUOM = itemFootprintUOMIterator;
+            }
+        }
+        if (itemFootprintUOM == null) {
+            itemFootprintUOM = new ItemFootprintUOM();
+            itemFootprintUOM.setUnitOfMeasure(unitOfMeasure);
+        }
+
+        itemFootprintUOM.setItemFootprint(itemFootprint);
+        itemFootprintUOM.setQuantity(quantity);
+        itemFootprintUOM.setLength(length);
+        itemFootprintUOM.setWidth(width);
+        itemFootprintUOM.setHeight(height);
+        itemFootprintUOM.setWeight(weight);
+        itemFootprintUOM.setCaseUOM(caseUOM);
+        itemFootprintUOM.setPalletUOM(palletUOM);
+
+        return itemFootprintUOM;
     }
 }

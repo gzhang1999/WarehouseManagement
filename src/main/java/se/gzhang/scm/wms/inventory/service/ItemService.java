@@ -21,14 +21,26 @@ package se.gzhang.scm.wms.inventory.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import se.gzhang.scm.wms.common.model.Client;
+import se.gzhang.scm.wms.common.model.UnitOfMeasure;
+import se.gzhang.scm.wms.common.model.Velocity;
+import se.gzhang.scm.wms.common.repository.ClientRepository;
+import se.gzhang.scm.wms.common.service.ClientService;
+import se.gzhang.scm.wms.common.service.UnitOfMeasureService;
+import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.inventory.repository.ItemRepository;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.Building;
 import se.gzhang.scm.wms.layout.model.Location;
+import se.gzhang.scm.wms.layout.model.Warehouse;
+import se.gzhang.scm.wms.layout.repository.WarehouseRepository;
+import se.gzhang.scm.wms.layout.service.WarehouseService;
+import se.gzhang.scm.wms.system.tools.service.FileUploadOptionService;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +48,15 @@ import java.util.Map;
 public class ItemService {
     @Autowired
     ItemRepository itemRepository;
+    @Autowired
+    WarehouseService warehouseService;
+    @Autowired
+    ClientService clientService;
+    @Autowired
+    UnitOfMeasureService unitOfMeasureService;
+
+    @Autowired
+    private FileUploadOptionService fileUploadOptionService;
 
     public List<Item> findAll(){
 
@@ -84,5 +105,88 @@ public class ItemService {
         Item newItem = itemRepository.save(item);
         itemRepository.flush();
         return newItem;
+    }
+
+
+    public List<Item> loadFromFile(String[] columnNameList, List<String> items, String processID) {
+
+
+        List<Item> itemList = new ArrayList<>();
+
+
+        for(String itemString : items) {
+
+            String[] itemAttributeList = itemString.split(",");
+            if (columnNameList.length != itemAttributeList.length) {
+                continue;
+            }
+            try {
+                Item item = setupItem(columnNameList, itemAttributeList);
+
+                itemList.add(save(item));
+
+                fileUploadOptionService.increaseRecordNumberLoaded(processID, true);
+
+            }
+            catch (GenericException ex) {
+
+                fileUploadOptionService.increaseRecordNumberLoaded(processID, false);
+            }
+        }
+        return itemList;
+    }
+
+    private Item setupItem(String[] columnNameList, String[] itemAttributeList)
+            throws GenericException {
+
+        String itemName="", description="", warehouseName="", clientName="", lpnUOMName="";
+
+        for(int i = 0; i < columnNameList.length; i++) {
+
+            String columnName = columnNameList[i];
+            String itemAttribute = itemAttributeList[i];
+            if (columnName.equalsIgnoreCase("name")){
+                itemName = itemAttribute;
+            }
+            else if (columnName.equalsIgnoreCase("description")){
+                description = itemAttribute;
+            }
+            else if (columnName.equalsIgnoreCase("warehouse")){
+                warehouseName = itemAttribute;
+            }
+            else if (columnName.equalsIgnoreCase("client")){
+                clientName = itemAttribute;
+            }
+            else if (columnName.equalsIgnoreCase("lpn_uom")){
+                lpnUOMName = itemAttribute;
+            }
+        }
+
+        Warehouse warehouse = warehouseService.findByWarehouseName(warehouseName);
+        if (warehouse == null) {
+            throw new GenericException(10000,"Can't find warehouse by name " + warehouseName);
+        }
+
+        Client client = clientService.findByClientName(clientName);
+        if (client == null) {
+            throw new GenericException(10000,"Can't find client by name " + clientName);
+        }
+
+        UnitOfMeasure unitOfMeasure = unitOfMeasureService.findByUOMName(lpnUOMName);
+        if (unitOfMeasure == null) {
+            throw new GenericException(10000,"Can't find unit of measure by name " + lpnUOMName);
+        }
+
+
+        Item item = findByItemName(itemName);
+        if (item == null) {
+            item = new Item();
+            item.setName(itemName);
+        }
+        item.setDescription(description);
+        item.setWarehouse(warehouse);
+        item.setClient(client);
+        item.setLpnUnitOfMeasure(unitOfMeasure);
+        return item;
     }
 }

@@ -21,11 +21,6 @@
 </head>
 <body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
 
-<style>
-.ui-autocomplete{
-	z-index:1050;
-}
-</style>
 
 <div th:replace="fragment/topNav :: headerNav">
 </div>
@@ -584,6 +579,7 @@
             // This row is already open - close it
             row.child.hide();
             tr.removeClass('shown');
+            table.columns.adjust();
         }
         else {
             // If the item footprint already exists in the local cache,
@@ -597,6 +593,7 @@
                 $("#itemFootprintUOMDisplay-" + itemFootprintID).DataTable({
                     "scrollX": true
                 });
+                table.columns.adjust();
             }
             else {
                 var url = '/ws/inventory/item/footprint/query/'+itemFootprintID;
@@ -610,6 +607,7 @@
                     $("#itemFootprintUOMDisplay-" + itemFootprintID).DataTable({
                         "scrollX": true
                     });
+                    table.columns.adjust();
                 });
             }
         }

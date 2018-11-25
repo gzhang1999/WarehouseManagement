@@ -99,15 +99,14 @@
                                 <i class="fa fa-dot-circle-o"></i> Upload</button>
                             </div>
                         </div>
-                        <div class="row" id="uploadResult">
-
+                        <div class="row mx-4" id="uploadResult">
                         </div>
 
                     </div>
                     <div class="card-footer">
-                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="file_upload_option_query">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="file_upload_option_query" id="queryButton">
                             <i class="fa fa-dot-circle-o"></i> Find</button>
-                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="file_upload_option_query">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="file_upload_option_query" id="clearButton">
                             <i class="fa fa-dot-circle-o"></i> Clear</button>
                     </div>
                 </div>
@@ -169,7 +168,6 @@
         else {
             table.clear();
             var htmlData = "";
-            console.log(JSON.stringify(data));
             $.each(data, function(index, fileUploadOption){
                 htmlData +=
                     "<tr data-optionid='" + fileUploadOption.id + "' data-optionname='" + fileUploadOption.name + "' data-optiondescription='" + fileUploadOption.description + "' >" +
@@ -188,37 +186,78 @@
    $("#fileUploadOptionsTable tbody").on("click", "tr", function(event) {
 
         var tr = $(this).closest('tr');
-        console.log("clicked: " + tr.data("optionname"));
         $("#queryFileUploadOptionName").val(tr.data("optionname"));
         $("#queryFileUploadOptionDescription").val(tr.data("optiondescription"));
 
    });
 
    $("#fileUploadButton").on("click", function(event){
-       $("#uploadResult").val("");
+       $("#uploadResult").text("");
+       $("#fileUploadButton").prop("disabled", true);
+       $("#queryButton").prop("disabled", true);
+       $("#clearButton").prop("disabled", true);
        if ($("#queryFileUploadOptionName").val() != "") {
 
+           // in order to keep track of the upload progress, we will
+           // first ajax to get an unique ID that stands for this upload
+           // and then upload the actual file.
+           // After that, we can start a timer to keep track of the
+           // progress by the unique ID
+           $.ajax({url:"/ws/systemtool/fileupload/upload/progress/new"})
+                .done(function(res){
+                    console.log("get process id: " + JSON.stringify(res));
+                    var processID = res.data.id;
 
-           var url = "/ws/systemtool/fileupload/upload/" + $("#queryFileUploadOptionName").val();
-           var formData = new FormData();
-           formData.append('file', $('#fileToUpload')[0].files[0]);
+                   var url = "/ws/systemtool/fileupload/upload/" + $("#queryFileUploadOptionName").val();
+                   var formData = new FormData();
+                   formData.append('file', $('#fileToUpload')[0].files[0]);
+                   formData.append('processID', processID);
 
-           $.ajax({
-                url: url,
-                type: 'POST',
-                cache: false,
-                data: formData,
-                processData: false,
-                contentType: false
-           }).done(function(res) {
-               console.log("File uploaded:\n" + JSON.stringify(res));
-               $("#uploadResult").val("File uploaded!");
-           }).fail(function(res) {
-               console.log("File upload fail:\n" + JSON.stringify(res));
-               $("#uploadResult").val("File upload error");
-           });
+                   $.ajax({
+                        url: url,
+                        type: 'POST',
+                        cache: false,
+                        data: formData,
+                        processData: false,
+                        contentType: false
+                   }).done(function(res){
+                       console.log("File uploaded:\n" + JSON.stringify(res));
+                   }).fail(function(res){
+                       console.log("File upload fail:\n" + JSON.stringify(res));
+                   });
+
+                   trackProgress(processID);
+
+                })
        }
    })
+
+   var trackProgress = function(processID) {
+       var url = "/ws/systemtool/fileupload/upload/progress/" + processID;
+       $.ajax({
+            method:"GET",
+            url : url,
+            processID : processID
+       }).done(function(res){
+               $("#uploadResult").text($.i18n("processing") + ": " + res.data.currentRecordNumber + " / " + res.data.totalRecordCount);
+               if (res.data.finished == false ) {
+                   setTimeout(function(){
+                       trackProgress(processID);
+                    }, 1000);
+               }
+               else {
+
+                   $("#fileUploadButton").prop("disabled", false);
+                   $("#queryButton").prop("disabled", false);
+                   $("#clearButton").prop("disabled", false);
+                   $("#uploadResult").text($.i18n("processed") + ": " + res.data.currentRecordNumber +
+                                           " (" + $.i18n("succeed") + ": " + res.data.successfullyLoadedRecordNumber +
+                                           ", " + $.i18n("fail") + ": " + res.data.failLoadedRecordNumber + ")" +
+                                           " / " + res.data.totalRecordCount + ", " + $.i18n("done") + "!");
+               }
+           });
+
+   }
 
 
 </script>
