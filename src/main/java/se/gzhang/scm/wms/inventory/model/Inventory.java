@@ -36,7 +36,7 @@ public class Inventory {
     @Column(name = "inventory_id")
     private Integer id;
 
-    @OneToOne(cascade={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @ManyToOne(cascade={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name="item_footprint_id")
     private ItemFootprint itemFootprint;
 
@@ -51,7 +51,7 @@ public class Inventory {
     @Column(name="quantity")
     private int quantity;
 
-    @OneToOne(cascade={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @ManyToOne(cascade={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name="inventory_status_id")
     private InventoryStatus inventoryStatus;
 

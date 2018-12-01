@@ -38,7 +38,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h5>
-                            <a class="badge badge-success float-right" data-toggle="modal" href="#editInventoryModalLabel" data-action="new"  th:text="#{inventory.new}" >New Inventory</a>
+                            <a class="badge badge-success float-right" data-toggle="modal" href="#editInventoryModal" data-action="new"  th:text="#{inventory.new}" >New Inventory</a>
                         </h5>
                     </div>
                     <div class="card-body">
@@ -110,14 +110,17 @@
                                         <td th:text="${inventory.location.area.name}"></td>
                                         <td th:text="${inventory.location.name}"></td>
                                         <td th:text="${inventory.lpn}"></td>
-                                        <td th:text="${inventory.item.name}"></td>
-                                        <td th:text="${inventory.item.description}"></td>
-                                        <td th:text="${inventory.item.client.name}"></td>
-                                        <td th:text="${inventory.itemFootprint.name}"></td>
+                                        <td th:text="${inventory.itemFootprint.item.name}"></td>
+                                        <td th:text="${inventory.itemFootprint.item.description}"></td>
+                                        <td th:text="${inventory.itemFootprint.item.client.name}"></td>
+                                        <td >
+                                           <a th:href="#" th:data-itemfootprintid="${inventory.itemFootprint.id}" th:data-inventoryid="${inventory.id}"
+                                              th:text="${inventory.itemFootprint.name}" onclick="showItemFootprintDetial(event)"></a>
+                                        </td>
                                         <td th:text="${inventory.quantity}"></td>
                                         <td>
-                                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editInventoryModalLabel" th:text="#{edit}" th:data-inventoryid="${inventory.id}" data-action="change" >Edit Inventory</button>
-                                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editInventoryModalLabel" th:text="#{delete}" th:data-inventoryid="${inventory.id}" data-action="delete" >Delete Inventory</button>
+                                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editInventoryModal" th:text="#{edit}" th:data-inventoryid="${inventory.id}" data-action="change" >Edit Inventory</button>
+                                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editInventoryModal" th:text="#{delete}" th:data-inventoryid="${inventory.id}" data-action="delete" >Delete Inventory</button>
                                         </td>
                                     </tr>
                                     </tbody>
@@ -145,11 +148,11 @@
                     <div class="row text-danger px-2" id="editInventoryModalErrorMessage"></div>
                     <div class="container col-md-12">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label for="editInventoryModalAreaName" class="col-form-label" th:text="#{area}">Area:</label>
-                                <input type="text" class="form-control" id="editInventoryModalAreaName" data-variable="area">
+                                <select class="form-control" id="editInventoryModalAreaName" data-variable="area"></select>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-2">
                                 <label for="editInventoryModalLocationID" class="col-form-label" th:text="#{location.id}">Location ID:</label>
                                 <input type="text" class="form-control" id="editInventoryModalLocationID">
                             </div>
@@ -239,7 +242,6 @@
             table.clear();
             var htmlData = "";
             $.each(data, function(index, inventory){
-                 console.log("render table:\n" + JSON.stringify(inventory));
                  htmlData +=
                     "<tr id='row_" + inventory.id + "'>" +
                     "   <td>" + inventory.location.area.building.name + "</td>" +
@@ -249,7 +251,7 @@
                     "   <td>" + inventory.itemFootprint.item.name + "</td>" +
                     "   <td>" + inventory.itemFootprint.item.description + "</td>" +
                     "   <td>" + inventory.itemFootprint.item.client.name + "</td>" +
-                    "   <td>" + inventory.itemFootprint.name + "</td>" +
+                    "   <td><a href='#' data-itemfootprintid='" + inventory.itemFootprint.id + "' data-inventoryid='" + inventory.id + "' onclick='showItemFootprintDetial(event)'>" + inventory.itemFootprint.name + "</a></td>" +
                     "   <td>" + inventory.quantity+ "</td>" +
                     "   <td>" +
                     "        <button class='btn btn-primary' type='button' data-toggle='modal' href='#editInventoryModal' data-inventoryid='" + inventory.id + "' data-action='change'>" + $.i18n("inventory.edit") + "</button>" +
@@ -290,7 +292,7 @@
                   if (res.status == 0)
                   {
                       var inventory = res.data
-                      $('#editInventoryModalAreaName').val(inventory.location.area.name);
+                      $('#editInventoryModalAreaName').val(inventory.location.area.id);
                       $('#editInventoryModalLocationID').val(inventory.location.id);
                       $('#editInventoryModalLocationName').val(inventory.location.name);
 
@@ -513,18 +515,45 @@
     })
 
 
-    $("#editInventoryModalAreaName").focusout(function(){
+    $("#editInventoryModalAreaName").change(function(){
         // Every time we changed the area, we will setup the auto fill control
         // for the location
-        var areaName = $("#editInventoryModalAreaName").val();
-        if (areaName != null && areaName != "") {
-            var variable = areaName + "-location";
-            if (autoCompleteCache.exist(variable)) {
-                inputControl.autocomplete({
-                    source: autoCompleteCache.get(variable)
+        var areaID = $("#editInventoryModalAreaName").val();
+        if (areaID != null && areaID != "") {
+
+            // If we already have those values in the cache, get from cache
+            var locationIDCached=false;
+            var locationNameCached=false;
+            if (autoCompleteCache.exist("inventory.html." + areaID + "-location-id")) {
+                var locationIDList = autoCompleteCache.get("inventory.html." + areaID + "-location-id");
+                if ($("#editInventoryModalLocationID").val() != null &&
+                    $("#editInventoryModalLocationID").val() != "" &&
+                    $.inArray($("#editInventoryModalLocationID").val(), locationIDList) == -1) {
+                    $("#editInventoryModalLocationID").val("");
+                    $("#editInventoryModalLocationName").val("");
+                }
+
+                $( "#editInventoryModalLocationID" ).autocomplete({
+                    source: locationIDList
                 });
+                locationIDCached = true;
             }
-            else {
+            if (autoCompleteCache.exist("inventory.html." + areaID + "-location-name")) {
+                var locationNameList = autoCompleteCache.get("inventory.html." + areaID + "-location-name");
+                if ($("#editInventoryModalLocationName").val() != null &&
+                    $("#editInventoryModalLocationName").val() != "" &&
+                    $.inArray($("#editInventoryModalLocationName").val(), locationNameList) == -1) {
+                    $("#editInventoryModalLocationID").val("");
+                    $("#editInventoryModalLocationName").val("");
+                }
+                $( "#editInventoryModalLocationName" ).autocomplete({
+                    source: locationNameList
+                });
+                locationNameCached = true;
+            }
+
+
+            if (locationIDCached == false || locationNameCached == false) {
                 // Get all the locations by area and setup as the auto fill of
                 // the location control
                 var url = "/ws/layout/location/list";
@@ -532,30 +561,48 @@
                 $.ajax({
                     method:"POST",
                     url : url,
+                    areaID: areaID,
                     data:{
-                         areaName: areaName
+                         areaID: areaID
                     }
                 }).done(function( res ) {
-                    console.log("areaName's locations: " + JSON.stringify(res));
-                    var locationNameList = [];
-                    var locationIDList = [];
+                    if (res.status == 0) {
+                        var locationNameList = [];
+                        var locationIDList = [];
 
-                    $.each(res.data, function(index, location){
-                        locationNameList.push(location.name);
-                        locationIDList.push(location.id);
-                    });
-                    $( "#editInventoryModalLocationID" ).autocomplete({
-                        source: locationIDList
-                    });
-                    $( "#editInventoryModalLocationName" ).autocomplete({
-                        source: locationNameList
-                    });
+                        $.each(res.data, function(index, location){
+                            locationNameList.push(location.name);
+                            locationIDList.push(location.id.toString());
+                        });
+                        autoCompleteCache.set("inventory.html." + areaID + "-location-id", locationIDList);
+                        autoCompleteCache.set("inventory.html." + areaID + "-location-name", locationNameList);
+                        $( "#editInventoryModalLocationID" ).autocomplete({
+                            source: locationIDList
+                        });
+                        $( "#editInventoryModalLocationName" ).autocomplete({
+                            source: locationNameList
+                        });
+
+
+                        if ($("#editInventoryModalLocationID").val() != null &&
+                            $("#editInventoryModalLocationID").val() != "" &&
+                            $.inArray($("#editInventoryModalLocationID").val(), locationIDList) == -1) {
+                            $("#editInventoryModalLocationID").val("");
+                            $("#editInventoryModalLocationName").val("");
+                        }
+                        if ($("#editInventoryModalLocationName").val() != null &&
+                            $("#editInventoryModalLocationName").val() != "" &&
+                            $.inArray($("#editInventoryModalLocationName").val(), locationNameList) == -1) {
+                            $("#editInventoryModalLocationID").val("");
+                            $("#editInventoryModalLocationName").val("");
+                        }
+                    }
                 });
             }
         }
     });
 
-    $("#editInventoryModalLocationID").focusout(function(){
+    $("#editInventoryModalLocationID").change(function(){
 
         var locationID = $("#editInventoryModalLocationID").val();
         if (locationID != null && locationID != "") {
@@ -564,14 +611,17 @@
 
             $.ajax({url : url})
                 .done(function( res ) {
-                    console.log("get location by id: " + JSON.stringify(res));
-
-                    $( "#editInventoryModalAreaName" ).val(res.data.area.id);
-                    $( "#editInventoryModalLocationName" ).val(res.data.name);
+                    if (res.status == 0&& res.data.length > 0) {
+                        // only get the first location from the list. Suppose
+                        // location name is unique
+                        var location = res.data;
+                        $( "#editInventoryModalAreaName" ).val(location.areaID);
+                        $( "#editInventoryModalLocationName" ).val(location.name);
+                    }
             });
         }
     });
-    $("#editInventoryModalLocationName").focusout(function(){
+    $("#editInventoryModalLocationName").change(function(){
 
         var locationName = $("#editInventoryModalLocationName").val();
         if (locationName != null && locationName != "") {
@@ -585,26 +635,32 @@
                          name: locationName
                     }
             }).done(function( res ) {
-                console.log("get location by name: " + JSON.stringify(res));
-
-                $( "#editInventoryModalAreaName" ).val(res.data.area.id);
-                $( "#editInventoryModalLocationID" ).val(res.data.id);
+                if (res.status == 0 && res.data.length > 0) {
+                    // only get the first location from the list. Suppose
+                    // location name is unique
+                    var location = res.data[0];
+                    $( "#editInventoryModalAreaName" ).val(location.areaID);
+                    $( "#editInventoryModalLocationID" ).val(location.id);
+                }
             });
         }
     });
     $('#inventoryEditSave').click(function(){
         var inventoryID = $('#editInventoryModalInventoryID').val();
         var url = "/ws/inventory/inventory";
+        var actionCode = "new";
         if (inventoryID == '') {
             url += "/new";
         }
         else {
             // In this form, the uesr is only allowed to change the quantity
             url += "/adjustQuantity";
+            actionCode = "change"
         }
         $.ajax({
             method:"POST",
             url : url,
+            actionCode : actionCode,
             data:{
                  inventoryID: inventoryID,
                  locationID: $('#editInventoryModalLocationID').val(),
@@ -617,9 +673,19 @@
             }
         }).done(function( res ) {
             if (res.status == 0) {
-                var locationID = res.data.location.id;
+                // If we just create a new inventory, let's just display
+                // this newly created inventory. Otherwise, refresh the display
+                // grid
+                if (actionCode == "new") {
+                    var inventory = res.data;
+                    var inventoryList = [];
+                    inventoryList.push(inventory);
 
-                displayLocationDetail(locationID, true);
+                    renderTable("inventoryTable", inventoryList, res.customFields);
+                }
+                else {
+                    refreshInventoryDisplayGrid();
+                }
 
                 $('#editInventoryModalErrorMessage').text('');
 
@@ -630,6 +696,10 @@
             }
         });
     })
+
+    var refreshInventoryDisplayGrid = function() {
+        $("#inventory_query").submit();
+    }
 
     $('#inventoryEditDelete').click(function(){
         var inventoryID = $('#editInventoryModalInventoryID').val();
@@ -644,9 +714,8 @@
             }
         }).done(function( res ) {
             if (res.status == 0) {
-                var locationID = res.data.location.id;
 
-                displayLocationDetail(locationID, true);
+                refreshInventoryDisplayGrid();
 
                 $('#editInventoryModalErrorMessage').text('');
 
@@ -658,6 +727,73 @@
         });
     })
 
+
+    var showItemFootprintDetial = function(event) {
+        var control = $(event.target);
+        var itemFootprintID = control.data("itemfootprintid");
+        var inventoryID = control.data("inventoryid");
+
+        displayItemFootprintDetail(inventoryID, itemFootprintID);
+    }
+    var displayItemFootprintDetail = function(inventoryID, itemFootprintID) {
+        var table = $("#inventoryTable").DataTable();
+
+        var tr = $("#row_" + inventoryID);
+        var row = table.row(tr);
+
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+            table.columns.adjust();
+        }
+        else {
+            var url = '/ws/inventory/item/footprint/query/' + itemFootprintID;
+            $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var itemFootprint = res.data;
+                      console.log("display item footprint\n" + JSON.stringify(itemFootprint));
+
+                      // display this row
+                      row.child(formatItemFootprintInfomration(itemFootprint)).show();
+                      tr.addClass('shown');
+
+                      // Setup the data table
+                      $("#itemFootprintDisplay-" + itemFootprint.id).DataTable({
+                          "scrollX": true,
+                          fixedHeader: true
+                      });
+                      table.columns.adjust();
+
+                  }
+              });
+        }
+
+    }
+
+    var formatItemFootprintInfomration = function(itemFootprint) {
+        var footprintUOMGrid =
+                              "<table id='itemFootprintDisplay-" + itemFootprint.id + "' class='table table-striped table-bordered display nowrap dataTable no-footer' style='width:100%' role='grid' style='width:100%'>" +
+                              "  <thead> " +
+                              "    <tr> " +
+                              "        <th>" + $.i18n("carrier.servicelevel.name") + "</th> " +
+                              "        <th>" + $.i18n("carrier.servicelevel.description") + "</th> " +
+                              "    </tr> " +
+                              "  </thead> " +
+                              "  <tbody> ";
+        $.each(itemFootprint.footprintUOMs, function(index, footprintUOM){
+            footprintUOMGrid += "<tr> " +
+                                "    <td>" + footprintUOM.unitOfMeasure.description + "</td> " +
+                                "    <td>" + footprintUOM.quantity + "</td> " +
+                                "</tr>";
+
+        });
+        footprintUOMGrid += " </tbody> " +
+                            "</table>";
+        return footprintUOMGrid;
+    }
 
 </script>
 </body>

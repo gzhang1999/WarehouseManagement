@@ -87,6 +87,7 @@ public class MenuController {
         List<MenuItem> menuList = menuService.findMenu(parameters);
         for(MenuItem menuItem : menuList) {
             // Setup the parent menu name
+            System.out.println("Menu Item: " + menuItem.getName());
             if (menuService.getParentMenu(menuItem) != null) {
                 menuItem.setParentMenuName(menuService.getParentMenu(menuItem).getName());
             }

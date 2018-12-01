@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{supplier.new}" >New Supplier</a>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="supplier_query" data-display="supplierTable" th:action="@{/ws/common/supplier/list}">
+                            <div class="form-group">
+                                <label for="querySupplierName" class="col-form-label" th:text="#{supplier.name}">Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="querySupplierName" name="name" >
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="supplier_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="supplier_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "supplierTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true">
+                                    <thead>
+                                    <tr>
+                                        <td th:text="#{supplier.name}">Supplier Name</td>
+                                        <td th:text="#{supplier.description}">Supplier Description</td>
+                                        <td th:text="#{supplier.contactPerson}">Contact Person</td>
+                                        <td th:text="#{supplier.contactPersonTelephone}">Contact Person Telephone</td>
+                                        <td></td>
+                                    </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel" th:text="#{supplier.editmodel.title}">Edit Supplier</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="editModalErrorMessage"></div>
+                    <form>
+                        <div class="form-group">
+                            <label for="editModalSupplierID" class="col-form-label" th:text="#{supplier.id}">Supplier ID:</label>
+                            <input type="text" class="form-control" id="editModalSupplierID" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalSupplierName" class="col-form-label" th:text="#{supplier.name}">Supplier Name:</label>
+                            <input type="text" class="form-control" id="editModalSupplierName">
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalSupplierDescription" class="col-form-label" th:text="#{supplier.description}">Supplier Description:</label>
+                            <input type="text" class="form-control" id="editModalSupplierDescription">
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalSupplierContactPerson" class="col-form-label" th:text="#{supplier.contactPerson}">Supplier Contact Person:</label>
+                            <input type="text" class="form-control" id="editModalSupplierContactPerson">
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalSupplierContactPersonTelephone" class="col-form-label" th:text="#{supplier.contactPersonTelephone}">Supplier Contact Person Telephone:</label>
+                            <input type="text" class="form-control" id="editModalSupplierContactPersonTelephone">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="supplierEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+
+    var renderTable = function(tableID, data, customFields) {
+
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            var htmlData = "";
+            $.each(data, function(index, supplier){
+                htmlData +=
+                    "<tr>" +
+                    "   <td>" + supplier.name + "   </td>" +
+                    "   <td id='supplierDescription-" +  supplier.id + "'>" + supplier.description + "</td>" +
+                    "   <td id='supplierContactPerson-" +  supplier.id + "'>" + supplier.contactPerson + "</td>" +
+                    "   <td id='supplierContactPersonTelephone-" +  supplier.id + "'>" + supplier.contactPersonTelephone  + "</td>" +
+                    "   <td>" +
+                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-action='change' " +
+                    "           data-supplierid='" + supplier.id + "' data-suppliername='" + supplier.name + "'" +
+                    "           data-supplierdescription='" + supplier.description + "' data-suppliercontactperson='" + supplier.contactPerson + "'" +
+                    "           data-suppliercontactpersontelephone='" + supplier.contactPersonTelephone + "' >" + $.i18n("edit") + "</button>" +
+                    "       <button class='btn btn-danger' type='button' onclick='removeSupplier(event)' data-supplierid='" + supplier.id + "'>" + $.i18n("delete")+ "</button>" +
+                     "   </td>" +
+                    "</tr>";
+            });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
+        }
+    }
+
+    $('#editModal').on('show.bs.modal', function (event) {
+      clearEditModal();
+      var button = $(event.relatedTarget);
+      var action = button.data('action');
+      if (action == 'change') {
+          var supplierID = button.data('supplierid');
+          var supplierName = button.data('suppliername');
+          var supplierDescription = button.data('supplierdescription');
+          var supplierContactPerson = button.data('suppliercontactperson');
+          var supplierContactPersonTelephone = button.data('suppliercontactpersontelephone');
+
+          $('#editModalSupplierID').val(supplierID);
+          $('#editModalSupplierName').val(supplierName);
+          $('#editModalSupplierDescription').val(supplierDescription);
+          $('#editModalSupplierContactPerson').val(supplierContactPerson);
+          $('#editModalSupplierContactPersonTelephone').val(supplierContactPersonTelephone);
+
+          $('#editModalErrorMessage').text('');
+
+          // User is only allowed to change the description / contact person /
+          // contact person telephone
+          $('#editModalSupplierID').prop("disabled", true);
+          $('#editModalSupplierName').prop("disabled", true);
+
+          $('#editModalSupplierDescription').prop("disabled", false);
+          $('#editModalSupplierContactPerson').prop("disabled", false);
+          $('#editModalSupplierContactPersonTelephone').prop("disabled", false);
+
+      }
+      else if (action == 'new') {
+          $('#editModalSupplierID').prop("disabled", true);
+          $('#editModalSupplierName').prop("disabled", false);
+
+          $('#editModalSupplierDescription').prop("disabled", false);
+          $('#editModalSupplierContactPerson').prop("disabled", false);
+          $('#editModalSupplierContactPersonTelephone').prop("disabled", false);
+      }
+
+    })
+
+    var clearEditModal = function() {
+        $('#editModalSupplierID').val('');
+        $('#editModalSupplierName').val('');
+        $('#editModalSupplierDescription').val('');
+        $('#editModalSupplierContactPerson').val('');
+        $('#editModalSupplierContactPersonTelephone').val('');
+
+        $('#editModalErrorMessage').text('');
+    }
+
+    $('#supplierEditSave').click(function(){
+        var supplierID = $('#editModalSupplierID').val();
+        var url = "/ws/common/supplier";
+
+        var actionCode = "new";
+        if (supplierID == '') {
+            url += "/new";
+        }
+        else {
+            url += "/edit";
+            actionCode = "edit";
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            actionCode : actionCode,
+            data:{
+                 supplierID: supplierID,
+                 name: $('#editModalSupplierName').val(),
+                 description: $('#editModalSupplierDescription').val(),
+                 contactPerson: $('#editModalSupplierContactPerson').val(),
+                 contactPersonTelephone: $('#editModalSupplierContactPersonTelephone').val()
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                if (actionCode == "new") {
+                    var supplierList = [];
+                    var supplier = res.data;
+                    supplierList.push(supplier);
+                    renderTable("supplierTable", supplierList, res.customFields);
+                }
+                else {
+                    var supplierID = res.data.id;
+
+                    $('#supplierDescription-' + supplierID).text(res.data.description);
+                    $('#supplierContactPerson-' + supplierID).text(res.data.contactPerson);
+                    $('#supplierContactPersonTelephone-' + supplierID).text(res.data.contactPersonTelephone);
+                }
+
+                $('#editModalErrorMessage').text('');
+
+                $('#editModal').modal('toggle');
+            }
+            else{
+                $('#editModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+    var removeSupplier = function(event) {
+        var control = $(event.target);
+        var supplierID = control.data("supplierid");
+        var url = "/ws/common/supplier/delete";
+        $.ajax({
+                method:"POST",
+                url : url,
+                data:{
+                     supplierID : supplierID
+                }
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    refreshSupplierDisplay();
+                }
+                else{
+                    console.log("Error when delete supplier: " + JSON.stringify(res))
+                }
+            });
+
+    }
+
+
+    var refreshSupplierDisplay = function() {
+        $("#supplier_query").submit();
+    }
+
+</script>
+</body>
+</html>

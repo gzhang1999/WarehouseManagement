@@ -1002,7 +1002,7 @@
         $('#editInventoryModalReason').val('');
     }
 
-    $("#editInventoryModalItem").focusout(function(){
+    $("#editInventoryModalItem").change(function(){
         // When we fill in the item, automatically populate the description
         // and fill the dropdown list of the footprint
         var itemName = $("#editInventoryModalItem").val();
@@ -1035,7 +1035,7 @@
 
     })
 
-    $("#editInventoryModalItemFootprint").focusout(function(){
+    $("#editInventoryModalItemFootprint").change(function(){
         // When we fill in the item footprint, automatically populate the description
         var footprintID =  $("#editInventoryModalItemFootprint").val();
         $('#editInventoryModalItemFootprintDescription').val("");

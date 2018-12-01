@@ -338,7 +338,10 @@ public class MenuService {
     }
 
     public List<MenuItem> findMenu(Map<String, String> criteriaList) {
-
+        System.out.println("Find menu by:");
+        for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
+            System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
         if (!criteriaList.containsKey("parentMenuID") ||
                 criteriaList.get("parentMenuID").isEmpty()) {
             // both parent menu id and parent menu name are  valid criterias.

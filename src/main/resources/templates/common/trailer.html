@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+
+<!--  CSS for date time picker -->
+
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{trailer.new}" >New Trailer</a>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="trailer_query" data-display="trailerTable" th:action="@{/ws/common/trailer/list}">
+                            <div class="form-group">
+                                <label for="queryTrailerType" class="col-form-label" th:text="#{trailer.type}">Type:</label>
+                                <select class="form-control  mx-sm-4 my-sm-2" id="queryTrailerType" name="trailerType" data-variable="TrailerType"></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="queryDriver" class="col-form-label" th:text="#{trailer.driver}">Driver:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryDriver" name="driver" >
+                            </div>
+                            <div class="form-group">
+                                <label for="queryDriverTelephone" class="col-form-label" th:text="#{trailer.driver.telephone}">Driver Telephone:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryDriverTelephone" name="driverTelephone" >
+                            </div>
+                            <div class="form-group">
+                                <label for="queryLicensePlate" class="col-form-label" th:text="#{trailer.licensePlate}">License Plate:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryLicensePlate" name="licensePlate" >
+                            </div>
+                            <div class="form-group">
+                                <label for="queryCarrierID" class="col-form-label" th:text="#{carrier}">Carrier:</label>
+                                <select class="form-control  mx-sm-4 my-sm-2" id="queryCarrierID" name="carrierID" data-variable="carrier"></select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="queryCheckedInDate" class="col-form-label" th:text="#{trailer.checkedInDate}">Check In Date</label>
+                                <div class='input-group date mx-sm-4 datepicker' id='queryCheckedInDate'>
+                                    <input type='text' class="form-control" name="checkedInDate"/>
+                                        <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-time"></span>
+                                        </span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="queryClosedDate" class="col-form-label" th:text="#{trailer.closedDate}">Closed Date</label>
+                                <div class='input-group date mx-sm-4 datepicker' id='queryClosedDate'>
+                                    <input type='text' class="form-control" name="closedInDate"/>
+                                    <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-time"></span>
+                                        </span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="queryDispatchedDate" class="col-form-label" th:text="#{trailer.dispatchedDate}">Dispatched Date</label>
+                                <div class='input-group date mx-sm-4 datepicker' id='queryDispatchedDate'>
+                                    <input type='text' class="form-control" name="dispatchedInDate"/>
+                                    <span class="input-group-addon">
+                                            <span class="glyphicon glyphicon-time"></span>
+                                        </span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="queryTrailerState" class="col-form-label" th:text="#{trailer.state}">Trailer State:</label>
+                                <select class="form-control  mx-sm-4 my-sm-2" id="queryTrailerState" name="trailerState" data-variable="TrailerState"></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="queryTrailerLocation" class="col-form-label" th:text="#{trailer.location}">Type Location:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryTrailerLocation" name="locationName" >
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="trailer_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="trailer_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "trailerTable" class="table table-striped table-bordered display nowrap" style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
+                                    <thead>
+                                    <tr>
+                                        <td th:text="#{trailer.id}">Trailer ID</td>
+                                        <td th:text="#{trailer.type}">Trailer Type</td>
+                                        <td th:text="#{trailer.number}">Trailer Number</td>
+                                        <td th:text="#{trailer.licensePlate}">Trailer license plate</td>
+                                        <td th:text="#{trailer.driver}">Trailer Driver</td>
+                                        <td th:text="#{trailer.driver.telephone}">Trailer Driver's Telephone</td>
+                                        <td th:text="#{carrier.name}">Carrier Name</td>
+                                        <td th:text="#{trailer.state}">Trailer State</td>
+                                        <td th:text="#{trailer.location}">Trailer Location</td>
+                                        <td th:text="#{trailer.checkedInDate}">Trailer Checked in Date</td>
+                                        <td th:text="#{trailer.closedDate}">Trailer Closed Date</td>
+                                        <td th:text="#{trailer.dispatchedDate}">Trailer Dispatched Date</td>
+                                        <td></td>
+                                    </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel" th:text="#{trailer.editmodel.title}">Edit Trailer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="editModalErrorMessage"></div>
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editModalTrailerID" class="col-form-label" th:text="#{trailer.id}">Trailer ID:</label>
+                                <input type="text" class="form-control" id="editModalTrailerID" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editModalTrailerNumber" class="col-form-label" th:text="#{trailer.number}">Trailer Number:</label>
+                                <input type="text" class="form-control" id="editModalTrailerNumber">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editModalTrailerType" class="col-form-label" th:text="#{trailer.type}">Trailer Type:</label>
+                                <select class="form-control" id="editModalTrailerType" name="trailerType" data-variable="TrailerType"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editModalCarrier" class="col-form-label" th:text="#{carrier}">Carrier:</label>
+                                <select class="form-control" id="editModalCarrier" data-variable="carrier"></select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editModalTrailerDriver" class="col-form-label" th:text="#{trailer.driver}">Trailer Driver:</label>
+                                <input type="text" class="form-control" id="editModalTrailerDriver">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editModalTrailerDriverTel" class="col-form-label" th:text="#{trailer.driver.telephone}">Trailer Driver Telephone:</label>
+                                <input type="text" class="form-control" id="editModalTrailerDriverTel">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalTrailerLicensePlate" class="col-form-label" th:text="#{trailer.licensePlate}">Trailer License Plate:</label>
+                            <input type="text" class="form-control" id="editModalTrailerLicensePlate">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="trailerEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="editReceiptModal" tabindex="-1" role="dialog" aria-labelledby="editReceiptModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editReceiptModalLabel" th:text="#{receipt.editmodel.title}">Edit Receipt</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="editReceiptModalErrorMessage"></div>
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editReceiptModalTrailerID" class="col-form-label" th:text="#{trailer.id}">Trailer ID:</label>
+                                <input type="text" class="form-control" id="editReceiptModalTrailerID" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editReceiptModalTrailerNumber" class="col-form-label" th:text="#{trailer.number}">Trailer Number:</label>
+                                <input type="text" class="form-control" id="editReceiptModalTrailerNumber">
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editReceiptModalReceiptID" class="col-form-label" th:text="#{receipt.id}">Receipt ID:</label>
+                                <input type="text" class="form-control" id="editReceiptModalReceiptID">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editReceiptModalReceiptExternalID" class="col-form-label" th:text="#{receipt.externalID}">Receipt External ID:</label>
+                                <input type="text" class="form-control" id="editReceiptModalReceiptExternalID">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editReceiptModalReceiptNumber" class="col-form-label" th:text="#{receipt.number}">Receipt Number:</label>
+                                <input type="text" class="form-control" id="editReceiptModalReceiptNumber">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editReceiptModalReceiptPurchaseOrderNumber" class="col-form-label" th:text="#{receipt.purchaseOrderNumber}">Receipt Purchase Order Number:</label>
+                                <input type="text" class="form-control" id="editReceiptModalReceiptPurchaseOrderNumber">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editReceiptModalReceiptSupplier" class="col-form-label" th:text="#{supplier}">Supplier:</label>
+                            <select class="form-control" id="editReceiptModalReceiptSupplier" data-variable="supplier"></select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="receiptEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="checkInTrailerModal" tabindex="-1" role="dialog" aria-labelledby="checkInTrailerModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="checkInTrailerModalLabel" th:text="#{receipt.checkInModal.title}">Check In Trailer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="checkInTrailerModalErrorMessage"></div>
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="checkInTrailerModalTrailerID" class="col-form-label" th:text="#{trailer.id}">Trailer ID:</label>
+                                <input type="text" class="form-control" id="checkInTrailerModalTrailerID" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="checkInTrailerModalTrailerNumber" class="col-form-label" th:text="#{trailer.number}">Trailer Number:</label>
+                                <input type="text" class="form-control" id="checkInTrailerModalTrailerNumber">
+                            </div>
+                        </div>
+                        <hr />
+
+                        <table id = "yardLocationTable" class="table table-striped table-bordered display nowrap" style="width:100%" data-tabletype="datatable" data-init="true">
+                            <thead>
+                            <tr>
+                                <td></td>
+                                <td th:text="#{area.name}">Area name</td>
+                                <td th:text="#{location.name}">Trailer Number</td>
+                                <td></td>
+                            </tr>
+                            </thead>
+                        </table>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="checkInTrailerButton" th:text="#{trailer.checkin}">Check In</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+
+<script>
+
+    var renderTable = function(tableID, data, customFields) {
+
+        console.log("render table:\n" + JSON.stringify(data));
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            var htmlData = "";
+            $.each(data, function(index, trailer){
+                htmlData +=
+                    "<tr  id='row_" + trailer.id + "'>" +
+                    "   <td> " +
+                    "       <a href='#' data-trailerid='" + trailer.id + "' onclick='showTrailerDetial(event)'>" + trailer.id + "</a>" +
+                    "   </td>" +
+                    "   <td>" + trailer.type + "   </td>" +
+                    "   <td>" + trailer.number + "   </td>" +
+                    "   <td>" + trailer.licensePlate + "   </td>" +
+                    "   <td>" + trailer.driver + "   </td>" +
+                    "   <td>" + trailer.driverTelephone + "   </td>" +
+                    "   <td>" + (trailer.carrier.name == undefined? "" : trailer.carrier.name) + "   </td>" +
+                    "   <td>" + trailer.state + "   </td>" +
+                    "   <td>" + (trailer.location.name == undefined? "" : trailer.location.name) + "   </td>" +
+                    "   <td>" + trailer.checkedInDate + "   </td>" +
+                    "   <td>" + trailer.closedDate + "   </td>" +
+                    "   <td>" + trailer.dispatchedDate + "   </td>" +
+                    "   <td>" +
+                    "       <button class='btn btn-success' type='button' data-toggle='modal' data-target='#checkInTrailerModal' data-trailerid='" + trailer.id + "'>" + $.i18n("trailer.checkIn")+ "</button>" +
+                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' data-trailerid='" + trailer.id + "' data-action='change'>" + $.i18n("edit")+ "</button>" +
+                    "       <button class='btn btn-danger' type='button' onclick='removeTrailer(event)'>" + $.i18n("delete")+ "</button>" +
+                    "   </td>" +
+                    "</tr>";
+            });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
+        }
+    }
+
+    $('#editModal').on('show.bs.modal', function (event) {
+      clearEditModal();
+      var button = $(event.relatedTarget);
+      var action = button.data('action');
+      if (action == 'change') {
+          var trailerID = button.data('trailerid');
+          var url = '/ws/common/trailer/query/'+trailerID;
+
+          $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var trailer = res.data
+                      $('#editModalTrailerID').val(trailer.id);
+                      $('#editModalTrailerType').val(trailer.type);
+                      $('#editModalTrailerNumber').val(trailer.number);
+                      $('#editModalTrailerDriver').val(trailer.driver);
+                      $('#editModalTrailerDriverTel').val(trailer.driverTelephone);
+                      $('#editModalTrailerLicensePlate').val(trailer.licensePlate);
+                      if (trailer.carrier != undefined) {
+                        $('#editModalCarrier').val(trailer.carrier.id);
+                      }
+
+                      $('#editModalErrorMessage').text('');
+
+                      $('#editModalTrailerID').prop("disabled", true);
+                      $('#editModalTrailerType').prop("disabled", true);
+                      $('#editModalTrailerNumber').prop("disabled", true);
+
+                      $('#editModalTrailerDriver').prop("disabled", false);
+                      $('#editModalTrailerDriverTel').prop("disabled", false);
+                      $('#editModalTrailerLicensePlate').prop("disabled", false);
+                      $('#editModalCarrier').prop("disabled", false);
+                      $('#trailerEditSave').prop("disabled", false);
+
+                  }
+                  else
+                  {
+                      $('#editModalErrorMessage').text(res.status + " : " + res.message);
+                      $('#editModalTrailerID').prop("disabled", true);
+                      $('#editModalTrailerType').prop("disabled", true);
+                      $('#editModalTrailerNumber').prop("disabled", true);
+
+                      $('#editModalTrailerDriver').prop("disabled", true);
+                      $('#editModalTrailerDriverTel').prop("disabled", true);
+                      $('#editModalTrailerLicensePlate').prop("disabled", true);
+                      $('#editModalCarrier').prop("disabled", true);
+                      $('#trailerEditSave').prop("disabled", true);
+
+
+                  }
+              });
+
+      }
+      else if (action == 'new') {
+          $('#editModalTrailerID').prop("disabled", true);
+
+          $('#editModalTrailerType').prop("disabled", false);
+          $('#editModalTrailerNumber').prop("disabled", false);
+          $('#editModalTrailerDriver').prop("disabled", false);
+          $('#editModalTrailerDriverTel').prop("disabled", false);
+          $('#editModalTrailerLicensePlate').prop("disabled", false);
+          $('#editModalCarrier').prop("disabled", false);
+          $('#trailerEditSave').prop("disabled", false);
+      }
+
+    })
+
+    var clearEditModal = function() {
+        $('#editModalTrailerID').val('');
+        $('#editModalTrailerType').val('');
+        $('#editModalTrailerNumber').val('');
+        $('#editModalTrailerDriver').val('');
+        $('#editModalTrailerDriverTel').val('');
+        $('#editModalTrailerLicensePlate').val('');
+        $('#editModalCarrier').val('');
+
+        $('#editModalErrorMessage').text('');
+    }
+
+    $('#trailerEditSave').click(function(){
+        var trailerID = $('#editModalTrailerID').val();
+        var url = "/ws/common/trailer";
+
+        var actionCode = "new";
+        if (trailerID == '') {
+            url += "/new";
+        }
+        else {
+            url += "/" + trailerID + "/edit";
+            actionCode = "edit";
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            actionCode : actionCode,
+            data:{
+                 trailerID: trailerID,
+                 trailerType: $('#editModalTrailerType').val(),
+                 trailerNumber: $('#editModalTrailerNumber').val(),
+                 driver: $('#editModalTrailerDriver').val(),
+                 driverTelephone: $('#editModalTrailerDriverTel').val(),
+                 licensePlate: $('#editModalTrailerLicensePlate').val(),
+                 carrier: $('#editModalCarrier').val()
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                if (actionCode == "new") {
+                    var trailerList = [];
+                    var trailer = res.data;
+                    trailerList.push(trailer);
+                    renderTable("trailerTable", trailerList, res.customFields);
+                }
+                else {
+                    var carrierID = res.data.id;
+
+                    $('#editModalCarrierDescription-' + carrierID).text(res.data.description);
+                    $('#editModalCarrierContactPerson-' + carrierID).text(res.data.contactPerson);
+                    $('#editModalCarrierContactPersonTelephone-' + carrierID).text(res.data.contactPersonTelephone);
+                }
+
+                $('#editModalErrorMessage').text('');
+
+                $('#editModal').modal('toggle');
+            }
+            else{
+                $('#editModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+    var showTrailerDetial = function() {
+        var control = $(event.target);
+        var trailerID = control.data("trailerid");
+        displayTrailerDetail(trailerID, false);
+    }
+
+    var displayTrailerDetail = function(trailerID, refresh) {
+
+        var table = $("#trailerTable").DataTable();
+
+        var tr = $("#row_" + trailerID);
+        var row = table.row(tr);
+
+        // If refresh is true, it means we will refresh
+        // the display table and always get the latest data
+        // from server.
+        if (refresh == true) {
+            // refresh the row to update the display
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+            table.columns.adjust();
+        }
+        else {
+            var url = '/ws/common/trailer/query/'+trailerID;
+            $.ajax({
+                url:url
+            }).done(function( res ) {
+                // display this row
+                row.child(formatTrailerInfomration(res.data)).show();
+                tr.addClass('shown');
+
+                // Setup the data table
+                console.log("reset receipt for trailer: " + trailerID);
+                $("#receiptDisplay-" + trailerID).DataTable({
+                        "scrollX": true,
+                        fixedHeader: true
+                });
+                table.columns.adjust();
+                $("#shipmentDisplay-" + trailerID).DataTable({
+                        "scrollX": true,
+                        fixedHeader: true
+                });
+                table.columns.adjust();
+            });
+
+        }
+    }
+
+    var formatTrailerInfomration = function(trailer) {
+        var receiptHtml = getFormatReceiptDisplay(trailer);
+        var shipmentHtml = getFormatShipmentDisplay(trailer);
+
+        var html = "<ul class='nav nav-tabs' role='tablist'> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link active' data-toggle='tab' href='#receipt' role='tab' aria-controls='receipt'>" + $.i18n("trailer.receipt") + "</a> " +
+                   "    </li> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link' data-toggle='tab' href='#shipment' role='tab' aria-controls='shipment'>" + $.i18n("trailer.shipment") + "</a> " +
+                   "    </li> " +
+                   "</ul> " +
+                   "<div class='tab-content'> " +
+                   "    <div class='tab-pane active' id='receipt' role='tabpanel'> " +
+                        receiptHtml +
+                   "    </div> " +
+                   "    <div class='tab-pane' id='shipment' role='tabpanel'>" +
+                        shipmentHtml +
+                   "    </div> " +
+                   "</div> ";
+        return html;
+    }
+
+
+    var getFormatReceiptDisplay = function(trailer) {
+        var receiptHtml = "<div class='card card-accent-success'> " +
+                               "    <div class='card-header'> " +
+                               "        <h5> " +
+                               "            <a class='badge badge-primary float-right mx-2' data-toggle='modal' href='#editReceiptModal' data-trailerid='" + trailer.id + "' data-trailernumber ='" + trailer.number + "' data-action='new'>" +  $.i18n('receipt.new') + "</a>" +
+                               "        </h5>" +
+                               "    </div> " +
+                               "    <div class='card-body'> " +
+                               "      <div class='row'> " +
+                               "      <div class='col-md-12'> " +
+                               "        <table id='receiptDisplay-" + trailer.id + "' class='table table-striped table-bordered display nowrap dataTable no-footer' style='width:100%' role='grid' data-tabletype='datatable' data-init='true'> " +
+                               "            <thead> " +
+                               "                <tr> " +
+                               "                   <th>" + $.i18n("receipt") + "</th> " +
+                               "                   <th>" + $.i18n("receipt.externalID") + "</th> " +
+                               "                   <th>" + $.i18n("receipt.number") + "</th> " +
+                               "                   <th>" + $.i18n("receipt.supplier") + "</th> " +
+                               "                   <th>" + $.i18n("purchaseOrderNumber") + "</th> " +
+                               "                   <th></th> " +
+                               "               </tr> " +
+                               "           </thead> " +
+                               "           <tbody>";
+        $.each(trailer.receipts, function(index, receipt){
+            receiptHtml    += "  <tr>" +
+                                "    <td> "+ receipt.id + "</td> " +
+                                "    <td> "+ receipt.externalID + "</td> " +
+                                "    <td> "+ receipt.number + "</td> " +
+                                "    <td> "+ receipt.supplier.name + "</td> " +
+                                "    <td> "+ receipt.purchaseOrderNumber + "</td> " +
+                                "    <td>" +
+                                "        <button class='btn btn-primary' type='button' data-toggle='modal' href='#editReceiptModal'  data-receiptid='" + receipt.id + "' data-action='change'>" + $.i18n("receipt.edit") + "</button>" +
+                                "        <button class='btn btn-danger' type='button' onclick='removeReceipt(event)' data-receiptid='" + receipt.id + "' data-action='delete'>" + $.i18n("receipt.delete") + "</button>" +
+                                "    </td> " +
+                                "</tr> ";
+        });
+        receiptHtml    += "          </tbody> " +
+                            "        </table> " +
+                            "    </div>  " +
+                            "    </div>  " +
+                            "  </div>  " +
+                            "</div>";
+
+
+        return receiptHtml;
+    }
+
+    var getFormatShipmentDisplay = function(trailer) {
+
+        var shipmentHtml = "<div class='card card-accent-success'> " +
+                               "    <div class='card-header'> " +
+                               "        <h5> " +
+                               "            <a class='badge badge-primary float-right mx-2' data-toggle='modal' href='#editReceiptModal' data-trailerid='" + trailer.id + "' data-trailernumber ='" + trailer.number + "' data-action='new'>" +  $.i18n('receipt.new') + "</a>" +
+                               "        </h5>" +
+                               "    </div> " +
+                               "    <div class='card-body'> " +
+                               "      <div class='row'> " +
+                               "      <div class='col-md-12'> " +
+                               "        <table id='receiptDisplay-" + trailer.id + "' class='table table-striped table-bordered display nowrap dataTable no-footer' style='width:100%' role='grid' data-tabletype='datatable' data-init='true'> " +
+                               "            <thead> " +
+                               "                <tr> " +
+                               "                   <th>" + $.i18n("order") + "</th> " +
+                               "                   <th>" + $.i18n("order.externalID") + "</th> " +
+                               "                   <th>" + $.i18n("order.number") + "</th> " +
+                               "                   <th></th> " +
+                               "               </tr> " +
+                               "           </thead> ";
+        shipmentHtml    +=     "        </table> " +
+                               "    </div>  " +
+                               "    </div>  " +
+                               "  </div>  " +
+                               "</div>";
+
+
+        return shipmentHtml;
+    }
+
+
+    $('#editReceiptModal').on('show.bs.modal', function (event) {
+      clearEditReceiptModal();
+      var button = $(event.relatedTarget);
+      var action = button.data('action');
+      if (action == 'change') {
+          var receiptID = button.data('receiptid');
+          var url = '/ws/inbound/receipt/query/'+receiptID;
+
+          $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var receipt = res.data
+
+                      $('#editReceiptModalTrailerID').val(receipt.trailer.id);
+                      $('#editReceiptModalTrailerNumber').val(receipt.trailer.number);
+
+                      $('#editReceiptModalReceiptID').val(receipt.id);
+                      $('#editReceiptModalReceiptExternalID').val(receipt.externalID);
+                      $('#editReceiptModalReceiptNumber').val(receipt.number);
+                      $('#editReceiptModalReceiptPurchaseOrderNumber').val(receipt.purchaseOrderNumber);
+                      $('#editReceiptModalReceiptSupplier').val(receipt.supplier.id);
+                      setEnableOfEditReceiptModal(true);
+                      $('#editReceiptModalReceiptNumber').prop("disabled", true);
+
+
+                  }
+                  else
+                  {
+                      $('#editModalErrorMessage').text(res.status + " : " + res.message);
+                      setEnableOfEditReceiptModal(false);
+                  }
+              });
+
+      }
+      else if (action == 'new') {
+          setEnableOfEditReceiptModal(true);
+
+          $('#editReceiptModalTrailerID').val(button.data('trailerid'));
+          $('#editReceiptModalTrailerNumber').val(button.data('trailernumber'));
+
+      }
+
+    })
+
+    var clearEditReceiptModal = function() {
+        $('#editReceiptModalTrailerID').val('');
+        $('#editReceiptModalTrailerNumber').val('');
+        $('#editReceiptModalReceiptID').val('');
+        $('#editReceiptModalReceiptExternalID').val('');
+        $('#editReceiptModalReceiptNumber').val('');
+        $('#editReceiptModalReceiptPurchaseOrderNumber').val('');
+        $('#editReceiptModalReceiptSupplier').val('');
+
+        $('#editReceiptModalErrorMessage').text('');
+    }
+
+
+    var setEnableOfEditReceiptModal = function(enabled) {
+
+        $('#editReceiptModalTrailerID').prop("disabled", true);
+        $('#editReceiptModalTrailerNumber').prop("disabled", true);
+
+        $('#editReceiptModalReceiptID').prop("disabled", true);
+
+        $('#editReceiptModalReceiptExternalID').prop("disabled", !enabled);
+        $('#editReceiptModalReceiptNumber').prop("disabled", !enabled);
+        $('#editReceiptModalReceiptPurchaseOrderNumber').prop("disabled", !enabled);
+        $('#editReceiptModalReceiptSupplier').prop("disabled", !enabled);
+
+        $('#receiptEditSave').prop("disabled", !enabled);
+    }
+
+    $('#receiptEditSave').click(function(){
+        var receiptID = $('#editReceiptModalReceiptID').val();
+        var url = "/ws/inbound/receipt";
+
+        var actionCode = "new";
+        if (receiptID == '') {
+            url += "/new";
+        }
+        else {
+            url += "/" + receiptID + "/edit";
+            actionCode = "edit";
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            actionCode : actionCode,
+            data:{
+                 trailerID: $('#editReceiptModalTrailerID').val(),
+                 receiptID: $('#editReceiptModalReceiptID').val(),
+                 externalID: $('#editReceiptModalReceiptExternalID').val(),
+                 number: $('#editReceiptModalReceiptNumber').val(),
+                 purchaseOrderNumber: $('#editReceiptModalReceiptPurchaseOrderNumber').val(),
+                 supplierID: $('#editReceiptModalReceiptSupplier').val()
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                var trailerID = res.data.trailer.id;
+
+                displayTrailerDetail(trailerID, true);
+
+                $('#editReceiptModalErrorMessage').text('');
+
+                $('#editReceiptModal').modal('toggle');
+            }
+            else{
+                $('#editReceiptModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+
+    var removeReceipt = function(event) {
+        var control = $(event.target);
+        var receiptID = control.data("receiptid");
+        var url = "/ws/inbound/receipt/" + receiptID + "/delete";
+        $.ajax({
+                method:"DELETE",
+                url : url
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    var trailerID = res.data.trailer.id;
+
+                    displayTrailerDetail(trailerID, true);
+                }
+                else{
+                    console.log("Error when delete Receipt: " + JSON.stringify(res))
+                }
+            });
+
+    }
+</script>
+</body>
+</html>

@@ -87,7 +87,7 @@
                                             <input type="checkbox" data-action="itemSelector" th:data-itemid="${item.id}"/>
                                         </td>
                                         <td >
-                                            <a th:href="#" th:data-itemid="${item.id}" th:text="${item.name}" onclick="showItemDetial(event)"></a>
+                                            <a href="#" th:data-itemid="${item.id}" th:text="${item.name}" onclick="showItemDetial(event)"></a>
                                         </td>
                                         <td th:text="${item.description}" th:id="'itemDescription-' + ${item.id}"></td>
                                         <td>
@@ -423,8 +423,6 @@
         var control = $(event.target);
         var itemID = control.data("itemid");
         displayItemDetail(itemID, false);
-
-
     }
 
     var displayItemDetail = function(itemID, refresh) {

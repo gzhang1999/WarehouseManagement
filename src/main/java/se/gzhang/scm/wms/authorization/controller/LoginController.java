@@ -55,6 +55,12 @@ public class LoginController {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    @RequestMapping(value={"/index"}, method = RequestMethod.GET)
+    public String index(){
+
+        return "index";
+    }
+
     @RequestMapping(value={"/", "/login"}, method = RequestMethod.GET)
     public String login(){
         /***

@@ -68,6 +68,10 @@ public class LocationService {
 
 
     public List<Location> findLocation(Map<String, String> criteriaList) {
+        System.out.println("Find location by :");
+        for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
+            System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
         return locationRepository.findAll(new Specification<Location>() {
             @Override
             public Predicate toPredicate(Root<Location> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {

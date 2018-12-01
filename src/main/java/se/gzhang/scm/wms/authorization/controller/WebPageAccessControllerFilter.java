@@ -36,7 +36,7 @@ public class WebPageAccessControllerFilter implements Filter {
         this.userService = userService;
     }
 
-    private final static String[] skipAccessValidPages = {"/login","/home","/ws/*","/fileUpload/template/*","/error/*","/js/*","/css/*","/img/*", "/flow*"};
+    private final static String[] skipAccessValidPages = {"/login","/home","/index","/ws/*","/fileUpload/template/*","/error/*","/js/*","/fonts/*","/css/*","/img/*", "/flow*"};
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)

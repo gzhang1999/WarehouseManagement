@@ -39,6 +39,9 @@ public class DropdownList {
     @Column(name = "command")
     private String command;
 
+    @Column(name = "enumClass")
+    private String enumClass;
+
     @Column(name = "allow_blank")
     private boolean allowBlankRowFlag;
 

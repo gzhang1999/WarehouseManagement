@@ -252,7 +252,7 @@ var renderSelection = function(variable, data) {
             // Remove all the options before we start to fill in new options
             selectionControl.empty();
             if(data.allowBlankRowFlag) {
-                selectionControl.append('<option value=""></option>');
+                selectionControl.append('<option value="">          </option>');
             }
             $.each(data.dropdownOptions, function(i, option){
                 selectionControl.append('<option value="' + option.value + '">' + option.text + '</option>');
@@ -446,6 +446,17 @@ var initCryptoCurrent = function() {
 
 }
 
+
+var initDatePicker = function() {
+
+    $(".datepicker").each(function(){
+        // Always show the date pick under the input control
+        $(this).datepicker({
+            orientation: "bottom auto"
+        });
+    })
+
+}
 $(document).ready( function () {
     initQueryButtons();
     initDataTable();
@@ -460,4 +471,6 @@ $(document).ready( function () {
     initI18n();
 
     initCryptoCurrent();
+
+    initDatePicker();
 });

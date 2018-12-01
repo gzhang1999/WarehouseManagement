@@ -21,6 +21,7 @@ package se.gzhang.scm.wms.framework.controls.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import se.gzhang.scm.wms.common.model.EnumWithDescription;
 import se.gzhang.scm.wms.framework.controls.model.DropdownList;
 import se.gzhang.scm.wms.framework.controls.model.DropdownOption;
 import se.gzhang.scm.wms.framework.controls.repository.DropdownListRepository;
@@ -28,6 +29,7 @@ import se.gzhang.scm.wms.framework.controls.repository.DropdownListRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service("dropdownListService")
@@ -43,11 +45,17 @@ public class DropdownListService {
 
         // Check if we need to get the options from database table or
         // from SQL command
-        if (dropdownList != null
-                && dropdownList.getCommand() != null
+        if (dropdownList != null) {
+            if (dropdownList.getCommand() != null
                 && !dropdownList.getCommand().equals("")) {
-            // Let's execute the SQL and construct another list of dropdown options
-            dropdownList.setDropdownOptions(getDropdownOptionsFromSQL(dropdownList));
+                // Let's execute the SQL and construct another list of dropdown options
+                dropdownList.setDropdownOptions(getDropdownOptionsFromSQL(dropdownList));
+            }
+            else if(dropdownList.getEnumClass() != null
+                    && !dropdownList.getEnumClass().equals("")) {
+                // Let's execute the SQL and construct another list of dropdown options
+                dropdownList.setDropdownOptions(getDropdownOptionsFromEnumClass(dropdownList));
+            }
         }
         return dropdownList;
     }
@@ -72,4 +80,27 @@ public class DropdownListService {
             if(session.isOpen()) session.close();
         }
     }
+
+
+    private List<DropdownOption> getDropdownOptionsFromEnumClass(DropdownList dropdownList) {
+        String enumClassName = dropdownList.getEnumClass();
+        List<DropdownOption> dropdownOptionList = new ArrayList<>();
+        try {
+            Class<? extends EnumWithDescription<String>> enumClass = (Class<? extends EnumWithDescription<String>>) Class.forName(enumClassName);
+            EnumWithDescription<String>[] enumValues = enumClass.getEnumConstants();
+
+            for (EnumWithDescription<String> enumItem : enumValues) {
+                System.out.println(enumItem + " = " + enumItem.getDescription());
+                DropdownOption dropdownOption = new DropdownOption();
+                dropdownOption.setValue(enumItem.toString());
+                dropdownOption.setText(enumItem.getDescription());
+                dropdownOptionList.add(dropdownOption);
+            }
+        }
+        catch (ClassNotFoundException ex) {
+            System.out.println("Class not found exception(" + enumClassName + "): " + ex.getMessage());
+        }
+        return dropdownOptionList;
+    }
+
 }

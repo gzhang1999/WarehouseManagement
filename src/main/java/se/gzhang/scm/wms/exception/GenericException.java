@@ -26,4 +26,8 @@ public class GenericException extends RuntimeException {
         this.code = code;
         this.message = message;
     }
+
+    public int getCode() {
+        return code;
+    }
 }

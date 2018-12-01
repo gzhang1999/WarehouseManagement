@@ -35,7 +35,7 @@ public class ItemFootprintUOM {
     @Column(name = "item_footprint_uom_id")
     private Integer id;
 
-    @OneToOne(cascade={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @ManyToOne(cascade={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
     @JoinColumn(name="unit_of_measure_id")
     private UnitOfMeasure unitOfMeasure;
 

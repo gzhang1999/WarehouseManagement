@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{carrier.new}" >New Carrier</a>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="carrier_query" data-display="carrierTable" th:action="@{/ws/common/carrier/list}">
+                            <div class="form-group">
+                                <label for="queryCarrierName" class="col-form-label" th:text="#{carrier.name}">Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryCarrierName" name="name" >
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="carrier_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="carrier_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "carrierTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true">
+                                    <thead>
+                                    <tr>
+                                        <td th:text="#{carrier.name}">Carrier Name</td>
+                                        <td th:text="#{carrier.description}">Carrier Description</td>
+                                        <td th:text="#{carrier.contactPerson}">Contact Person</td>
+                                        <td th:text="#{carrier.contactPersonTelephone}">Contact Person Telephone</td>
+                                        <td></td>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    <tr th:each="carrier : ${carrierList}" th:id="${'row_' + carrier.id}">
+                                        <td>
+                                            <a href="#" th:data-carrierid="${carrier.id}"
+                                               th:text="${carrier.name}" onclick="showCarrierDetail(event)"></a>
+                                        </td>
+                                        <td th:text="${carrier.description}" th:id="'carrierDescription-' + ${carrier.id}"></td>
+                                        <td th:text="${carrier.contactPerson}" th:id="'carrierContactPerson-' + ${carrier.id}"></td>
+                                        <td th:text="${carrier.contactPersonTelephone}" th:id="'carrierContactPersonTelephone-' + ${carrier.id}"></td>
+                                        <td>
+                                            <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editModal"
+                                                    th:text="#{edit}" th:data-carrierid="${carrier.id}" th:data-carriername="${carrier.name}"
+                                                    th:data-carrierdescription="${carrier.description}" th:data-carriercontactperson="${carrier.contactPerson}"
+                                                    th:data-carriercontactpersontelephone="${carrier.contactPersonTelephone}" data-action="change" >Edit</button>
+                                            <button class="btn btn-danger" type="button" th:text="#{delete}" onclick="removeCarrier(event)" th:data-carrierid="${carrier.id}" >Delete Carrier</button>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel" th:text="#{carrier.editmodel.title}">Edit Carrier</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="editModalErrorMessage"></div>
+                    <form>
+                        <div class="form-group">
+                            <label for="editModalCarrierID" class="col-form-label" th:text="#{carrier.id}">Carrier ID:</label>
+                            <input type="text" class="form-control" id="editModalCarrierID" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalCarrierName" class="col-form-label" th:text="#{carrier.name}">Carrier Name:</label>
+                            <input type="text" class="form-control" id="editModalCarrierName">
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalCarrierDescription" class="col-form-label" th:text="#{carrier.description}">Carrier Description:</label>
+                            <input type="text" class="form-control" id="editModalCarrierDescription">
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalCarrierContactPerson" class="col-form-label" th:text="#{carrier.contactPerson}">Carrier Contact Person:</label>
+                            <input type="text" class="form-control" id="editModalCarrierContactPerson">
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalCarrierContactPersonTelephone" class="col-form-label" th:text="#{carrier.contactPersonTelephone}">Carrier Contact Person Telephone:</label>
+                            <input type="text" class="form-control" id="editModalCarrierContactPersonTelephone">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="carrierEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="editCarrierServiceLevelModal" tabindex="-1" role="dialog" aria-labelledby="editCarrierServiceLevelModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editCarrierServiceLevelModalLabel" th:text="#{carrier.serviceLevel.editmodel.title}">Edit Carrier Carrier Level</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="editCarrierServiceLevelModalErrorMessage"></div>
+                    <form>
+                        <div class="form-group">
+                            <label for="editCarrierServiceLevelModalCarrierID" class="col-form-label" th:text="#{carrier.id}">Carrier ID:</label>
+                            <input type="text" class="form-control" id="editCarrierServiceLevelModalCarrierID" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editCarrierServiceLevelModalCarrierName" class="col-form-label" th:text="#{carrier.name}">Carrier Name:</label>
+                            <input type="text" class="form-control" id="editCarrierServiceLevelModalCarrierName">
+                        </div>
+                        <div class="form-group">
+                            <label for="editCarrierServiceLevelModalCarrierDescription" class="col-form-label" th:text="#{carrier.description}">Carrier Description:</label>
+                            <input type="text" class="form-control" id="editCarrierServiceLevelModalCarrierDescription">
+                        </div>
+                        <hr />
+                        <div class="form-group">
+                            <label for="editCarrierServiceLevelModalServiceLevelID" class="col-form-label" th:text="#{carrier.serviceLevel.id}">Carrier Service Level ID:</label>
+                            <input type="text" class="form-control" id="editCarrierServiceLevelModalServiceLevelID">
+                        </div>
+                        <div class="form-group">
+                            <label for="editCarrierServiceLevelModalServiceLevelName" class="col-form-label" th:text="#{carrier.serviceLevel.name}">Carrier Service Level Name:</label>
+                            <input type="text" class="form-control" id="editCarrierServiceLevelModalServiceLevelName">
+                        </div>
+                        <div class="form-group">
+                            <label for="editCarrierServiceLevelModalServiceLevelDescription" class="col-form-label" th:text="#{carrier.serviceLevel.description}">Carrier Service Level Description:</label>
+                            <input type="text" class="form-control" id="editCarrierServiceLevelModalServiceLevelDescription">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="carrierServiceLevelEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+
+    var renderTable = function(tableID, data, customFields) {
+
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            var htmlData = "";
+            $.each(data, function(index, carrier){
+                htmlData +=
+                    "<tr  id='row_" + carrier.id + "'>" +
+                    "   <td>" +
+                    "       <a href='#' data-carrierid='" + carrier.id + "' onclick='showCarrierDetail(event)' >" + carrier.name + "</a>" +
+                    "   </td>" +
+                    "   <td id='carrierDescription-" +  carrier.id + "'>" + carrier.description + "</td>" +
+                    "   <td id='carrierContactPerson-" +  carrier.id + "'>" + carrier.contactPerson + "</td>" +
+                    "   <td id='carrierContactPersonTelephone-" +  carrier.id + "'>" + carrier.contactPersonTelephone  + "</td>" +
+                    "   <td>" +
+                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' data-action='change' " +
+                    "           data-carrierid='" + carrier.id + "' data-carriername='" + carrier.name + "'" +
+                    "           data-carrierdescription='" + carrier.description + "' data-carriercontactperson='" + carrier.contactPerson + "'" +
+                    "           data-carriercontactpersontelephone='" + carrier.contactPersonTelephone + "' >" + $.i18n("edit") + "</button>" +
+                    "       <button class='btn btn-danger' type='button' onclick='removeCarrier(event)' data-carrierid='" + carrier.id + "'>" + $.i18n("delete")+ "</button>" +
+                     "   </td>" +
+                    "</tr>";
+            });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
+        }
+    }
+
+    $('#editModal').on('show.bs.modal', function (event) {
+      clearEditModal();
+      var button = $(event.relatedTarget);
+      var action = button.data('action');
+      if (action == 'change') {
+          var carrierID = button.data('carrierid');
+          var carrierName = button.data('carriername');
+          var carrierDescription = button.data('carrierdescription');
+          var carrierContactPerson = button.data('carriercontactperson');
+          var carrierContactPersonTelephone = button.data('carriercontactpersontelephone');
+
+          $('#editModalCarrierID').val(carrierID);
+          $('#editModalCarrierName').val(carrierName);
+          $('#editModalCarrierDescription').val(carrierDescription);
+          $('#editModalCarrierContactPerson').val(carrierContactPerson);
+          $('#editModalCarrierContactPersonTelephone').val(carrierContactPersonTelephone);
+          $('#editModalErrorMessage').text('');
+
+          // User is only allowed to change the description / contact person /
+          // contact person telephone
+          $('#editModalCarrierID').prop("disabled", true);
+          $('#editModalCarrierName').prop("disabled", true);
+
+          $('#editModalCarrierDescription').prop("disabled", false);
+          $('#editModalCarrierContactPerson').prop("disabled", false);
+          $('#editModalCarrierContactPersonTelephone').prop("disabled", false);
+
+      }
+      else if (action == 'new') {
+          $('#editModalCarrierID').prop("disabled", true);
+          $('#editModalCarrierName').prop("disabled", false);
+
+          $('#editModalCarrierDescription').prop("disabled", false);
+          $('#editModalCarrierContactPerson').prop("disabled", false);
+          $('#editModalCarrierContactPersonTelephone').prop("disabled", false);
+      }
+
+    })
+
+    var clearEditModal = function() {
+        $('#editModalCarrierID').val('');
+        $('#editModalCarrierName').val('');
+        $('#editModalCarrierDescription').val('');
+        $('#editModalCarrierContactPerson').val('');
+        $('#editModalCarrierContactPersonTelephone').val('');
+
+        $('#editModalErrorMessage').text('');
+    }
+
+    $('#carrierEditSave').click(function(){
+        var carrierID = $('#editModalCarrierID').val();
+        var url = "/ws/common/carrier";
+
+        var actionCode = "new";
+        if (carrierID == '') {
+            url += "/new";
+        }
+        else {
+            url += "/edit";
+            actionCode = "edit";
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            actionCode : actionCode,
+            data:{
+                 carrierID: carrierID,
+                 name: $('#editModalCarrierName').val(),
+                 description: $('#editModalCarrierDescription').val(),
+                 contactPerson: $('#editModalCarrierContactPerson').val(),
+                 contactPersonTelephone: $('#editModalCarrierContactPersonTelephone').val()
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                if (actionCode == "new") {
+                    var carrierList = [];
+                    var carrier = res.data;
+                    carrierList.push(carrier);
+                    renderTable("carrierTable", carrierList, res.customFields);
+                }
+                else {
+                    var carrierID = res.data.id;
+
+                    $('#editModalCarrierDescription-' + carrierID).text(res.data.description);
+                    $('#editModalCarrierContactPerson-' + carrierID).text(res.data.contactPerson);
+                    $('#editModalCarrierContactPersonTelephone-' + carrierID).text(res.data.contactPersonTelephone);
+                }
+
+                $('#editModalErrorMessage').text('');
+
+                $('#editModal').modal('toggle');
+            }
+            else{
+                $('#editModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+    var removeCarrier = function(event) {
+        var control = $(event.target);
+        var carrierID = control.data("carrierid");
+        var url = "/ws/common/carrier/delete";
+        $.ajax({
+                method:"POST",
+                url : url,
+                data:{
+                     carrierID : carrierID
+                }
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    refreshCarrierDisplay();
+                }
+                else{
+                    console.log("Error when delete Carier: " + JSON.stringify(res))
+                }
+            });
+
+    }
+
+
+    var refreshCarrierDisplay = function() {
+        $("#carrier_query").submit();
+    }
+
+
+    var showCarrierDetail = function(event) {
+        var control = $(event.target);
+        var carrierID = control.data("carrierid");
+
+        displayCarrierDetail(carrierID, false);
+    }
+    var displayCarrierDetail = function(carrierID, refresh) {
+        var table = $("#carrierTable").DataTable();
+
+        var tr = $("#row_" + carrierID);
+        var row = table.row(tr);
+
+        if (refresh == true) {
+            // refresh the row to update the display
+            row.child.hide();
+            tr.removeClass('shown');
+
+        }
+
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+            table.columns.adjust();
+        }
+        else {
+            var url = '/ws/common/carrier/query/' + carrierID;
+            $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var carrier = res.data;
+                      console.log("display carrier service level\n" + JSON.stringify(carrier));
+
+                      // display this row
+                      row.child(formatCarrierInfomration(carrier)).show();
+                      tr.addClass('shown');
+
+                      // Setup the data table
+                      $("#carrierServiceLevelDisplay-" + carrier.id).DataTable({
+                          "scrollX": true,
+                          fixedHeader: true
+                      });
+                      table.columns.adjust();
+
+                  }
+              });
+        }
+
+    }
+
+    var formatCarrierInfomration = function(carrier) {
+        var carrierServiceLevelGrid =  "<div class='card card-accent-success'> " +
+                                       "    <div class='card-header'> " +
+                                       "        <h5> " +
+                                       "            <a class='badge badge-danger float-right mx-2' data-carrierid='" + carrier.id + "' onclick= 'massiveDeleteCarrierServiceLevel(event)' href='#'>" +  $.i18n('carrier.serviceLevel.delete') + "</a> " +
+                                       "            <a class='badge badge-primary float-right mx-2' data-toggle='modal' href='#editCarrierServiceLevelModal' data-carrierid='" + carrier.id + "' data-carriername='" + carrier.name + "' data-carrierdescription='" + carrier.description + "' data-action='new'>" +  $.i18n('carrier.serviceLevel.new') + "</a>" +
+                                       "        </h5>" +
+                                       "    </div> " +
+                                       "    <div class='card-body'> " +
+                                       "      <div class='row'> " +
+                                       "        <div class='col-md-12'><h3 class='py-2'>" + $.i18n("carrier.displayServiceLevel") + "</h3></div>" +
+                                       "        <div class='col-md-12'> " +
+                                       "          <table id='carrierServiceLevelDisplay-" + carrier.id + "' class='table table-striped table-bordered display nowrap dataTable no-footer' role='grid' style='width:100%'>" +
+                                       "             <thead> " +
+                                       "                 <tr> " +
+                                       "                     <th></th> " +
+                                       "                     <th>" + $.i18n("carrier.serviceLevel.name") + "</th> " +
+                                       "                     <th>" + $.i18n("carrier.serviceLevel.description") + "</th> " +
+                                       "                     <th></th> " +
+                                       "                 </tr> " +
+                                       "             </thead> " +
+                                       "             <tbody> ";
+        $.each(carrier.carrierServiceLevels, function(index, carrierServiceLevel){
+            carrierServiceLevelGrid +=  "               <tr> " +
+                                        "                   <td> " +
+                                        "                       <input type='checkbox' data-action='carrierServiceLevelSelector' data-carrierservicelevelid='" + carrierServiceLevel.id + "' /> " +
+                                        "                   </td> " +
+                                        "                   <td>" + carrierServiceLevel.name + "</td> " +
+                                        "                   <td>" + carrierServiceLevel.description + "</td> " +
+                                        "                   <td> " +
+                                        "                        <button class='btn btn-primary' type='button' data-toggle='modal' href='#editCarrierServiceLevelModal' data-carrierid='" + carrier.id + "' data-carriername='" + carrier.name + "' data-carrierdescription='" + carrier.description + "'  data-carrierservicelevelid='" + carrierServiceLevel.id + "' data-action='change'>" + $.i18n("edit") + "</button>" +
+                                        "                   </td> " +
+                                        "               </tr>";
+
+        });
+        carrierServiceLevelGrid +=  "                </tbody> " +
+                                    "             </table> " +
+                                    "           </div>  " +
+                                    "         </div>  " +
+                                    "       </div>  " +
+                                    "  </div>";
+        return carrierServiceLevelGrid;
+    }
+
+    $('#editCarrierServiceLevelModal').on('show.bs.modal', function (event) {
+      clearCarrierServiceLevelEditModal();
+      var button = $(event.relatedTarget);
+      var action = button.data('action');
+
+
+      var carrierID = button.data('carrierid');
+      var carrierName = button.data('carriername');
+      var carrierDescription = button.data('carrierdescription');
+      $('#editCarrierServiceLevelModalCarrierID').val(carrierID);
+      $('#editCarrierServiceLevelModalCarrierName').val(carrierName);
+      $('#editCarrierServiceLevelModalCarrierDescription').val(carrierDescription);
+
+      if (action == 'change') {
+          var carrierServiceLevelID = button.data('carrierservicelevelid');
+          var carrierServiceLevelName = button.data('carrierservicelevelname');
+          var carrierServiceLevelDescription = button.data('carrierserviceleveldescription');
+
+
+          $('#editCarrierServiceLevelModalServiceLevelID').val(carrierServiceLevelID);
+          $('#editCarrierServiceLevelModalServiceLevelName').val(carrierServiceLevelName);
+          $('#editCarrierServiceLevelModalServiceLevelDescription').val(carrierServiceLevelDescription);
+
+          $('#editCarrierServiceLevelModalCarrierID').prop("disabled", true);
+          $('#editCarrierServiceLevelModalCarrierName').prop("disabled", true);
+          $('#editCarrierServiceLevelModalCarrierDescription').prop("disabled", true);
+
+          // User is only allowed to change the description
+          $('#editCarrierServiceLevelModalServiceLevelID').prop("disabled", true);
+          $('#editCarrierServiceLevelModalServiceLevelName').prop("disabled", true);
+          $('#editCarrierServiceLevelModalServiceLevelDescription').prop("disabled", false);
+
+      }
+      else if (action == 'new') {
+          $('#editCarrierServiceLevelModalCarrierID').prop("disabled", true);
+          $('#editCarrierServiceLevelModalCarrierName').prop("disabled", true);
+          $('#editCarrierServiceLevelModalCarrierDescription').prop("disabled", true);
+
+          $('#editCarrierServiceLevelModalServiceLevelID').prop("disabled", true);
+          $('#editCarrierServiceLevelModalServiceLevelName').prop("disabled", false);
+          $('#editCarrierServiceLevelModalServiceLevelDescription').prop("disabled", false);
+      }
+
+    })
+
+    var clearCarrierServiceLevelEditModal = function() {
+        $('#editCarrierServiceLevelModalCarrierID').val('');
+        $('#editCarrierServiceLevelModalCarrierName').val('');
+        $('#editCarrierServiceLevelModalCarrierDescription').val('');
+
+        $('#editCarrierServiceLevelModalServiceLevelID').val('');
+        $('#editCarrierServiceLevelModalServiceLevelName').val('');
+        $('#editCarrierServiceLevelModalServiceLevelDescription').val('');
+
+        $('#editCarrierServiceLevelModalErrorMessage').text('');
+    }
+
+    $('#carrierServiceLevelEditSave').click(function(){
+
+        var carrierServiceLevelID = $('#editCarrierServiceLevelModalServiceLevelID').val();
+        var url = "/ws/common/carrier/servicelevel";
+
+        var actionCode = "new";
+        if (carrierServiceLevelID == '') {
+            url += "/new";
+        }
+        else {
+            url += "/edit";
+            actionCode = "edit";
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            actionCode : actionCode,
+            data:{
+                 carrierID: $('#editCarrierServiceLevelModalCarrierID').val(),
+                 carrierServiceLevelID:  carrierServiceLevelID,
+                 carrierServiceLevelname: $('#editCarrierServiceLevelModalServiceLevelName').val(),
+                 carrierServiceLeveldescription: $('#editCarrierServiceLevelModalServiceLevelDescription').val()
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                displayCarrierDetail(res.data.carrier.id, true);
+
+                $('#editCarrierServiceLevelModalErrorMessage').text('');
+
+                $('#editCarrierServiceLevelModal').modal('toggle');
+            }
+            else{
+                $('#editCarrierServiceLevelModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+
+
+    // Delete all the selected carrier service level
+    var massiveDeleteCarrierServiceLevel = function() {
+        var carrierServiceLevelList = [];
+
+        $("input[data-action='carrierServiceLevelSelector']:checked").each(function(){
+            carrierServiceLevelList.push($(this).data("carrierservicelevelid"));
+        })
+
+        var control = $(event.target);
+        var carrierID = control.data("carrierid");
+        massDeleteCarrierServiceLevels(0, carrierServiceLevelList, carrierID);
+    }
+    var massDeleteCarrierServiceLevels = function(index, carrierServiceLevelList, carrierID){
+        if (index < carrierServiceLevelList.length) {
+            var carrierServiceLevelID = carrierServiceLevelList[index];
+            var url = "/ws/common/carrier/servicelevel/delete";
+            $.ajax({
+                method:"POST",
+                url : url,
+                carrierServiceLevelList : carrierServiceLevelList,
+                index : index,
+                carrierID : carrierID,
+                data:{
+                     carrierServiceLevelID : carrierServiceLevelID
+                }
+            }).done(function( res ) {
+                if (res.status != 0) {
+                    console.log("Error when delete carrier service level: " + JSON.stringify(res))
+                }
+                // No matter whether we get error or not on current item
+                // we will continue with next item
+                index++;
+                massDeleteCarrierServiceLevels(index, carrierServiceLevelList, carrierID);
+            });
+        }
+        // carrierServiceLevelList.length > 0 to prevent reloading the grid display when the user didn't
+        // choose any carrier service level
+        else if (carrierServiceLevelList.length > 0){
+            displayCarrierDetail(carrierID, true);
+
+        }
+    }
+
+</script>
+</body>
+</html>
