@@ -21,11 +21,12 @@ package se.gzhang.scm.wms.inventory.model;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @Entity
 @Table(name = "inventory_status")
-public class InventoryStatus {
+public class InventoryStatus implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "inventory_status_id")

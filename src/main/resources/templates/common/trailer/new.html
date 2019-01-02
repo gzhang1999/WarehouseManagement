@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <form method="post" enctype="multipart/form-data" >
+                        <div class="card-header" >
+                            <h5>
+                                <span th:text="#{trailer.new}"></span>
+                                <a class="badge badge-success float-right" th:href="@{'~' + ${flowExecutionUrl} + '&_eventId_home'}" th:text="#{trailer.new.return}" >Return to Trailer Display</a>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label for="trailerNumber" class="col-form-label" th:text="#{trailer.number}">Number:</label>
+                                        <input type="text" class="form-control" id="trailerNumber" name="trailerNumber" th:value="${addTrailerFlowModel.trailer.trailerNumber}">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label for="trailerType" class="col-form-label" th:text="#{trailer.type}">Type:</label>
+                                        <select class="form-control"  id="trailerType" name="trailerType" data-variable="TrailerType" th:data-selected-option="${addTrailerFlowModel.trailer.trailerType}"></select>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label for="driver" class="col-form-label" th:text="#{trailer.driver}">Driver:</label>
+                                        <input type="text" class="form-control" id="driver" name="driver" th:value="${addTrailerFlowModel.trailer.driver}">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label for="driverTelephone" class="col-form-label" th:text="#{trailer.driver.telephone}">Driver Telephone:</label>
+                                        <input type="text" class="form-control"   id="driverTelephone" name="driverTelephone" th:value="${addTrailerFlowModel.trailer.driverTelephone}">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <label for="licensePlate" class="col-form-label" th:text="#{trailer.licensePlate}">License Plate:</label>
+                                    <input type="text" class="form-control"  id="licensePlate" name="licensePlate" th:value="${addTrailerFlowModel.trailer.licensePlate}">
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="carrierID" class="col-form-label" th:text="#{carrier}">Carrier:</label>
+                                    <select class="form-control"  id="carrierID" name="carrier" data-variable="carrier" th:data-selected-option="${addTrailerFlowModel.trailer.carrier == null? '' : addTrailerFlowModel.trailer.carrier.id}"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_saveTrailer" th:text="#{next}">
+                                <i class="fa fa-dot-circle-o"></i> Next</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+</body>
+</html>

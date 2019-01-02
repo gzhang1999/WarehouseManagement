@@ -85,14 +85,6 @@ public class TrailerService {
         destinationTrailerState = new TrailerState[]{TrailerState.DISPATCHED, TrailerState.VOID};
         validTrailerStateTransfer.put(TrailerState.CLOSED, Arrays.asList(destinationTrailerState));
 
-        System.out.println("Loading valid trailer state transfer: ");
-        for(Map.Entry<TrailerState, List<TrailerState>> entry : validTrailerStateTransfer.entrySet()) {
-            System.out.println(">> Allowed from " + entry.getKey().name());
-            for(TrailerState dest : entry.getValue()) {
-                System.out.println(">>>> To: " + dest.name());
-            }
-        }
-
         return validTrailerStateTransfer;
     }
 
@@ -112,6 +104,12 @@ public class TrailerService {
 
 
     public Trailer save(Trailer trailer) {
+        // If the trailer doesn't have state yet, let's always
+        // assume it is in 'Expected' status
+        if (trailer.getTrailerState() == null) {
+            // Trailer always start with expected status.
+            trailer.setTrailerState(TrailerState.EXPECTED);
+        }
         Trailer newTrailer = trailerRepository.save(trailer);
         trailerRepository.flush();
         return newTrailer;
@@ -193,7 +191,19 @@ public class TrailerService {
     }
 
     public void deleteByTrailerID(int trailerID) {
+        Trailer trailer = findByTrailerId(trailerID);
+        if (trailer.getTrailerState() != TrailerState.EXPECTED) {
+            throw new GenericException(10000, "Can't remove the receipt as the trailer attached is not in Expected status");
+        }
         trailerRepository.deleteById(trailerID);
+    }
+
+    public Trailer voidByTrailerID(int trailerID) {
+        Trailer trailer = findByTrailerId(trailerID);
+        if (trailer.getTrailerState() != TrailerState.EXPECTED) {
+            throw new GenericException(10000, "Can't remove the receipt as the trailer attached is not in Expected status");
+        }
+        return setTrailerState(trailer, TrailerState.VOID);
     }
 
     public Trailer checkInTrailer(int trailerID) {
@@ -208,18 +218,15 @@ public class TrailerService {
 
     public Trailer checkInTrailer(Trailer trailer) {
         trailer.setCheckedInDate(new Date());
-        setTrailerState(trailer, TrailerState.CHECKED_IN);
-        return save(trailer);
+        return setTrailerState(trailer, TrailerState.CHECKED_IN);
     }
     public Trailer closeTrailer(Trailer trailer) {
         trailer.setClosedDate(new Date());
-        setTrailerState(trailer, TrailerState.CLOSED);
-        return save(trailer);
+        return setTrailerState(trailer, TrailerState.CLOSED);
     }
     public Trailer dispatchTrailer(Trailer trailer) {
         trailer.setDispatchedDate(new Date());
-        setTrailerState(trailer, TrailerState.DISPATCHED);
-        return save(trailer);
+        return setTrailerState(trailer, TrailerState.DISPATCHED);
     }
 
     // The trailer is only allowed to be moved to
@@ -244,27 +251,16 @@ public class TrailerService {
     }
 
 
-    public void setTrailerState(Trailer trailer, TrailerState trailerState) {
+    public Trailer setTrailerState(Trailer trailer, TrailerState trailerState) {
 
         if (!isDestinationTrailerStateValid(trailer, trailerState)) {
             throw new GenericException(10000, "Cannot transfer current trailer to the state: " + trailerState.name());
         }
         trailer.setTrailerState(trailerState);
+        return save(trailer);
     }
 
     public boolean isDestinationTrailerStateValid(Trailer trailer, TrailerState trailerState) {
-
-        System.out.println("##########   Check whether trailer state transfer is valid  ############## ");
-        System.out.println("# transfer from " + trailer.getTrailerState().name() + " to " + trailerState.name());
-
-        System.out.println("# Valid trailer state transfer list below ");
-        for(Map.Entry<TrailerState, List<TrailerState>> entry : validTrailerStateTransfer.entrySet()) {
-            System.out.println(">> Allowed from " + entry.getKey().name());
-            for(TrailerState dest : entry.getValue()) {
-                System.out.println(">>>> To: " + dest.name());
-            }
-        }
-
         if (validTrailerStateTransfer.containsKey(trailer.getTrailerState()) &&
             validTrailerStateTransfer.get(trailer.getTrailerState()).contains(trailerState)) {
             return true;

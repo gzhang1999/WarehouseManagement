@@ -32,8 +32,7 @@ import se.gzhang.scm.wms.layout.service.BuildingService;
 import se.gzhang.scm.wms.layout.service.LocationService;
 import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class LocationController {
@@ -218,6 +217,24 @@ public class LocationController {
         locationService.save(location);
 
         return new WebServiceResponseWrapper<Location>(0, "", locationService.findByLocationName(name));
+    }
+
+    @ResponseBody
+    @RequestMapping(value="/ws/layout/area/type/{type_list}/locations")
+    public WebServiceResponseWrapper listLocationsByArea(@PathVariable("type_list") String typeListString) {
+        String[] typeList = typeListString.split("_");
+
+        List<Location> locationList = new ArrayList<>();
+        for (String areaType : typeList) {
+            System.out.println("Find location of type: " + areaType);
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put("areaType", areaType);
+            List<Location> areaLocationList = locationService.findLocation(parameters);
+            locationList.addAll(areaLocationList);
+
+        }
+
+        return new WebServiceResponseWrapper<List<Location>>(0, "", locationList);
     }
 
 }

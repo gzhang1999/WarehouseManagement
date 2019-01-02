@@ -2,3 +2,14 @@
 .ui-autocomplete{
 	z-index:1050;
 }
+
+span.icon-lookup {
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: url("your-image-path.jpg") no-repeat;
+}
+
+.table-selectable tbody tr {
+    cursor: pointer;
+}

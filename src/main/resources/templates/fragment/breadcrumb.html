@@ -21,6 +21,8 @@
       <a href="#" th:if="${applicationID != null}" th:text="#{'application.' + ${applicationID}}" th:href="@{'/' + ${applicationID}}">Application</a>
     </li>
     <li class="breadcrumb-item active" th:if="${formID != null}" th:text="#{'form.' + ${formID}}">Form</li>
+    <li class="breadcrumb-item" th:if="${flowID != null}" th:text="#{'flow.' + ${flowID}}">Flow</li>
+
     <!-- Breadcrumb Menu-->
     <li class="breadcrumb-menu d-md-down-none">
       <div class="btn-group" role="group" aria-label="Button group">

@@ -41,7 +41,9 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{location.nametemplate.new}" >New Location Name Template</a>
+                        <h5>
+                            <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{location.nametemplate.new}" >New Location Name Template</a>
+                        </h5>
                     </div>
                     <div class="card-body">
                         <form class="form-inline" id="location_name_template_query" data-display="locationNameTemplateTable" th:action="@{/ws/layout/location/nametemplate/list}">
@@ -266,9 +268,9 @@
                 }
                 htmlData +=
                     "   <td>" +
-                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-action='change' data-templateid='" + template.id + "'>Edit</button>" +
-                    "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#editItemModal' text='New Item' data-action='new' data-templateid='" + template.id + "'>New Item</button>" +
-                    "       <button class='btn btn-danger' type='button' text='Delete' onclick='removeTemplate(event)' data-templateid='" + template.id + "'>Delete Template</button>" +
+                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-action='change' data-templateid='" + template.id + "'>" + $.i18n("edit") + "</button>" +
+                    "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#editItemModal' text='New Item' data-action='new' data-templateid='" + template.id + "'>" + $.i18n("location.nametemplate.item.new") + "</button>" +
+                    "       <button class='btn btn-danger' type='button' text='Delete' onclick='removeTemplate(event)' data-templateid='" + template.id + "'>" + $.i18n("delete") + "</button>" +
                     "   </td>" +
                     "</tr>";
                 var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));

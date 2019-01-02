@@ -22,25 +22,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import se.gzhang.scm.wms.authorization.controller.WebPageAccessControllerFilter;
 import se.gzhang.scm.wms.authorization.service.UserService;
-import se.gzhang.scm.wms.layout.service.WarehouseService;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+/*******
+import org.springframework.web.servlet.view.jasperreports.JasperReportsMultiFormatView;
+import org.springframework.web.servlet.view.jasperreports.JasperReportsViewResolver;
+*****/
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
     @Autowired
     private UserService userService;
+
+    // Configuration for japser report
+    private final static String REPORT_DATA_KEY = "datasource";
+    private final static String PATH_KEY = "classpath:jaspertemplate/";
+    private final static String TYPE_KEY = ".jrxml";
+    private final static String VIEW_KEY = "Report";
+
     @Bean
     // When we need to encrypt password in the server side
     // we can call passwordEncoer.encode(password) to encrypt the password
@@ -64,7 +69,23 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registration.setOrder(1);
         return registration;
     }
+/*********
+    public void configureDefaultServletHandling(final DefaultServletHandlerConfigurer configurer) {
+        configurer.enable();
+    }
 
+    @Bean
+    public JasperReportsViewResolver getJasperReportsViewResolver() {
+        JasperReportsViewResolver resolver = new JasperReportsViewResolver();
+        resolver.setPrefix(PATH_KEY); //resource文件夹下放模板的路径
+        resolver.setSuffix(TYPE_KEY); //模板文件的类型，这里选用jrxml而不是编译之后的jasper
 
+        resolver.setReportDataKey(REPORT_DATA_KEY);
+        resolver.setViewNames("*" + VIEW_KEY + "*"); //视图名称，模板名称需要符合 *你定义的key* 如*Report*
+        resolver.setViewClass(JasperReportsMultiFormatView.class); //视图类
+        resolver.setOrder(0); //顺序为第一位
+        return resolver;
+    }
+****/
 
 }

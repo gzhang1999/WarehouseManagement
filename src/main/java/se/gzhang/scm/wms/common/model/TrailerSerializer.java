@@ -44,7 +44,7 @@ public class TrailerSerializer extends StdSerializer<Trailer> {
         public void serialize(
                 Trailer trailer, JsonGenerator jgen, SerializerProvider provider)
                 throws IOException, JsonProcessingException {
-            DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
             jgen.writeStartObject();
             jgen.writeNumberField("id", trailer.getId());
@@ -106,10 +106,10 @@ public class TrailerSerializer extends StdSerializer<Trailer> {
                         for (ReceiptLine receiptLine : receipt.getReceiptLineList()) {
                             jgen.writeStartObject();
                             jgen.writeNumberField("id", receiptLine.getId());
-                            jgen.writeStringField("externalID", receiptLine.getExternalID());
+                            jgen.writeStringField("externalID", receiptLine.getExternalID() == null ? "" : receiptLine.getExternalID());
                             jgen.writeStringField("lineNumber", receiptLine.getLineNumber());
-                            jgen.writeNumberField("expectedQuantity", receiptLine.getExpectedQuantity());
-                            jgen.writeNumberField("receivedQuantity", receiptLine.getReceivedQuantity());
+                            jgen.writeNumberField("expectedQuantity", receiptLine.getExpectedQuantity() == null ? 0 : receiptLine.getExpectedQuantity());
+                            jgen.writeNumberField("receivedQuantity", receiptLine.getReceivedQuantity() == null ? 0 : receiptLine.getReceivedQuantity());
 
                             jgen.writeFieldName("item");
                             jgen.writeStartObject();
@@ -132,8 +132,6 @@ public class TrailerSerializer extends StdSerializer<Trailer> {
                 }
             }
             jgen.writeEndArray();
-
-
             jgen.writeEndObject();
         }
 }

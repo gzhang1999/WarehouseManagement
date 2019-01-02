@@ -19,9 +19,18 @@
 package se.gzhang.scm.wms.framework.controls.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import lombok.Data;
+import se.gzhang.scm.wms.inbound.model.Receipt;
+import se.gzhang.scm.wms.inbound.model.ReceiptLine;
 
 import javax.persistence.*;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 @Data
 @Entity
@@ -44,6 +53,4 @@ public class DropdownOption {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dropdownlist_id")
     private DropdownList dropdownList;
-
-
 }

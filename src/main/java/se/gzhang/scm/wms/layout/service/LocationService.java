@@ -25,6 +25,7 @@ import se.gzhang.scm.wms.common.model.Velocity;
 import se.gzhang.scm.wms.common.service.VelocityService;
 import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.layout.model.Area;
+import se.gzhang.scm.wms.layout.model.AreaType;
 import se.gzhang.scm.wms.layout.model.Building;
 import se.gzhang.scm.wms.layout.model.Location;
 import se.gzhang.scm.wms.layout.repository.LocationRepository;
@@ -90,9 +91,13 @@ public class LocationService {
                     if(criteriaList.containsKey("areaName") && !criteriaList.get("areaName").isEmpty()) {
                         predicates.add(criteriaBuilder.equal(joinArea.get("name"), criteriaList.get("areaName")));
                     }
+                    if(criteriaList.containsKey("areaType") && !criteriaList.get("areaType").isEmpty()) {
+                        predicates.add(criteriaBuilder.equal(joinArea.get("areaType"), AreaType.valueOf(criteriaList.get("areaType"))));
+                    }
                 }
                 else if ((criteriaList.containsKey("areaID") && !criteriaList.get("areaID").isEmpty()) ||
-                        (criteriaList.containsKey("areaName") && !criteriaList.get("areaName").isEmpty())) {
+                        (criteriaList.containsKey("areaName") && !criteriaList.get("areaName").isEmpty()) ||
+                        (criteriaList.containsKey("areaType") && !criteriaList.get("areaType").isEmpty())) {
                     Join<Location, Area> joinArea = root.join("area",JoinType.INNER);
 
                     if(criteriaList.containsKey("areaID") && !criteriaList.get("areaID").isEmpty()) {
@@ -100,6 +105,9 @@ public class LocationService {
                     }
                     if(criteriaList.containsKey("areaName") && !criteriaList.get("areaName").isEmpty()) {
                         predicates.add(criteriaBuilder.equal(joinArea.get("name"), criteriaList.get("areaName")));
+                    }
+                    if(criteriaList.containsKey("areaType") && !criteriaList.get("areaType").isEmpty()) {
+                        predicates.add(criteriaBuilder.equal(joinArea.get("areaType"), AreaType.valueOf(criteriaList.get("areaType"))));
                     }
                 }
 

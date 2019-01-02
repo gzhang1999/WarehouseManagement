@@ -18,16 +18,29 @@
 
 package se.gzhang.scm.wms.layout.model;
 
-public enum AreaType {
-    OUTBOUND_STAGE,
-    INBOUND_STAGE,
-    INBOUND_OUTBOUND_STAGE,
-    STOREAGE,
-    PICKUP_AND_DEPOSIT,
-    PROCESSING,
-    PRODUCTION_LINE,
-    PRODUCTION_LINE_IN_STAGE,
-    PRODUCTION_LINE_OUT_STAGE,
-    YARD,
-    DOCKDOOR
+import se.gzhang.scm.wms.common.model.EnumWithDescription;
+
+public enum AreaType implements EnumWithDescription<String> {
+    OUTBOUND_STAGE("Outbound Stage"),
+    INBOUND_STAGE("Inbound Stage"),
+    INBOUND_OUTBOUND_STAGE("Inbound and Outbound Stage"),
+    STOREAGE("Storage"),
+    PICKUP_AND_DEPOSIT("Pickup and Deposit"),
+    PROCESSING("Processing"),
+    PRODUCTION_LINE("Production Line"),
+    PRODUCTION_LINE_IN_STAGE("Production Line Inbound Stage"),
+    PRODUCTION_LINE_OUT_STAGE("Production Line Outbound Stage"),
+    YARD("Yard"),
+    DOCKDOOR("Dock Door");
+
+    private String description;
+
+    private AreaType(String description) {
+        this.description = description;
+    }
+
+    @Override
+    public String getDescription(){
+        return description;
+    }
 }

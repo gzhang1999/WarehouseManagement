@@ -41,7 +41,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h5>
-                            <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{trailer.new}" >New Trailer</a>
+                            <a class="badge badge-success float-right" th:text="#{trailer.new}" th:href="@{/flowAddTrailer}">New Trailer</a>
                         </h5>
                     </div>
                     <div class="card-body">
@@ -289,10 +289,9 @@
                         </div>
                         <hr />
 
-                        <table id = "yardLocationTable" class="table table-striped table-bordered display nowrap" style="width:100%" data-tabletype="datatable" data-init="true">
+                        <table id = "yardLocationTable" class="table table-striped table-bordered display nowrap" style="width:100%" data-tabletype="datatable" data-init="true" data-custominit="true">
                             <thead>
                             <tr>
-                                <td></td>
                                 <td th:text="#{area.name}">Area name</td>
                                 <td th:text="#{location.name}">Trailer Number</td>
                                 <td></td>
@@ -318,7 +317,6 @@
 
     var renderTable = function(tableID, data, customFields) {
 
-        console.log("render table:\n" + JSON.stringify(data));
         var table = $("#" + tableID).DataTable();
 
         if (data.length == 0) {
@@ -333,23 +331,44 @@
                     "   <td> " +
                     "       <a href='#' data-trailerid='" + trailer.id + "' onclick='showTrailerDetial(event)'>" + trailer.id + "</a>" +
                     "   </td>" +
-                    "   <td>" + trailer.type + "   </td>" +
+                    "   <td>" + $.i18n(trailer.type) + "   </td>" +
                     "   <td>" + trailer.number + "   </td>" +
                     "   <td>" + trailer.licensePlate + "   </td>" +
                     "   <td>" + trailer.driver + "   </td>" +
                     "   <td>" + trailer.driverTelephone + "   </td>" +
                     "   <td>" + (trailer.carrier.name == undefined? "" : trailer.carrier.name) + "   </td>" +
-                    "   <td>" + trailer.state + "   </td>" +
+                    "   <td>" + $.i18n(trailer.state) + "   </td>" +
                     "   <td>" + (trailer.location.name == undefined? "" : trailer.location.name) + "   </td>" +
                     "   <td>" + trailer.checkedInDate + "   </td>" +
                     "   <td>" + trailer.closedDate + "   </td>" +
                     "   <td>" + trailer.dispatchedDate + "   </td>" +
-                    "   <td>" +
-                    "       <button class='btn btn-success' type='button' data-toggle='modal' data-target='#checkInTrailerModal' data-trailerid='" + trailer.id + "'>" + $.i18n("trailer.checkIn")+ "</button>" +
+                    "   <td>";
+                // If the trailer is in Expected, the user can choose to
+                // 1. check in
+                // 2. void
+                // Else if the trailer is checked in or processing
+                // 1. If this is a inbound trailer, the user can choose to receiving in the detail grid
+                // Else if the trailer is closed, the user can choose to
+                // 1. void only if there's nothing received (or shipped) yet
+                if (trailer.state == "EXPECTED") {
+                    htmlData +=
+                    "       <button class='btn btn-success' type='button' data-toggle='modal' data-target='#checkInTrailerModal' data-trailerid='" + trailer.id + "' data-trailernumber='" + trailer.number + "'>" + $.i18n("trailer.checkIn")+ "</button>"+
+                    "       <button class='btn btn-secondary' type='button' data-trailerid='" + trailer.id + "' onclick='voidTrailer(event)'>" + $.i18n("trailer.void")+ "</button>";
+                }
+                else if (trailer.state == "CLOSED")  {
+                    htmlData +=
+                    "       <button class='btn btn-secondary' type='button' data-trailerid='" + trailer.id + "' onclick='voidTrailer(event)'>" + $.i18n("trailer.void")+ "</button>";
+
+                }
+                if (trailer.state != "DISPATCHED" && trailer.state != "VOID") {
+                    htmlData +=
                     "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' data-trailerid='" + trailer.id + "' data-action='change'>" + $.i18n("edit")+ "</button>" +
-                    "       <button class='btn btn-danger' type='button' onclick='removeTrailer(event)'>" + $.i18n("delete")+ "</button>" +
-                    "   </td>" +
-                    "</tr>";
+                    "       <button class='btn btn-danger' type='button' data-trailerid='" + trailer.id + "' onclick='removeTrailer(event)'>" + $.i18n("delete")+ "</button>";
+                }
+                htmlData +=
+                    "       <button class='btn btn-info' type='button' data-trailerid='" + trailer.id + "' onclick='previewTrailerDocument(event)'>" + $.i18n("trailer.document.preview")+ "</button>";
+                htmlData += "   </td>" +
+                            "</tr>";
             });
             var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
             table.rows.add(html).draw();
@@ -470,11 +489,7 @@
                     renderTable("trailerTable", trailerList, res.customFields);
                 }
                 else {
-                    var carrierID = res.data.id;
-
-                    $('#editModalCarrierDescription-' + carrierID).text(res.data.description);
-                    $('#editModalCarrierContactPerson-' + carrierID).text(res.data.contactPerson);
-                    $('#editModalCarrierContactPersonTelephone-' + carrierID).text(res.data.contactPersonTelephone);
+                    refreshMainGrid();
                 }
 
                 $('#editModalErrorMessage').text('');
@@ -486,6 +501,11 @@
             }
         });
     })
+
+    var refreshMainGrid = function() {
+        $("#trailer_query").submit();
+
+    }
 
     var showTrailerDetial = function() {
         var control = $(event.target);
@@ -544,6 +564,7 @@
     var formatTrailerInfomration = function(trailer) {
         var receiptHtml = getFormatReceiptDisplay(trailer);
         var shipmentHtml = getFormatShipmentDisplay(trailer);
+        var storageHtml = getFormatStorageDisplay(trailer);
 
         var html = "<ul class='nav nav-tabs' role='tablist'> " +
                    "    <li class='nav-item'> " +
@@ -552,6 +573,9 @@
                    "    <li class='nav-item'> " +
                    "        <a class='nav-link' data-toggle='tab' href='#shipment' role='tab' aria-controls='shipment'>" + $.i18n("trailer.shipment") + "</a> " +
                    "    </li> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link' data-toggle='tab' href='#storage' role='tab' aria-controls='storage'>" + $.i18n("trailer.storage") + "</a> " +
+                   "    </li> " +
                    "</ul> " +
                    "<div class='tab-content'> " +
                    "    <div class='tab-pane active' id='receipt' role='tabpanel'> " +
@@ -559,6 +583,9 @@
                    "    </div> " +
                    "    <div class='tab-pane' id='shipment' role='tabpanel'>" +
                         shipmentHtml +
+                   "    </div> " +
+                   "    <div class='tab-pane' id='storage' role='tabpanel'>" +
+                        storageHtml +
                    "    </div> " +
                    "</div> ";
         return html;
@@ -639,6 +666,29 @@
 
 
         return shipmentHtml;
+    }
+    var getFormatStorageDisplay = function(trailer) {
+
+        var storageHtml = "<div class='card card-accent-success'> " +
+                               "    <div class='card-body'> " +
+                               "      <div class='row'> " +
+                               "      <div class='col-md-12'> " +
+                               "        <table id='storageDisplay-" + trailer.id + "' class='table table-striped table-bordered display nowrap dataTable no-footer' style='width:100%' role='grid' data-tabletype='datatable' data-init='true'> " +
+                               "            <thead> " +
+                               "                <tr> " +
+                               "                   <th>" + $.i18n("LPN") + "</th> " +
+                               "                   <th>" + $.i18n("item") + "</th> " +
+                               "                   <th>" + $.i18n("quantity") + "</th> " +
+                               "               </tr> " +
+                               "           </thead> ";
+        storageHtml    +=     "        </table> " +
+                               "    </div>  " +
+                               "    </div>  " +
+                               "  </div>  " +
+                               "</div>";
+
+
+        return storageHtml;
     }
 
 
@@ -775,6 +825,156 @@
             });
 
     }
+
+
+
+    $('#checkInTrailerModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget);
+      $('#checkInTrailerModalTrailerID').val(button.data("trailerid"));
+      $('#checkInTrailerModalTrailerNumber').val(button.data("trailernumber"));
+      $('#checkInTrailerModalTrailerID').prop("disabled", true);
+      $('#checkInTrailerModalTrailerNumber').prop("disabled", true);
+
+      // Get available yard / dock location
+      // We will assume that yard / dock location can be occupied by
+      // only one trailer at a time
+
+      var url = "/ws/layout/area/type/YARD_DOCKDOOR/locations";
+
+      $.ajax({url:url})
+          .done(function( res ) {
+              if (res.status == 0)
+              {
+                  console.log("yardLocationTable return:\n" + JSON.stringify(res));
+                  var table = $("#yardLocationTable").DataTable();
+
+                  if (res.data.length == 0) {
+                      table.clear().draw();
+                  }
+                  else {
+                    table.clear();
+                    var htmlData = "";
+                    $.each(res.data, function(index, location){
+                        htmlData +=
+                            "<tr>" +
+                            "   <td> " + location.area + "   </td>" +
+                            "   <td> " + location.name + "   </td>" +
+                            "   <td>" +
+                            "       <label class='switch switch-3d switch-primary'> " +
+                            "          <input class='switch-input trailer-check-in-locations' id='checkbox_" + location.id +"' data-locationid='" + location.id + "' type='checkbox' onchange='uncheckOtherLocations(event)'> " +
+                            "          <span class='switch-slider'></span> " +
+                            "       </label>" +
+                            "   </td>" +
+                            "</tr>";
+                    });
+                    var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+                    table.rows.add(html).draw();
+                }
+                  $('#checkInTrailerButton').prop("disabled", false);
+              }
+              else
+              {
+                  $('#checkInTrailerModalErrorMessage').text(res.status + " : " + res.message);
+                  $('#checkInTrailerButton').prop("disabled", true);
+              }
+          });
+    })
+
+    var uncheckOtherLocations = function(event) {
+        var control = $(event.target);
+        var locationID = control.data("locationid");
+
+        $(".trailer-check-in-locations:checked").each(function() {
+            console.log($(this).prop("id") + " checked while check for " + locationID);
+            if ($(this).data("locationid") != locationID) {
+                $(this).prop("checked", false);
+            }
+        })
+    }
+
+    var customInitDataTable = function(tableID) {
+
+        if (tableID == "yardLocationTable") {
+            $("#" + tableID).DataTable({
+                "pageLength": 5
+            });
+        }
+    }
+
+    $('#checkInTrailerButton').click(function(){
+        var trailerID = $('#checkInTrailerModalTrailerID').val();
+        var url = "/ws/common/trailer/"+ trailerID + "/checkin";
+
+        var locationID = "";
+        if ($(".trailer-check-in-locations:checked").length == 1) {
+            locationID = $(".trailer-check-in-locations:checked").data("locationid");
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            data:{
+                 locationID: locationID
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+
+                refreshMainGrid();
+                $('#checkInTrailerModalErrorMessage').text('');
+
+                $('#checkInTrailerModal').modal('toggle');
+            }
+            else{
+                $('#checkInTrailerModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+
+    var removeTrailer = function(tableID) {
+
+        var control = $(event.target);
+        var trailerID = control.data("trailerid");
+        var url = "/ws/common/trailer/"+ trailerID + "/delete";
+        $.ajax({
+            method:"POST",
+            url : url
+        }).done(function( res ) {
+            if (res.status == 0) {
+
+                refreshMainGrid();
+            }
+            else{
+                showErrorInModal("Error when delete trailer: " + JSON.stringify(res.data));
+            }
+        });
+    }
+
+    var voidTrailer = function() {
+
+        var control = $(event.target);
+        var trailerID = control.data("trailerid");
+        var url = "/ws/common/trailer/"+ trailerID + "/void";
+        $.ajax({
+            method:"POST",
+            url : url
+        }).done(function( res ) {
+            if (res.status == 0) {
+
+                refreshMainGrid();
+            }
+            else{
+                showErrorInModal("Error when delete trailer: " + JSON.stringify(res.data));
+            }
+        });
+    }
+
+    var previewTrailerDocument = function() {
+        var control = $(event.target);
+        var trailerID = control.data("trailerid");
+        window.open("/common/trailer/" + trailerID + "/document/preview", "_blank");
+
+    }
+
 </script>
 </body>
 </html>

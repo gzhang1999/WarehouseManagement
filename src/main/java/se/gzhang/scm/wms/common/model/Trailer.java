@@ -25,15 +25,15 @@ import se.gzhang.scm.wms.layout.model.Location;
 import se.gzhang.scm.wms.layout.model.Warehouse;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@Data
 @Entity
 @Table(name = "trailer")
 @JsonSerialize(using = TrailerSerializer.class)
-public class Trailer {
+public class Trailer implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -73,7 +73,7 @@ public class Trailer {
     private Date dispatchedDate;
 
 
-    @ManyToOne(cascade={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="carrier_id")
     private Carrier carrier;
 
@@ -88,4 +88,116 @@ public class Trailer {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public List<Receipt> getReceiptList() {
+        return receiptList;
+    }
+
+    public void setReceiptList(List<Receipt> receiptList) {
+        this.receiptList = receiptList;
+    }
+
+    public TrailerType getTrailerType() {
+        return trailerType;
+    }
+
+    public void setTrailerType(TrailerType trailerType) {
+        this.trailerType = trailerType;
+    }
+
+    public String getTrailerNumber() {
+        return trailerNumber;
+    }
+
+    public void setTrailerNumber(String trailerNumber) {
+        this.trailerNumber = trailerNumber;
+    }
+
+    public String getDriver() {
+        return driver;
+    }
+
+    public void setDriver(String driver) {
+        this.driver = driver;
+    }
+
+    public String getDriverTelephone() {
+        return driverTelephone;
+    }
+
+    public void setDriverTelephone(String driverTelephone) {
+        this.driverTelephone = driverTelephone;
+    }
+
+    public String getLicensePlate() {
+        return licensePlate;
+    }
+
+    public void setLicensePlate(String licensePlate) {
+        this.licensePlate = licensePlate;
+    }
+
+    public Date getCheckedInDate() {
+        return checkedInDate;
+    }
+
+    public void setCheckedInDate(Date checkedInDate) {
+        this.checkedInDate = checkedInDate;
+    }
+
+    public Date getClosedDate() {
+        return closedDate;
+    }
+
+    public void setClosedDate(Date closedDate) {
+        this.closedDate = closedDate;
+    }
+
+    public Date getDispatchedDate() {
+        return dispatchedDate;
+    }
+
+    public void setDispatchedDate(Date dispatchedDate) {
+        this.dispatchedDate = dispatchedDate;
+    }
+
+    public Carrier getCarrier() {
+        return carrier;
+    }
+
+    public void setCarrier(Carrier carrier) {
+        this.carrier = carrier;
+    }
+
+    public TrailerState getTrailerState() {
+        return trailerState;
+    }
+
+    public void setTrailerState(TrailerState trailerState) {
+        this.trailerState = trailerState;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public Warehouse getWarehouse() {
+        return warehouse;
+    }
+
+    public void setWarehouse(Warehouse warehouse) {
+        this.warehouse = warehouse;
+    }
 }

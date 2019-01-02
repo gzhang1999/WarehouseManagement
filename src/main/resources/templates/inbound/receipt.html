@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <a class="badge badge-success float-right" data-toggle="modal" href="#editReceiptModal" data-action="new" th:text="#{receipt.new}" >New Receipt</a>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="receipt_query" data-display="receiptTable" th:action="@{/ws/common/receipt/list}">
+                            <div class="form-group my-sm-1">
+                                <label for="queryDriver" class="col-form-label" th:text="#{trailer.driver}">Driver:</label>
+                                <input type="text" class="form-control  mx-sm-4" id="queryDriver" name="trailerDriver" >
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryDriverTelephone" class="col-form-label" th:text="#{trailer.driver.telephone}">Driver Telephone:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryDriverTelephone" name="trailerDriverTelephone" >
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryLicensePlate" class="col-form-label" th:text="#{trailer.licensePlate}">License Plate:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryLicensePlate" name="trailerLicensePlate" >
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryTrailerNumber" class="col-form-label" th:text="#{trailer.number}">Trailer Number:</label>
+                                <input type="text" class="form-control ml-sm-4" id="queryTrailerNumber" name="trailerNumber" data-controltype="lookup" data-variable="trailer_number">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryTrailerLocation" class="col-form-label" th:text="#{receipt.trailer.location}">Trailer Location:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryTrailerLocation" name="trailerLocationName" >
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryReceiptID" class="col-form-label" th:text="#{receipt.id}">Receipt ID:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryReceiptID" name="receiptID" >
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryReceiptExternalID" class="col-form-label" th:text="#{receipt.externalID}">Receipt External ID:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryReceiptExternalID" name="receiptExternalID" >
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryReceipSupplier" class="col-form-label" th:text="#{receipt.supplierName}">Receipt Supplier Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryReceipSupplier" name="receiptSupplierName" data-autocomplete=true
+                                       data-variable='supplier_name'>
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="receipt_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="receipt_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "receiptTable" class="table table-striped table-bordered display nowrap" style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
+                                    <thead>
+                                    <tr>
+                                        <td th:text="#{receipt.id}">Receipt ID</td>
+                                        <td th:text="#{receipt.externalID}">Receipt External ID</td>
+                                        <td th:text="#{trailer.id}">Trailer ID</td>
+                                        <td th:text="#{trailer.type}">Trailer Type</td>
+                                        <td th:text="#{trailer.number}">Trailer Number</td>
+                                        <td th:text="#{trailer.licensePlate}">Trailer license plate</td>
+                                        <td th:text="#{trailer.driver}">Trailer Driver</td>
+                                        <td th:text="#{trailer.driver.telephone}">Trailer Driver's Telephone</td>
+                                        <td th:text="#{carrier.name}">Carrier Name</td>
+                                        <td th:text="#{trailer.state}">Trailer State</td>
+                                        <td th:text="#{trailer.location}">Trailer Location</td>
+                                        <td th:text="#{trailer.checkedInDate}">Trailer Checked in Date</td>
+                                        <td th:text="#{trailer.closedDate}">Trailer Closed Date</td>
+                                        <td th:text="#{trailer.dispatchedDate}">Trailer Dispatched Date</td>
+                                        <td></td>
+                                    </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="editReceiptModal" tabindex="-1" role="dialog" aria-labelledby="editReceiptModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editReceiptModalLabel" th:text="#{receipt.editmodel.title}">Edit Receipt</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="editReceiptModalErrorMessage"></div>
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editReceiptModalTrailerID" class="col-form-label" th:text="#{trailer.id}">Trailer ID:</label>
+                                <input type="text" class="form-control" id="editReceiptModalTrailerID" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editReceiptModalTrailerNumber" class="col-form-label" th:text="#{trailer.number}">Trailer Number:</label>
+                                <input type="text" class="form-control" id="editReceiptModalTrailerNumber">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editReceiptModalTrailerDriver" class="col-form-label" th:text="#{trailer.driver}">Trailer Driver:</label>
+                                <input type="text" class="form-control" id="editReceiptModalTrailerDriver" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editReceiptModalTrailerNumber" class="col-form-label" th:text="#{trailer.number}">Trailer Number:</label>
+                                <input type="text" class="form-control" id="editReceiptModalTrailerNumber">
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editReceiptModalReceiptID" class="col-form-label" th:text="#{receipt.id}">Receipt ID:</label>
+                                <input type="text" class="form-control" id="editReceiptModalReceiptID">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editReceiptModalReceiptExternalID" class="col-form-label" th:text="#{receipt.externalID}">Receipt External ID:</label>
+                                <input type="text" class="form-control" id="editReceiptModalReceiptExternalID">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editReceiptModalReceiptNumber" class="col-form-label" th:text="#{receipt.number}">Receipt Number:</label>
+                                <input type="text" class="form-control" id="editReceiptModalReceiptNumber">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editReceiptModalReceiptPurchaseOrderNumber" class="col-form-label" th:text="#{receipt.purchaseOrderNumber}">Receipt Purchase Order Number:</label>
+                                <input type="text" class="form-control" id="editReceiptModalReceiptPurchaseOrderNumber">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="editReceiptModalReceiptSupplier" class="col-form-label" th:text="#{supplier}">Supplier:</label>
+                            <select class="form-control" id="editReceiptModalReceiptSupplier" data-variable="supplier"></select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="receiptEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+
+    var renderTable = function(tableID, data, customFields) {
+
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            var htmlData = "";
+            $.each(data, function(index, receipt){
+                htmlData +=
+                    "<tr  id='row_" + receipt.id + "'>" +
+                    "   <td> " +
+                    "       <a href='#' data-receiptid='" + receipt.id + "' onclick='showReceiptDetial(event)'>" + receipt.id + "</a>" +
+                    "   </td>" +
+                    "   <td>" + receipt.externalID + "   </td>" +
+                    "   <td>" + receipt.trailer.id + "   </td>" +
+                    "   <td>" + $.i18n(receipt.trailer.type) + "   </td>" +
+                    "   <td>" + receipt.trailer.number + "   </td>" +
+                    "   <td>" + receipt.trailer.licensePlate + "   </td>" +
+                    "   <td>" + receipt.trailer.driver + "   </td>" +
+                    "   <td>" + receipt.trailer.driverTelephone + "   </td>" +
+                    "   <td>" + (receipt.trailer.carrier.name == undefined? "" : receipt.trailer.carrier.name) + "   </td>" +
+                    "   <td>" + $.i18n(receipt.trailer.state) + "   </td>" +
+                    "   <td>" + (receipt.trailer.location.name == undefined? "" : receipt.trailer.location.name) + "   </td>" +
+                    "   <td>" + receipt.trailer.checkedInDate + "   </td>" +
+                    "   <td>" + receipt.trailer.closedDate + "   </td>" +
+                    "   <td>" + receipt.trailer.dispatchedDate + "   </td>" +
+                    "   <td>";
+                htmlData += "   </td>" +
+                            "</tr>";
+            });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
+        }
+    }
+
+</script>
+</body>
+</html>

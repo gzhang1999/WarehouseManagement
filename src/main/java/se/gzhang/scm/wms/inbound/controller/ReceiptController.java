@@ -50,7 +50,7 @@ public class ReceiptController {
     private TrailerService trailerService;
 
 
-    private static final String APPLICATION_ID = "Common";
+    private static final String APPLICATION_ID = "Inbound";
     private static final String FORM_ID = "Receipt";
 
 

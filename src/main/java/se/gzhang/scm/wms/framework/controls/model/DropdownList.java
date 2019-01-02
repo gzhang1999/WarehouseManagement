@@ -27,6 +27,9 @@ import java.util.List;
 @Data
 @Entity
 @Table(name="dropdownList")
+// We will use this table for
+// 1. Dropdown list with options
+// 2. Auto complete(It will show only the option's value)
 public class DropdownList {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -51,5 +54,6 @@ public class DropdownList {
             orphanRemoval = true
     )
     private List<DropdownOption> dropdownOptions;
+
 
 }

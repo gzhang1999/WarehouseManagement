@@ -22,8 +22,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import se.gzhang.scm.wms.common.model.Carrier;
-import se.gzhang.scm.wms.common.model.CarrierServiceLevel;
 
 import java.io.IOException;
 import java.text.DateFormat;

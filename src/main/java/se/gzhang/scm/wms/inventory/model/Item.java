@@ -25,6 +25,7 @@ import se.gzhang.scm.wms.common.model.UnitOfMeasure;
 import se.gzhang.scm.wms.layout.model.Warehouse;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ import java.util.List;
 @Entity
 @Table(name = "item")
 @JsonSerialize(using = ItemSerializer.class)
-public class Item {
+public class Item implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "item_id")

@@ -24,13 +24,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.AreaType;
+import se.gzhang.scm.wms.layout.model.Location;
 import se.gzhang.scm.wms.layout.model.VolumeType;
 import se.gzhang.scm.wms.layout.service.AreaService;
 import se.gzhang.scm.wms.layout.service.BuildingService;
 import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class AreaController {
@@ -128,4 +128,5 @@ public class AreaController {
 
         return new WebServiceResponseWrapper<Area>(0, "", areaService.findByAreaId(areaID));
     }
+
 }

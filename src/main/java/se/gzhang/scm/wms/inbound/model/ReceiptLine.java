@@ -24,12 +24,13 @@ import se.gzhang.scm.wms.inventory.model.InventoryStatus;
 import se.gzhang.scm.wms.inventory.model.Item;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @Entity
 @Table(name = "receipt_line")
 @JsonSerialize(using = ReceiptLineSerializer.class)
-public class ReceiptLine {
+public class ReceiptLine implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "receipt_line_id")
@@ -42,24 +43,43 @@ public class ReceiptLine {
     private String lineNumber;
 
     @Column(name = "expected_quantity")
-    private int expectedQuantity;
+    private Integer expectedQuantity;
 
     @Column(name = "received_quantity")
-    private int receivedQuantity;
+    private Integer receivedQuantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receipt_id")
     private Receipt receipt;
 
-    @ManyToOne(cascade={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="item_id")
     private Item item;
 
-    @ManyToOne(cascade={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="inventory_status_id")
     private InventoryStatus inventoryStatus;
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof ReceiptLine)) {
+            return false;
+        }
 
+        // If both receipt line has ID, make sure the ID are the same
+        // Otherwise, the receipts are same as long as the receipt numbers
+        // are the same
+        ReceiptLine receiptLine = (ReceiptLine)obj;
+        if (this.id != null && receiptLine.getId() != null) {
+            return this.id == receiptLine.getId();
+        }
+        else {
+            return this.getLineNumber().equals(receiptLine.getLineNumber());
+        }
+    }
 
 
 

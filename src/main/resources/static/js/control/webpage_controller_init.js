@@ -107,18 +107,27 @@ var initDataTable = function() {
         datatables.each(function(){
             // Initiate the data table if data-init set to true
             if ($(this).data("init") == true) {
+                var table;
                 if ($(this).data("custominit") == true) {
                     customInitDataTable($(this).prop("id"));
                 }
                 else if ($(this).data("scrollx") == true) {
-                    $(this).DataTable({
+                    table = $(this).DataTable({
                         "scrollX": true,
                         fixedHeader: true
                     });
                 }
                 else {
-                    $(this).DataTable();
+                    table = $(this).DataTable();
                 }
+
+                // In some case, the column header doesn't align with the data rows when initializing.
+                // We will need to refresh the table to adjust the alignment
+                if ($(this).data("refresh") == true) {
+                    console.log("adjust columns of table:" + $(this).prop("id"));
+                    table.columns.adjust();
+                }
+
             }
         });
     };
@@ -249,14 +258,25 @@ var renderSelection = function(variable, data) {
         selectionControls.each(function(){
             var selectionControl = $(this);
 
+
+            // If the client setup the default selected options, let's select it
+            var selectedOption = selectionControl.data("selected-option") === undefined ? "" : selectionControl.data("selected-option");
+
             // Remove all the options before we start to fill in new options
             selectionControl.empty();
             if(data.allowBlankRowFlag) {
                 selectionControl.append('<option value="">          </option>');
             }
+
             $.each(data.dropdownOptions, function(i, option){
-                selectionControl.append('<option value="' + option.value + '">' + option.text + '</option>');
+                selectionControl.append('<option value="' + option.value + '">' + $.i18nwd("dropdown." + variable + "." + option.value, option.text) + '</option>');
             });
+            if (selectedOption != "") {
+                console.log("set control " + selectionControl.prop("id") + " to: " + selectedOption );
+                selectionControl.val(selectedOption);
+            }
+
+
         })
     }
 }
@@ -404,48 +424,6 @@ var initI18n = function() {
 
 }
 
-var initCryptoCurrent = function() {
-    var eosAmount = 0;
-    var ethAmount = 1.02;
-    var bnbAmount = 296.21;
-
-    // Get the price
-
-    var eosPrice = 3.83;
-    var ethPrice = 140.3;
-    var bnbPrice = 6.07;
-
-    var eosValue = Number((eosAmount * eosPrice).toFixed(2));
-    var ethValue = Number((ethAmount * ethPrice).toFixed(2));
-    var bnbValue = Number((bnbAmount * bnbPrice).toFixed(2));
-
-    var acountValue = eosValue + ethValue + bnbValue;
-
-    var eosPercent = Number((eosValue * 100 / acountValue).toFixed(2));
-    var ethPercent = Number((ethValue * 100 / acountValue).toFixed(2));
-    var bnbPercent = Number((bnbValue * 100 / acountValue).toFixed(2));
-
-                console.log("eosPrice: " + eosPrice + "\n" +
-                            "eosAmount: " + eosAmount + "\n" +
-                            "eosValue: " + eosValue + "\n" +
-                            "eosPercent: " + eosPercent + "\n" +
-                            "ethPrice: " + ethPrice + "\n" +
-                            "ethAmount: " + ethAmount + "\n" +
-                            "ethValue: " + ethValue + "\n" +
-                            "ethPercent: " + ethPercent + "\n" +
-                            "bnbPrice: " + bnbPrice + "\n" +
-                            "bnbAmount: " + bnbAmount + "\n" +
-                            "bnbValue: " + bnbValue + "\n" +
-                            "bnbPercent: " + bnbPercent)
-    var eosInfo = eosPrice + " / " + eosAmount + " / " + eosValue + " / " + eosPercent + "%";
-    var ethInfo = ethPrice + " / " + ethAmount + " / " + ethValue + " / " + ethPercent + "%";
-    var bnbInfo = bnbPrice + " / " + bnbAmount + " / " + bnbValue + " / " + bnbPercent + "%";
-                $("#eosInfo").text(eosInfo);
-                $("#ethInfo").text(ethInfo);
-                $("#bnbInfo").text(bnbInfo);
-
-}
-
 
 var initDatePicker = function() {
 
@@ -455,22 +433,124 @@ var initDatePicker = function() {
             orientation: "bottom auto"
         });
     })
+}
 
+
+var initLookupController = function() {
+
+    var lookupControllers = $("input[data-controltype='lookup']");
+
+    if(lookupControllers.length != 0) {
+        lookupControllers.each(function(){
+            var lookupController = $(this);
+            var lookupIconHtml = " <span class='input-group-prepend mr-sm-4'> " +
+                                 "     <button class='btn btn-light btn-sm' type='button' onclick='lookup(\"" + lookupController.prop("id") + "\", \"" + lookupController.data("variable") + "\")'> " +
+                                 "     <i class='fa fa-search'></i></button> " +
+                                 " </span>";
+            console.log("Add lookupIconHtml to the end of input: " + lookupController.prop("id"));
+            lookupController.after(lookupIconHtml);
+        });
+    }
+}
+
+var lookup = function(id, variable) {
+    var url = "/ws/control/lookup/" + variable;
+    $.ajax({url:url})
+     .done(function(res){
+         console.log(JSON.stringify(res));
+         if (res.status == 0) {
+             if ($("#lookupModal").length > 0) {
+                 $("#lookupModal").remove();
+             }
+             var lookupModalHtml = getLookupModalHtml(id, res.data);
+             $("main").after(lookupModalHtml);
+
+             $("#lookupResultTable").DataTable({
+                 "scrollX": true,
+                 fixedHeader: true
+             });
+
+             // Add scroll bar in case there're too many columns
+             $("#lookupModal").on('shown.bs.modal', function (e) {
+                  //Get the datatable which has previously been initialized
+                  var dataTable= $('#lookupResultTable').DataTable();
+                  dataTable.columns.adjust();
+             });
+
+             $("#lookupModal").modal("show");
+         }
+    });
+}
+
+
+var getLookupModalHtml = function(id, data) {
+    lookupModalHtml = "<div class='modal fade' id='lookupModal' tabindex='-1' role='dialog' aria-labelledby='lookupModalLabel' aria-hidden='true'> " +
+                      "    <div class='modal-dialog modal-lg' role='document'> " +
+                      "        <div class='modal-content'> " +
+                      "            <div class='modal-header'> " +
+                      "                <h5 class='modal-title'> Lookup </h5> " +
+                      "                   <button type='button' class='close' data-dismiss='modal' aria-label='Close'> " +
+                      "                      <span aria-hidden='true'>&times;</span> " +
+                      "                   </button> " +
+                      "            </div> " +
+                      "            <div class='modal-body'> " +
+                      "                    <table id='lookupResultTable' class='table table-striped table-bordered display nowrap' style='width:100%'> " +
+                      "                        <thead> " +
+                      "                            <tr> ";
+    // Fill in the column name
+    $.each(data.resultSet.columns, function(index, column){
+        lookupModalHtml += "<td>" + column.columnName + "</td>";
+    });
+    lookupModalHtml += "                           </tr> " +
+                       "                       </thead> " +
+                       "                       <tbody> ";
+
+    $.each(data.resultSet.data, function(index, row){
+        lookupModalHtml += " <tr> ";
+
+        $.each(data.resultSet.columns, function(index, column){
+            if (column.columnName == data.returnColumn) {
+                lookupModalHtml += "<td><a href='#' onclick='lookupSelect(\"" + id + "\", \"" + row[column.columnName] + "\")'>" + row[column.columnName] + "</a></td>";
+            }
+            else {
+                lookupModalHtml += "<td>" + row[column.columnName] + "</td>";
+            }
+        });
+        lookupModalHtml += " </tr> ";
+    });
+    lookupModalHtml += "                   </table>"+
+                      "            </div> " +
+                      "            <div class='modal-footer'> " +
+                      "                <button type='button' class='btn btn-secondary' data-dismiss='modal'>Close</button> " +
+                      "            </div> " +
+                      "        </div> " +
+                      "    </div> " +
+                      "</div>";
+    return lookupModalHtml
+}
+var lookupSelect = function(id, value) {
+    $("#" + id).val(value);
+    $("#lookupModal").modal("hide");
 }
 $(document).ready( function () {
+
+    // Load i18n first so that if any of the controller
+    // need the translation, it can get the right result
+    initI18n();
+
     initQueryButtons();
+
     initDataTable();
     // Init checkbox to be tri-state checkbox
     initCheckBox();
+
     loadDropdownList();
 
     initValidation();
 
     initAutoCompleteControls();
 
-    initI18n();
-
-    initCryptoCurrent();
-
     initDatePicker();
+
+    initLookupController();
 });

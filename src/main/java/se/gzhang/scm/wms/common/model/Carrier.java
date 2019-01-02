@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +30,7 @@ import java.util.List;
 @Entity
 @Table(name = "carrier")
 @JsonSerialize(using = CarrierSerializer.class)
-public class Carrier {
+public class Carrier implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

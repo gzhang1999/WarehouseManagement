@@ -27,6 +27,7 @@ import se.gzhang.scm.wms.common.model.TrailerSerializer;
 import se.gzhang.scm.wms.layout.model.Warehouse;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,7 @@ import java.util.List;
 @Entity
 @Table(name = "receipt")
 @JsonSerialize(using = ReceiptSerializer.class)
-public class Receipt {
+public class Receipt  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "receipt_id")
@@ -49,7 +50,7 @@ public class Receipt {
     @Column(name = "purchase_order_number")
     private String purchaseOrderNumber;
 
-    @ManyToOne(cascade={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="supplier_id")
     private Supplier supplier;
 
@@ -68,5 +69,26 @@ public class Receipt {
     @JoinColumn(name = "trailer_id")
     private Trailer trailer;
 
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Receipt)) {
+            return false;
+        }
+
+        // If both receipt has ID, make sure the ID are the same
+        // Otherwise, the receipts are same as long as the receipt numbers
+        // are the same
+        Receipt receipt = (Receipt)obj;
+        if (this.id != null && receipt.getId() != null) {
+            return this.id == receipt.getId();
+        }
+        else {
+            return this.getNumber().equals(receipt.getNumber());
+        }
+    }
 
 }

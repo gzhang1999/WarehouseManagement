@@ -26,13 +26,14 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.io.IOException;
+import java.io.Serializable;
 
 // Class to support 3rd logistic company
 // Client standard for the inventory owner
 @Data
 @Entity
 @Table(name = "client")
-public class Client {
+public class Client implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

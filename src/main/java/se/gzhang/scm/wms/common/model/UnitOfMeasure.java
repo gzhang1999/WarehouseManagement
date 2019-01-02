@@ -21,11 +21,12 @@ package se.gzhang.scm.wms.common.model;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Data
 @Entity
 @Table(name = "unit_of_measure")
-public class UnitOfMeasure {
+public class UnitOfMeasure implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "unit_of_measure_id")

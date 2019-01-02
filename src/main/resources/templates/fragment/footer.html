@@ -51,7 +51,7 @@
       -->
 
       <!-- javascript to support multiple language in client size(at server side we will use thymeleaf)-->
-      <script type="text/javascript" th:src="@{/js/src/i18n/jquery.i18n.js}"></script>
+      <script type="text/javascript" th:src="@{/js/src/i18n/jquery.i18n.customized.js}"></script>
       <script type="text/javascript" th:src="@{/js/src/i18n/jquery.i18n.messagestore.js}"></script>
       <script type="text/javascript" th:src="@{/js/src/i18n/jquery.i18n.fallbacks.js}"></script>
       <script type="text/javascript" th:src="@{/js/src/i18n/jquery.i18n.parser.js}"></script>
@@ -60,6 +60,34 @@
 
         <!-- javascript to initialize controls-->
       <script type="text/javascript" th:src="@{/js/control/webpage_controller_init.js}"></script>
+
+
+      <!-- Bootstrap Small Modal to show error message -->
+      <div class="modal fade" id="showErrorModal" tabindex="-1" role="dialog" aria-labelledby="showErrorModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="showErrorModalLabel">$.i18n("errorModalTitle")</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div id="errorModalErrorMessage"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">$.i18n("close")</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        var showErrorInModal = function(errorMessage) {
+            $('#showErrorModal').modal('toggle');
+        }
+
+      </script>
     </footer>
 
 </body>

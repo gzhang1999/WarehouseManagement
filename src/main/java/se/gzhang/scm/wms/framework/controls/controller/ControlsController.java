@@ -24,7 +24,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import se.gzhang.scm.wms.framework.controls.model.DropdownList;
 import se.gzhang.scm.wms.framework.controls.model.DropdownOption;
+import se.gzhang.scm.wms.framework.controls.model.LookupTextbox;
 import se.gzhang.scm.wms.framework.controls.service.DropdownListService;
+import se.gzhang.scm.wms.framework.controls.service.LookupTextboxService;
 import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
 
 import java.util.ArrayList;
@@ -34,6 +36,8 @@ import java.util.List;
 public class ControlsController {
     @Autowired
     DropdownListService dropdownListService;
+    @Autowired
+    LookupTextboxService lookupTextboxService;
     @Autowired
     private CacheManager cacheManager;
 
@@ -72,12 +76,28 @@ public class ControlsController {
         DropdownList dropdownList = dropdownListService.findByVariable(variable);
 
         List<String> autoCompleteList = new ArrayList<>();
-        for(DropdownOption dropdownOption : dropdownList.getDropdownOptions()) {
-            autoCompleteList.add(dropdownOption.getValue());
+        if (dropdownList != null &&
+                dropdownList.getDropdownOptions() != null &&
+                dropdownList.getDropdownOptions().size() > 0) {
+            for (DropdownOption dropdownOption : dropdownList.getDropdownOptions()) {
+                autoCompleteList.add(dropdownOption.getValue());
+            }
         }
 
         return new WebServiceResponseWrapper<List<String>>(0, "", autoCompleteList);
+    }
 
+    @ResponseBody
+    @RequestMapping(value="/ws/control/lookup/{variable}", method = RequestMethod.GET)
+    public WebServiceResponseWrapper getLookup(@PathVariable("variable") String variable,
+                                               @RequestParam(name = "cache", required = false,defaultValue = "true") Boolean readFromCache) {
+        if (readFromCache == false) {
+            // Clear the cache of the dropdown list
+            cacheManager.getCache("lookupTextbox").evict(variable);
+        }
 
+        LookupTextbox lookupTextbox = lookupTextboxService.findByVariable(variable);
+
+        return new WebServiceResponseWrapper<LookupTextbox>(0, "", lookupTextbox);
     }
 }

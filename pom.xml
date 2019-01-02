@@ -67,6 +67,10 @@
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
 
 		<!-- These two are for Spring Webflow -->
 		<dependency>
@@ -79,6 +83,33 @@
 			<artifactId>org.springframework.js</artifactId>
 			<version>2.0.5.RELEASE</version>
 		</dependency>
+
+		<!-- Jaspoer Report -->
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+			<version>6.7.0</version>
+		</dependency>
+		<!-- Use spring mvc 4.x.x to support jasper report
+		    5.x.x version seems don't have the resources
+		    for jasper report
+		  -->
+		<!--
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>4.3.21.RELEASE</version>
+		</dependency>
+		-->
+		<!-- for export docuemnt in Microsoft Document format(XLS / WORD / ETC.) / -->
+		<!--
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.10.1</version>
+		</dependency>
+        -->
+
 	</dependencies>
 
 	<build>

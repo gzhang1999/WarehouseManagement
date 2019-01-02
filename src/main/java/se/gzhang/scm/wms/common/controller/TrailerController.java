@@ -18,8 +18,15 @@
 
 package se.gzhang.scm.wms.common.controller;
 
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.export.HtmlExporter;
+import net.sf.jasperreports.engine.export.JRPdfExporter;
+import net.sf.jasperreports.engine.util.JRLoader;
+import net.sf.jasperreports.export.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import se.gzhang.scm.wms.common.model.Carrier;
@@ -27,8 +34,13 @@ import se.gzhang.scm.wms.common.model.EnumWithDescription;
 import se.gzhang.scm.wms.common.model.Trailer;
 import se.gzhang.scm.wms.common.service.CarrierService;
 import se.gzhang.scm.wms.common.service.TrailerService;
+import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
 
+import javax.sql.DataSource;
+import java.io.*;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +50,9 @@ public class TrailerController {
     private TrailerService trailerService;
     @Autowired
     private CarrierService carrierService;
+
+    @Autowired
+    private DataSource dataSource;
 
     private static final String APPLICATION_ID = "Common";
     private static final String FORM_ID = "Trailer";
@@ -66,6 +81,7 @@ public class TrailerController {
             System.out.println("key: " + entry.getKey() + " / value: " + entry.getValue());
         }
         List<Trailer> trailerList = trailerService.findTrailers(parameters);
+        System.out.println("find " + trailerList.size() + " from the query");
         return new WebServiceResponseWrapper<List<Trailer>>(0, "", trailerList);
     }
 
@@ -81,15 +97,38 @@ public class TrailerController {
     }
 
     @ResponseBody
-    @RequestMapping(value="/ws/common/trailer/delete")
-    public WebServiceResponseWrapper deleteTrailer(@RequestParam("trailerID") int trailerID) {
+    @RequestMapping(value="/ws/common/trailer/{id}/delete")
+    public WebServiceResponseWrapper deleteTrailer(@PathVariable("id") int trailerID) {
 
         Trailer trailer = trailerService.findByTrailerId(trailerID);
         if (trailer == null) {
             return WebServiceResponseWrapper.raiseError(10000, "Can't find the trailer by id: " + trailerID);
         }
-        trailerService.deleteByTrailerID(trailerID);
-        return new WebServiceResponseWrapper<Trailer>(0, "", trailer);
+        try {
+            trailerService.deleteByTrailerID(trailerID);
+            return new WebServiceResponseWrapper<Trailer>(0, "", trailer);
+        }
+        catch(GenericException ex) {
+
+            return WebServiceResponseWrapper.raiseError(ex.getCode(), ex.getMessage());
+        }
+    }
+    @ResponseBody
+    @RequestMapping(value="/ws/common/trailer/{id}/void")
+    public WebServiceResponseWrapper voidTrailer(@PathVariable("id") int trailerID) {
+
+        Trailer trailer = trailerService.findByTrailerId(trailerID);
+        if (trailer == null) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't find the trailer by id: " + trailerID);
+        }
+        try {
+            Trailer newTrailer = trailerService.voidByTrailerID(trailerID);
+            return new WebServiceResponseWrapper<Trailer>(0, "", newTrailer);
+        }
+        catch(GenericException ex) {
+
+            return WebServiceResponseWrapper.raiseError(ex.getCode(), ex.getMessage());
+        }
     }
 
     @ResponseBody
@@ -158,6 +197,92 @@ public class TrailerController {
         }
 
         return new WebServiceResponseWrapper<Trailer>(0, "", trailerService.checkInTrailer(trailer));
+    }
+
+    @ResponseBody
+    @RequestMapping(value="/ws/common/trailer/{id}/report")
+    public WebServiceResponseWrapper displayTrailerReport (@PathVariable("id") int trailerID) {
+
+        Trailer trailer = trailerService.findByTrailerId(trailerID);
+        if (trailer == null) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't find the trailer by id: " + trailerID);
+        }
+
+        try {
+
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("trailerID", trailer.getId());
+
+            // File reportFile = ResourceUtils.getFile("classpath:static/reports/receiving_trailer.jasper");
+            // InputStream reportFileInputStream = new FileInputStream(reportFile);
+            ClassPathResource resource = new ClassPathResource("static/reports/receiving_trailer.jasper");
+            InputStream reportFileInputStream = resource.getInputStream();
+
+            /*********
+             ClassPathResource resource = new ClassPathResource("static/reports/receiving_trailer.jrxml");
+             InputStream reportFileInputStream = resource.getInputStream();
+            JasperReport jasperReport
+                    = JasperCompileManager.compileReport(reportFileInputStream);
+            JasperPrint jasperPrint =
+                    JasperFillManager.fillReport(
+                            jasperReport,
+                            parameters
+                    );
+             ****/
+            JasperPrint jasperPrint =
+                    JasperFillManager.fillReport(
+                            reportFileInputStream,
+                            parameters,
+                            dataSource.getConnection()
+                    );
+            // Export to PDF
+            JRPdfExporter exporter = new JRPdfExporter();
+
+            exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+            exporter.setExporterOutput(
+                    new SimpleOutputStreamExporterOutput("receiving_trailer.pdf"));
+
+            SimplePdfReportConfiguration reportConfig
+                    = new SimplePdfReportConfiguration();
+            reportConfig.setSizePageToContent(true);
+            reportConfig.setForceLineBreakPolicy(false);
+
+            SimplePdfExporterConfiguration exportConfig
+                    = new SimplePdfExporterConfiguration();
+            exportConfig.setMetadataAuthor("GZ");
+            // exportConfig.setEncrypted(true);
+            exportConfig.setAllowedPermissionsHint("PRINTING");
+
+            exporter.setConfiguration(reportConfig);
+            exporter.setConfiguration(exportConfig);
+
+            exporter.exportReport();
+
+            HtmlExporter htmlExporter = new HtmlExporter();
+
+            htmlExporter.setExporterInput(new SimpleExporterInput(jasperPrint));
+            htmlExporter.setExporterOutput(
+                    new SimpleHtmlExporterOutput("receiving_trailer.html"));
+
+            htmlExporter.exportReport();
+        }
+        catch (JRException jrException) {
+            return WebServiceResponseWrapper.raiseError(10000, "JRException: " + jrException.getMessage());
+        }
+        catch (FileNotFoundException fileNotFoundException) {
+            return WebServiceResponseWrapper.raiseError(10000, "FileNotFoundException: " + fileNotFoundException.getMessage());
+
+        }
+        catch (IOException ioException) {
+            return WebServiceResponseWrapper.raiseError(10000, "IOException: " + ioException.getMessage());
+
+        }
+        catch (SQLException sqlException) {
+            return WebServiceResponseWrapper.raiseError(10000, "SQLException: " + sqlException.getMessage());
+
+        }
+        return new WebServiceResponseWrapper<Trailer>(0, "", trailer);
+
     }
 
 }

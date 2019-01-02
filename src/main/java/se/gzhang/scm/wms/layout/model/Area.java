@@ -24,6 +24,7 @@ import lombok.Data;
 import se.gzhang.scm.wms.common.model.UnitOfMeasure;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,7 @@ import java.util.List;
 @Entity
 @Table(name = "area")
 @JsonSerialize(using = AreaSerializer.class)
-public class Area {
+public class Area implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "area_id")

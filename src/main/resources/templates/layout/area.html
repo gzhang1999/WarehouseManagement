@@ -39,7 +39,9 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{area.new}" >New Area</a>
+                        <h5>
+                            <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{area.new}" >New Area</a>
+                        </h5>
                     </div>
                     <div class="card-body">
                         <form class="form-inline" id="area_query" data-display="areaTable" th:action="@{/ws/layout/area/list}">

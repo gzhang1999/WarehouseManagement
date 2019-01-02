@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import se.gzhang.scm.wms.layout.model.Area;
+import se.gzhang.scm.wms.layout.model.AreaType;
 import se.gzhang.scm.wms.layout.model.Building;
 import se.gzhang.scm.wms.layout.repository.AreaRepository;
 
@@ -66,6 +67,11 @@ public class AreaService {
                 if(criteriaList.containsKey("id") && !criteriaList.get("id").isEmpty()) {
                     predicates.add(criteriaBuilder.equal(root.get("id"), criteriaList.get("id")));
                 }
+
+                if(criteriaList.containsKey("areaType") && !criteriaList.get("areaType").isEmpty()) {
+                    predicates.add(criteriaBuilder.equal(root.get("areaType"), AreaType.valueOf(criteriaList.get("areaType"))));
+                }
+
 
                 Predicate[] p = new Predicate[predicates.size()];
                 return criteriaBuilder.and(predicates.toArray(p));

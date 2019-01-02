@@ -28,6 +28,7 @@ import se.gzhang.scm.wms.common.model.TrailerState;
 import se.gzhang.scm.wms.common.repository.CarrierRepository;
 import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.inbound.model.Receipt;
+import se.gzhang.scm.wms.inbound.model.ReceiptLine;
 import se.gzhang.scm.wms.inbound.repository.ReceiptRepository;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.Building;
@@ -126,6 +127,17 @@ public class ReceiptService {
     }
 
     public void deleteByReceiptID(int receiptID) {
+        Receipt receipt = findByReceiptId(receiptID);
+        if (receipt.getTrailer() != null && receipt.getTrailer().getTrailerState() != TrailerState.EXPECTED) {
+            throw new GenericException(10000, "Can't remove the receipt as the trailer attached is not in Expected status");
+        }
+        if (receipt.getReceiptLineList() != null && receipt.getReceiptLineList().size() > 0) {
+            for(ReceiptLine receiptLine : receipt.getReceiptLineList()) {
+                if (receiptLine.getReceivedQuantity() > 0) {
+                    throw new GenericException(10000, "Can't remove the receipt line as it is already started receiving");
+                }
+            }
+        }
         receiptRepository.deleteById(receiptID);
     }
 

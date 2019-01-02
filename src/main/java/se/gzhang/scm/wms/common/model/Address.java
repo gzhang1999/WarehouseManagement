@@ -22,11 +22,12 @@ import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.Constraint;
+import java.io.Serializable;
 
 @Data
 @Entity
 @Table(name = "address")
-public class Address {
+public class Address implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "address_id")

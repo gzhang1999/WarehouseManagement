@@ -23,13 +23,14 @@ import lombok.Data;
 import se.gzhang.scm.wms.common.model.Address;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @Entity
 @Table(name = "building")
-public class Building {
+public class Building implements Serializable  {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
