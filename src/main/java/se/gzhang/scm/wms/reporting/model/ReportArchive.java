@@ -19,13 +19,11 @@
 package se.gzhang.scm.wms.reporting.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Data;
 import se.gzhang.scm.wms.authorization.model.User;
 
 import javax.persistence.*;
 import java.util.Date;
 
-@Data
 @Entity
 @Table(name = "report_archive")
 @JsonSerialize(using = ReportArchiveSerializer.class)

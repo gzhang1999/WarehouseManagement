@@ -18,12 +18,9 @@
 
 package se.gzhang.scm.wms.inventory.model;
 
-import lombok.Data;
-
 import javax.persistence.*;
 import java.io.Serializable;
 
-@Data
 @Entity
 @Table(name = "inventory_status")
 public class InventoryStatus implements Serializable {
@@ -38,4 +35,27 @@ public class InventoryStatus implements Serializable {
     @Column(name="description")
     private String description;
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

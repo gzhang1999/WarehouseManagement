@@ -19,8 +19,6 @@
 package se.gzhang.scm.wms.webservice.model;
 
 
-import lombok.Data;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +26,6 @@ import java.util.Map;
 // status: 0 -- no error. Otherwise, error code
 // message: empty -- no error. Otherwise, error message
 // data: data
-@Data
 public class WebServiceResponseWrapper<T> {
     private int status;
     private String message;

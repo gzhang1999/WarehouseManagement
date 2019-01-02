@@ -18,13 +18,10 @@
 
 package se.gzhang.scm.wms.layout.model;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 public class AddLocationFlowModel implements Serializable {
 
     private boolean useLocationNameTemplateFlag;
@@ -132,5 +129,29 @@ public class AddLocationFlowModel implements Serializable {
             }
         }
         return validNameList;
+    }
+
+    public boolean isUseLocationNameTemplateFlag() {
+        return useLocationNameTemplateFlag;
+    }
+
+    public void setUseLocationNameTemplateFlag(boolean useLocationNameTemplateFlag) {
+        this.useLocationNameTemplateFlag = useLocationNameTemplateFlag;
+    }
+
+    public LocationNameTemplate getLocationNameTemplate() {
+        return locationNameTemplate;
+    }
+
+    public void setLocationNameTemplate(LocationNameTemplate locationNameTemplate) {
+        this.locationNameTemplate = locationNameTemplate;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 }

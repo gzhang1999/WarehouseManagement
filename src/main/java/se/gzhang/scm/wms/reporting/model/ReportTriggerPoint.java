@@ -18,12 +18,8 @@
 
 package se.gzhang.scm.wms.reporting.model;
 
-import lombok.Data;
-import se.gzhang.scm.wms.common.model.Carrier;
-
 import javax.persistence.*;
 
-@Data
 @Entity
 @Table(name = "report_trigger_point")
 public class ReportTriggerPoint {

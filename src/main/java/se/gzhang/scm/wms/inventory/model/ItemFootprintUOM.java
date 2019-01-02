@@ -20,11 +20,9 @@ package se.gzhang.scm.wms.inventory.model;
 
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Data;
 import se.gzhang.scm.wms.common.model.UnitOfMeasure;
 import javax.persistence.*;
 
-@Data
 @Entity
 @Table(name = "item_footprint_uom")
 @JsonSerialize(using = ItemFootprintUOMSerializer.class)
@@ -67,6 +65,99 @@ public class ItemFootprintUOM {
     @Column(name = "carton_flag")
     private boolean cartonUOM = false;
 
+    public Integer getId() {
+        return id;
+    }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
+    public UnitOfMeasure getUnitOfMeasure() {
+        return unitOfMeasure;
+    }
+
+    public void setUnitOfMeasure(UnitOfMeasure unitOfMeasure) {
+        this.unitOfMeasure = unitOfMeasure;
+    }
+
+    public ItemFootprint getItemFootprint() {
+        return itemFootprint;
+    }
+
+    public void setItemFootprint(ItemFootprint itemFootprint) {
+        this.itemFootprint = itemFootprint;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public double getLength() {
+        return length;
+    }
+
+    public void setLength(double length) {
+        this.length = length;
+    }
+
+    public double getWidth() {
+        return width;
+    }
+
+    public void setWidth(double width) {
+        this.width = width;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
+    }
+
+    public double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(double weight) {
+        this.weight = weight;
+    }
+
+    public boolean isStockUOM() {
+        return stockUOM;
+    }
+
+    public void setStockUOM(boolean stockUOM) {
+        this.stockUOM = stockUOM;
+    }
+
+    public boolean isCaseUOM() {
+        return caseUOM;
+    }
+
+    public void setCaseUOM(boolean caseUOM) {
+        this.caseUOM = caseUOM;
+    }
+
+    public boolean isPalletUOM() {
+        return palletUOM;
+    }
+
+    public void setPalletUOM(boolean palletUOM) {
+        this.palletUOM = palletUOM;
+    }
+
+    public boolean isCartonUOM() {
+        return cartonUOM;
+    }
+
+    public void setCartonUOM(boolean cartonUOM) {
+        this.cartonUOM = cartonUOM;
+    }
 }

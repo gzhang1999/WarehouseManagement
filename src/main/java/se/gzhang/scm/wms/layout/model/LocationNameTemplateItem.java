@@ -18,12 +18,9 @@
 
 package se.gzhang.scm.wms.layout.model;
 
-import lombok.Data;
-
 import javax.persistence.*;
 import java.io.Serializable;
 
-@Data
 @Entity
 @Table(name = "location_name_template_item")
 public class LocationNameTemplateItem  implements Serializable {
@@ -99,4 +96,75 @@ public class LocationNameTemplateItem  implements Serializable {
 
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getSequence() {
+        return sequence;
+    }
+
+    public void setSequence(int sequence) {
+        this.sequence = sequence;
+    }
+
+    public boolean isFixedValue() {
+        return fixedValue;
+    }
+
+    public void setFixedValue(boolean fixedValue) {
+        this.fixedValue = fixedValue;
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    public LocationNameTemplateItemType getLocationNameTemplateItemType() {
+        return locationNameTemplateItemType;
+    }
+
+    public void setLocationNameTemplateItemType(LocationNameTemplateItemType locationNameTemplateItemType) {
+        this.locationNameTemplateItemType = locationNameTemplateItemType;
+    }
+
+    public String getStartValue() {
+        return startValue;
+    }
+
+    public void setStartValue(String startValue) {
+        this.startValue = startValue;
+    }
+
+    public String getEndValue() {
+        return endValue;
+    }
+
+    public void setEndValue(String endValue) {
+        this.endValue = endValue;
+    }
+
+    public LocationNameTemplateItemRangeType getLocationNameTemplateItemRangeType() {
+        return locationNameTemplateItemRangeType;
+    }
+
+    public void setLocationNameTemplateItemRangeType(LocationNameTemplateItemRangeType locationNameTemplateItemRangeType) {
+        this.locationNameTemplateItemRangeType = locationNameTemplateItemRangeType;
+    }
 }

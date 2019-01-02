@@ -18,12 +18,8 @@
 
 package se.gzhang.scm.wms.common.model;
 
-import lombok.Data;
-import se.gzhang.scm.wms.inbound.model.Receipt;
-
 import javax.persistence.*;
 
-@Data
 @Entity
 @Table(name = "carrier_service")
 public class CarrierServiceLevel {
@@ -43,5 +39,35 @@ public class CarrierServiceLevel {
     @JoinColumn(name = "carrier_id")
     private Carrier carrier;
 
+    public Integer getId() {
+        return id;
+    }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Carrier getCarrier() {
+        return carrier;
+    }
+
+    public void setCarrier(Carrier carrier) {
+        this.carrier = carrier;
+    }
 }

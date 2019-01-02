@@ -18,13 +18,10 @@
 
 package se.gzhang.scm.wms.layout.model;
 
-import lombok.Data;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.*;
 
-@Data
 @Entity
 @Table(name = "location_name_template")
 public class LocationNameTemplate  implements Serializable {
@@ -73,4 +70,27 @@ public class LocationNameTemplate  implements Serializable {
         return null;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<LocationNameTemplateItem> getLocationNameTemplateItemList() {
+        return locationNameTemplateItemList;
+    }
+
+    public void setLocationNameTemplateItemList(List<LocationNameTemplateItem> locationNameTemplateItemList) {
+        this.locationNameTemplateItemList = locationNameTemplateItemList;
+    }
 }

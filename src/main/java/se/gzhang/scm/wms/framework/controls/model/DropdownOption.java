@@ -19,20 +19,9 @@
 package se.gzhang.scm.wms.framework.controls.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import lombok.Data;
-import se.gzhang.scm.wms.inbound.model.Receipt;
-import se.gzhang.scm.wms.inbound.model.ReceiptLine;
 
 import javax.persistence.*;
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
-@Data
 @Entity
 @Table(name = "dropdown_options", uniqueConstraints={
         @UniqueConstraint(columnNames = {"dropdownlist_id", "value"})})
@@ -53,4 +42,36 @@ public class DropdownOption {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dropdownlist_id")
     private DropdownList dropdownList;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public DropdownList getDropdownList() {
+        return dropdownList;
+    }
+
+    public void setDropdownList(DropdownList dropdownList) {
+        this.dropdownList = dropdownList;
+    }
 }

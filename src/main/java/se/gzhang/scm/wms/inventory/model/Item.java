@@ -19,7 +19,6 @@
 package se.gzhang.scm.wms.inventory.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Data;
 import se.gzhang.scm.wms.common.model.Client;
 import se.gzhang.scm.wms.common.model.UnitOfMeasure;
 import se.gzhang.scm.wms.layout.model.Warehouse;
@@ -29,7 +28,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @Entity
 @Table(name = "item")
 @JsonSerialize(using = ItemSerializer.class)
@@ -77,5 +75,67 @@ public class Item implements Serializable {
     )
     private List<ItemBarcode> itemBarcodes = new ArrayList<>();
 
+    public Integer getId() {
+        return id;
+    }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Warehouse getWarehouse() {
+        return warehouse;
+    }
+
+    public void setWarehouse(Warehouse warehouse) {
+        this.warehouse = warehouse;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public UnitOfMeasure getLpnUnitOfMeasure() {
+        return lpnUnitOfMeasure;
+    }
+
+    public void setLpnUnitOfMeasure(UnitOfMeasure lpnUnitOfMeasure) {
+        this.lpnUnitOfMeasure = lpnUnitOfMeasure;
+    }
+
+    public List<ItemFootprint> getItemFootprints() {
+        return itemFootprints;
+    }
+
+    public void setItemFootprints(List<ItemFootprint> itemFootprints) {
+        this.itemFootprints = itemFootprints;
+    }
+
+    public List<ItemBarcode> getItemBarcodes() {
+        return itemBarcodes;
+    }
+
+    public void setItemBarcodes(List<ItemBarcode> itemBarcodes) {
+        this.itemBarcodes = itemBarcodes;
+    }
 }

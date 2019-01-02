@@ -18,13 +18,9 @@
 
 package se.gzhang.scm.wms.framework.controls.model;
 
-import lombok.Data;
-
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @Entity
 @Table(name="dropdownList")
 // We will use this table for
@@ -55,5 +51,51 @@ public class DropdownList {
     )
     private List<DropdownOption> dropdownOptions;
 
+    public int getId() {
+        return id;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getVariable() {
+        return variable;
+    }
+
+    public void setVariable(String variable) {
+        this.variable = variable;
+    }
+
+    public String getCommand() {
+        return command;
+    }
+
+    public void setCommand(String command) {
+        this.command = command;
+    }
+
+    public String getEnumClass() {
+        return enumClass;
+    }
+
+    public void setEnumClass(String enumClass) {
+        this.enumClass = enumClass;
+    }
+
+    public boolean isAllowBlankRowFlag() {
+        return allowBlankRowFlag;
+    }
+
+    public void setAllowBlankRowFlag(boolean allowBlankRowFlag) {
+        this.allowBlankRowFlag = allowBlankRowFlag;
+    }
+
+    public List<DropdownOption> getDropdownOptions() {
+        return dropdownOptions;
+    }
+
+    public void setDropdownOptions(List<DropdownOption> dropdownOptions) {
+        this.dropdownOptions = dropdownOptions;
+    }
 }

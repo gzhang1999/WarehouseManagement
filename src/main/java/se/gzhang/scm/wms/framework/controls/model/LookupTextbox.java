@@ -19,13 +19,9 @@
 package se.gzhang.scm.wms.framework.controls.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Data;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 
 import javax.persistence.*;
-import java.sql.ResultSet;
-
-@Data
 @Entity
 @Table(name="lookup_textbox")
 @JsonSerialize(using = LookupTextBoxSerializer.class)
@@ -53,4 +49,51 @@ public class LookupTextbox {
     @Transient
     private SqlRowSet resultSet;
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getVariable() {
+        return variable;
+    }
+
+    public void setVariable(String variable) {
+        this.variable = variable;
+    }
+
+    public String getCommand() {
+        return command;
+    }
+
+    public void setCommand(String command) {
+        this.command = command;
+    }
+
+    public String getEnumClass() {
+        return enumClass;
+    }
+
+    public void setEnumClass(String enumClass) {
+        this.enumClass = enumClass;
+    }
+
+    public String getReturnColumn() {
+        return returnColumn;
+    }
+
+    public void setReturnColumn(String returnColumn) {
+        this.returnColumn = returnColumn;
+    }
+
+    public SqlRowSet getResultSet() {
+        return resultSet;
+    }
+
+    public void setResultSet(SqlRowSet resultSet) {
+        this.resultSet = resultSet;
+    }
 }

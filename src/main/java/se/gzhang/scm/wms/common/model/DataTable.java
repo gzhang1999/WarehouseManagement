@@ -18,11 +18,8 @@
 
 package se.gzhang.scm.wms.common.model;
 
-import lombok.Data;
-
 import java.util.List;
 
-@Data
 public class DataTable {
     private List<String> columns;
     private List<List<String>> rows;
@@ -30,4 +27,44 @@ public class DataTable {
     private boolean allowNewFlag;
     private boolean allowEditFlag;
     private boolean allowDeleteFlag;
+
+    public List<String> getColumns() {
+        return columns;
+    }
+
+    public void setColumns(List<String> columns) {
+        this.columns = columns;
+    }
+
+    public List<List<String>> getRows() {
+        return rows;
+    }
+
+    public void setRows(List<List<String>> rows) {
+        this.rows = rows;
+    }
+
+    public boolean isAllowNewFlag() {
+        return allowNewFlag;
+    }
+
+    public void setAllowNewFlag(boolean allowNewFlag) {
+        this.allowNewFlag = allowNewFlag;
+    }
+
+    public boolean isAllowEditFlag() {
+        return allowEditFlag;
+    }
+
+    public void setAllowEditFlag(boolean allowEditFlag) {
+        this.allowEditFlag = allowEditFlag;
+    }
+
+    public boolean isAllowDeleteFlag() {
+        return allowDeleteFlag;
+    }
+
+    public void setAllowDeleteFlag(boolean allowDeleteFlag) {
+        this.allowDeleteFlag = allowDeleteFlag;
+    }
 }

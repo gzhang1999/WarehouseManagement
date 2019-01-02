@@ -18,12 +18,9 @@
 
 package se.gzhang.scm.wms.inventory.model;
 
-import lombok.Data;
-
 import javax.persistence.*;
 import java.util.Date;
 
-@Data
 @Entity
 @Table(name = "inventory_activity")
 public class InventoryActivity {
@@ -63,7 +60,99 @@ public class InventoryActivity {
     @Column(name = "reason")
     private String reason;
 
+    public Integer getId() {
+        return id;
+    }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
+    public String getUsername() {
+        return username;
+    }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Date getActivityDate() {
+        return activityDate;
+    }
+
+    public void setActivityDate(Date activityDate) {
+        this.activityDate = activityDate;
+    }
+
+    public String getOriginalLPN() {
+        return originalLPN;
+    }
+
+    public void setOriginalLPN(String originalLPN) {
+        this.originalLPN = originalLPN;
+    }
+
+    public String getNewLPN() {
+        return newLPN;
+    }
+
+    public void setNewLPN(String newLPN) {
+        this.newLPN = newLPN;
+    }
+
+    public Integer getOriginalQuantity() {
+        return originalQuantity;
+    }
+
+    public void setOriginalQuantity(Integer originalQuantity) {
+        this.originalQuantity = originalQuantity;
+    }
+
+    public Integer getNewQuantity() {
+        return newQuantity;
+    }
+
+    public void setNewQuantity(Integer newQuantity) {
+        this.newQuantity = newQuantity;
+    }
+
+    public String getOriginalInventoryStatus() {
+        return originalInventoryStatus;
+    }
+
+    public void setOriginalInventoryStatus(String originalInventoryStatus) {
+        this.originalInventoryStatus = originalInventoryStatus;
+    }
+
+    public String getNewInventoryStatus() {
+        return newInventoryStatus;
+    }
+
+    public void setNewInventoryStatus(String newInventoryStatus) {
+        this.newInventoryStatus = newInventoryStatus;
+    }
+
+    public String getInventoryActivityType() {
+        return inventoryActivityType;
+    }
+
+    public void setInventoryActivityType(String inventoryActivityType) {
+        this.inventoryActivityType = inventoryActivityType;
+    }
+
+    public String getReasonCode() {
+        return reasonCode;
+    }
+
+    public void setReasonCode(String reasonCode) {
+        this.reasonCode = reasonCode;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
 }

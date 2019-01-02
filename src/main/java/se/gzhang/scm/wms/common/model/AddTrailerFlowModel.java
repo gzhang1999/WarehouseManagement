@@ -18,18 +18,13 @@
 
 package se.gzhang.scm.wms.common.model;
 
-import lombok.Data;
-import org.springframework.security.web.server.authentication.RedirectServerAuthenticationEntryPoint;
 import se.gzhang.scm.wms.inbound.model.Receipt;
 import se.gzhang.scm.wms.inbound.model.ReceiptLine;
-import se.gzhang.scm.wms.layout.model.*;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 public class AddTrailerFlowModel implements Serializable {
 
     private Trailer trailer;
@@ -164,7 +159,19 @@ public class AddTrailerFlowModel implements Serializable {
         currentReceipt.getReceiptLineList().add(receiptLine);
     }
 
-    public void serilizeTrailer() {
+    public Trailer getTrailer() {
+        return trailer;
+    }
 
+    public void setTrailer(Trailer trailer) {
+        this.trailer = trailer;
+    }
+
+    public void setCurrentReceipt(Receipt currentReceipt) {
+        this.currentReceipt = currentReceipt;
+    }
+
+    public void setReceiptList(List<Receipt> receiptList) {
+        this.receiptList = receiptList;
     }
 }

@@ -19,14 +19,10 @@
 package se.gzhang.scm.wms.inventory.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Data;
-import se.gzhang.scm.wms.common.model.UnitOfMeasure;
-import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.Location;
 
 import javax.persistence.*;
 
-@Data
 @Entity
 @Table(name = "inventory")
 @JsonSerialize(using = InventorySerializer.class)
@@ -55,5 +51,51 @@ public class Inventory {
     @JoinColumn(name="inventory_status_id")
     private InventoryStatus inventoryStatus;
 
+    public Integer getId() {
+        return id;
+    }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public ItemFootprint getItemFootprint() {
+        return itemFootprint;
+    }
+
+    public void setItemFootprint(ItemFootprint itemFootprint) {
+        this.itemFootprint = itemFootprint;
+    }
+
+    public String getLpn() {
+        return lpn;
+    }
+
+    public void setLpn(String lpn) {
+        this.lpn = lpn;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public InventoryStatus getInventoryStatus() {
+        return inventoryStatus;
+    }
+
+    public void setInventoryStatus(InventoryStatus inventoryStatus) {
+        this.inventoryStatus = inventoryStatus;
+    }
 }

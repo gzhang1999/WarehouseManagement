@@ -19,7 +19,6 @@
 package se.gzhang.scm.wms.common.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Data;
 import se.gzhang.scm.wms.inbound.model.Receipt;
 import se.gzhang.scm.wms.layout.model.Location;
 import se.gzhang.scm.wms.layout.model.Warehouse;

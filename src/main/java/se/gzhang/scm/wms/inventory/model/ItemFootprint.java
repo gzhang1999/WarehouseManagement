@@ -19,13 +19,11 @@
 package se.gzhang.scm.wms.inventory.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Data;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @Entity
 @Table(name = "item_footprint")
 @JsonSerialize(using = ItemFootprintSerializer.class)
@@ -61,4 +59,51 @@ public class ItemFootprint {
     @Column(name = "default_footprint")
     private boolean defaultFootprint;
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public List<ItemFootprintUOM> getItemFootprintUOMs() {
+        return itemFootprintUOMs;
+    }
+
+    public void setItemFootprintUOMs(List<ItemFootprintUOM> itemFootprintUOMs) {
+        this.itemFootprintUOMs = itemFootprintUOMs;
+    }
+
+    public Item getItem() {
+        return item;
+    }
+
+    public void setItem(Item item) {
+        this.item = item;
+    }
+
+    public boolean isDefaultFootprint() {
+        return defaultFootprint;
+    }
+
+    public void setDefaultFootprint(boolean defaultFootprint) {
+        this.defaultFootprint = defaultFootprint;
+    }
 }
