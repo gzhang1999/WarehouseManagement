@@ -31,7 +31,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @Entity
 @Table(name = "receipt")
 @JsonSerialize(using = ReceiptSerializer.class)
@@ -54,7 +53,61 @@ public class Receipt  implements Serializable {
     @JoinColumn(name="supplier_id")
     private Supplier supplier;
 
+    public Integer getId() {
+        return id;
+    }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getExternalID() {
+        return externalID;
+    }
+
+    public void setExternalID(String externalID) {
+        this.externalID = externalID;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public String getPurchaseOrderNumber() {
+        return purchaseOrderNumber;
+    }
+
+    public void setPurchaseOrderNumber(String purchaseOrderNumber) {
+        this.purchaseOrderNumber = purchaseOrderNumber;
+    }
+
+    public Supplier getSupplier() {
+        return supplier;
+    }
+
+    public void setSupplier(Supplier supplier) {
+        this.supplier = supplier;
+    }
+
+    public List<ReceiptLine> getReceiptLineList() {
+        return receiptLineList;
+    }
+
+    public void setReceiptLineList(List<ReceiptLine> receiptLineList) {
+        this.receiptLineList = receiptLineList;
+    }
+
+    public Trailer getTrailer() {
+        return trailer;
+    }
+
+    public void setTrailer(Trailer trailer) {
+        this.trailer = trailer;
+    }
 
     @OneToMany(
             mappedBy = "receipt",

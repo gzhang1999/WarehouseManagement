@@ -18,14 +18,11 @@
 
 package se.gzhang.scm.wms.authorization.model;
 
-
-import lombok.Data;
 import se.gzhang.scm.wms.menu.model.MenuItem;
 
 import javax.persistence.*;
 import java.util.Set;
 
-@Data
 @Entity
 @Table(name = "role")
 public class Role {
@@ -55,4 +52,35 @@ public class Role {
         return id != null && id.equals(((Role) o).id);
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Set<MenuItem> getMenuItems() {
+        return menuItems;
+    }
+
+    public void setMenuItems(Set<MenuItem> menuItems) {
+        this.menuItems = menuItems;
+    }
 }

@@ -18,12 +18,9 @@
 
 package se.gzhang.scm.wms.common.model;
 
-import lombok.Data;
-
 import javax.persistence.*;
 import java.io.Serializable;
 
-@Data
 @Entity
 @Table(name = "supplier")
 public class Supplier implements Serializable {
@@ -44,4 +41,44 @@ public class Supplier implements Serializable {
 
     @Column(name = "contact_person_telephone")
     private String contactPersonTelephone;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getContactPerson() {
+        return contactPerson;
+    }
+
+    public void setContactPerson(String contactPerson) {
+        this.contactPerson = contactPerson;
+    }
+
+    public String getContactPersonTelephone() {
+        return contactPersonTelephone;
+    }
+
+    public void setContactPersonTelephone(String contactPersonTelephone) {
+        this.contactPersonTelephone = contactPersonTelephone;
+    }
 }

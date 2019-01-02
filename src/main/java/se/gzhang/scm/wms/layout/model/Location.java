@@ -19,7 +19,6 @@
 package se.gzhang.scm.wms.layout.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Data;
 import se.gzhang.scm.wms.common.model.VehicleType;
 import se.gzhang.scm.wms.common.model.Velocity;
 import se.gzhang.scm.wms.inventory.model.Inventory;
@@ -29,7 +28,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @Entity
 @Table(name = "location")
 @JsonSerialize(using = LocationSerializer.class)
@@ -107,4 +105,139 @@ public class Location  implements Serializable {
 
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Area getArea() {
+        return area;
+    }
+
+    public void setArea(Area area) {
+        this.area = area;
+    }
+
+    public String getAisleID() {
+        return aisleID;
+    }
+
+    public void setAisleID(String aisleID) {
+        this.aisleID = aisleID;
+    }
+
+    public boolean isPickable() {
+        return pickable;
+    }
+
+    public void setPickable(boolean pickable) {
+        this.pickable = pickable;
+    }
+
+    public boolean isStorable() {
+        return storable;
+    }
+
+    public void setStorable(boolean storable) {
+        this.storable = storable;
+    }
+
+    public boolean isUsable() {
+        return usable;
+    }
+
+    public void setUsable(boolean usable) {
+        this.usable = usable;
+    }
+
+    public double getLength() {
+        return length;
+    }
+
+    public void setLength(double length) {
+        this.length = length;
+    }
+
+    public double getWidth() {
+        return width;
+    }
+
+    public void setWidth(double width) {
+        this.width = width;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
+    }
+
+    public double getVolume() {
+        return volume;
+    }
+
+    public void setVolume(double volume) {
+        this.volume = volume;
+    }
+
+    public Velocity getVelocity() {
+        return velocity;
+    }
+
+    public void setVelocity(Velocity velocity) {
+        this.velocity = velocity;
+    }
+
+    public List<VehicleType> getAccessibleVehicleTypes() {
+        return accessibleVehicleTypes;
+    }
+
+    public void setAccessibleVehicleTypes(List<VehicleType> accessibleVehicleTypes) {
+        this.accessibleVehicleTypes = accessibleVehicleTypes;
+    }
+
+    public List<Inventory> getInventoryList() {
+        return inventoryList;
+    }
+
+    public void setInventoryList(List<Inventory> inventoryList) {
+        this.inventoryList = inventoryList;
+    }
+
+    public double getCoordinateX() {
+        return coordinateX;
+    }
+
+    public void setCoordinateX(double coordinateX) {
+        this.coordinateX = coordinateX;
+    }
+
+    public double getCoordinateY() {
+        return coordinateY;
+    }
+
+    public void setCoordinateY(double coordinateY) {
+        this.coordinateY = coordinateY;
+    }
+
+    public double getCoordinateZ() {
+        return coordinateZ;
+    }
+
+    public void setCoordinateZ(double coordinateZ) {
+        this.coordinateZ = coordinateZ;
+    }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2018
+ * Copyright 2019
  *
  * @author gzhang
  * <p>
@@ -16,17 +16,17 @@
  * limitations under the License.
  */
 
-package se.gzhang.scm.wms.common.model;
+package se.gzhang.scm.wms.reporting.model;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 @Entity
-@Table(name = "unit_of_measure")
-public class UnitOfMeasure implements Serializable {
+@Table(name = "report")
+public class Report {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "unit_of_measure_id")
+    @Column(name = "report_id")
     private Integer id;
 
     @Column(name = "name")
@@ -34,6 +34,24 @@ public class UnitOfMeasure implements Serializable {
 
     @Column(name = "description")
     private String description;
+
+    // Layout file must be in format of *.jasper
+    // no *.jrxml allowed
+    @Column(name = "layout_file")
+    private String layoutFile;
+
+    @Column(name = "archive_folder")
+    private String archiveFolder;
+
+    // How many days we will save the
+    // archive file before we remove it
+    @Column(name = "save_days")
+    private Integer saveDays;
+
+
+    @Column(name = "report_type")
+    private ReportType reportType;
+
 
     public Integer getId() {
         return id;
@@ -57,5 +75,37 @@ public class UnitOfMeasure implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getLayoutFile() {
+        return layoutFile;
+    }
+
+    public void setLayoutFile(String layoutFile) {
+        this.layoutFile = layoutFile;
+    }
+
+    public String getArchiveFolder() {
+        return archiveFolder;
+    }
+
+    public void setArchiveFolder(String archiveFolder) {
+        this.archiveFolder = archiveFolder;
+    }
+
+    public Integer getSaveDays() {
+        return saveDays;
+    }
+
+    public void setSaveDays(Integer saveDays) {
+        this.saveDays = saveDays;
+    }
+
+    public ReportType getReportType() {
+        return reportType;
+    }
+
+    public void setReportType(ReportType reportType) {
+        this.reportType = reportType;
     }
 }

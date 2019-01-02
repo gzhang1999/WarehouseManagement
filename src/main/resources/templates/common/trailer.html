@@ -971,7 +971,17 @@
     var previewTrailerDocument = function() {
         var control = $(event.target);
         var trailerID = control.data("trailerid");
-        window.open("/common/trailer/" + trailerID + "/document/preview", "_blank");
+        var url = "/ws/common/trailer/" + trailerID + "/report";
+        $.ajax({url:url})
+         .done(function(res){
+             console.log("Return from preview trailer report for trailer id: " + trailerID);
+             if (res.status == 0) {
+                 // Let's display the report in a new web page
+                 $.each(res.data, function(index, reportArchive) {
+                     window.open("/reporting/archive/" + reportArchive.id, "_blank");
+                 });
+             }
+         })
 
     }
 

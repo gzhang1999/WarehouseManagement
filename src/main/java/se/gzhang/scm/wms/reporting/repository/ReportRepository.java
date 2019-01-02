@@ -16,35 +16,20 @@
  * limitations under the License.
  */
 
-package se.gzhang.scm.wms.common.model;
+package se.gzhang.scm.wms.reporting.repository;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import se.gzhang.scm.wms.reporting.model.Report;
 
-@Entity
-@Table(name = "vehicle_type")
-public class VehicleType implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "vehicle_type_id")
-    private Integer id;
+import java.util.List;
 
-    @Column(name = "name")
-    private String name;
+@Repository
+public interface ReportRepository extends JpaRepository<Report, Integer> {
+    List<Report> findAll();
 
-    public Integer getId() {
-        return id;
-    }
+    Report findById(int reportID);
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    List<Report> findByName(String reportName);
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 }

@@ -18,24 +18,25 @@
 
 package se.gzhang.scm.wms.common.service;
 
+import net.sf.jasperreports.engine.JRException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import se.gzhang.scm.wms.common.model.Carrier;
 import se.gzhang.scm.wms.common.model.Trailer;
 import se.gzhang.scm.wms.common.model.TrailerState;
 import se.gzhang.scm.wms.common.model.TrailerType;
-import se.gzhang.scm.wms.common.repository.CarrierRepository;
 import se.gzhang.scm.wms.common.repository.TrailerRepository;
 import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.inbound.model.Receipt;
-import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.AreaType;
 import se.gzhang.scm.wms.layout.model.Location;
-import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
+import se.gzhang.scm.wms.reporting.model.ReportArchive;
+import se.gzhang.scm.wms.reporting.service.TrailerReportService;
 
 import javax.persistence.criteria.*;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
 
 @Service
@@ -43,6 +44,9 @@ public class TrailerService {
 
     @Autowired
     TrailerRepository trailerRepository;
+
+    @Autowired
+    TrailerReportService trailerReportService;
 
     private Map<TrailerState, List<TrailerState>> validTrailerStateTransfer;
 
@@ -303,6 +307,22 @@ public class TrailerService {
     public Trailer changeTrailer(Trailer trailer, String trailerType, String driver, String driverTelephone,
                                  String licensePlate) {
         return changeTrailer(trailer, trailerType, driver, driverTelephone, licensePlate, null);
+    }
+
+    public List<ReportArchive> printReport(Trailer trailer)
+            throws IOException, SQLException, JRException {
+        switch (trailer.getTrailerType()){
+            case RECEIVING_TRAILER:
+                return trailerReportService.printReceivingDocument(trailer);
+
+            case SHIPPING_TRAILER:
+                break;
+            case STORAGE_TRAILER:
+                break;
+            default:
+                break;
+        }
+        return new ArrayList<>();
     }
 
 }

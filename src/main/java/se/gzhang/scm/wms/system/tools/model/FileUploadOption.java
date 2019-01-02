@@ -18,11 +18,8 @@
 
 package se.gzhang.scm.wms.system.tools.model;
 
-import lombok.Data;
-
 import javax.persistence.*;
 
-@Data
 @Entity
 @Table(name = "file_upload_option")
 public class FileUploadOption {
@@ -40,4 +37,36 @@ public class FileUploadOption {
 
     @Column(name = "sample_url")
     private String sampleUrl;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getSampleUrl() {
+        return sampleUrl;
+    }
+
+    public void setSampleUrl(String sampleUrl) {
+        this.sampleUrl = sampleUrl;
+    }
 }

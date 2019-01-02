@@ -1,5 +1,5 @@
 /**
- * Copyright 2018
+ * Copyright 2019
  *
  * @author gzhang
  * <p>
@@ -16,24 +16,32 @@
  * limitations under the License.
  */
 
-package se.gzhang.scm.wms.common.model;
+package se.gzhang.scm.wms.reporting.model;
+
+import lombok.Data;
+import se.gzhang.scm.wms.common.model.Carrier;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
+@Data
 @Entity
-@Table(name = "unit_of_measure")
-public class UnitOfMeasure implements Serializable {
+@Table(name = "report_trigger_point")
+public class ReportTriggerPoint {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "unit_of_measure_id")
+    @Column(name = "report_trigger_point_id")
     private Integer id;
 
     @Column(name = "name")
     private String name;
-
     @Column(name = "description")
     private String description;
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="report_id")
+    private Report report;
 
     public Integer getId() {
         return id;
@@ -49,6 +57,14 @@ public class UnitOfMeasure implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Report getReport() {
+        return report;
+    }
+
+    public void setReport(Report report) {
+        this.report = report;
     }
 
     public String getDescription() {

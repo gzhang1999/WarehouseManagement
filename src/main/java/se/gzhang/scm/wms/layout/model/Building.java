@@ -19,7 +19,6 @@
 package se.gzhang.scm.wms.layout.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
 import se.gzhang.scm.wms.common.model.Address;
 
 import javax.persistence.*;
@@ -27,7 +26,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @Entity
 @Table(name = "building")
 public class Building implements Serializable  {
@@ -83,4 +81,59 @@ public class Building implements Serializable  {
         return totalLocationCount;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public Warehouse getWarehouse() {
+        return warehouse;
+    }
+
+    public void setWarehouse(Warehouse warehouse) {
+        this.warehouse = warehouse;
+    }
+
+    public List<Area> getAreas() {
+        return areas;
+    }
+
+    public void setAreas(List<Area> areas) {
+        this.areas = areas;
+    }
+
+    public int getPickSequence() {
+        return pickSequence;
+    }
+
+    public void setPickSequence(int pickSequence) {
+        this.pickSequence = pickSequence;
+    }
+
+    public int getStorageSequence() {
+        return storageSequence;
+    }
+
+    public void setStorageSequence(int storageSequence) {
+        this.storageSequence = storageSequence;
+    }
 }

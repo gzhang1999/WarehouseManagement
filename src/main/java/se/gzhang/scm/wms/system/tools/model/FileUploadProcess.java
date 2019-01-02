@@ -18,13 +18,10 @@
 
 package se.gzhang.scm.wms.system.tools.model;
 
-import lombok.Data;
-
 import java.util.Date;
 
 // Class to keep track of each file upload process
 // We will save some meta data in this class
-@Data
 public class FileUploadProcess {
     private String id;
 
@@ -103,8 +100,61 @@ public class FileUploadProcess {
 
         Date now = new Date();
         return (now.getTime() - finishedDate.getTime())/1000;
-
-
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getTotalRecordCount() {
+        return totalRecordCount;
+    }
+
+    public void setTotalRecordCount(int totalRecordCount) {
+        this.totalRecordCount = totalRecordCount;
+    }
+
+    public int getCurrentRecordNumber() {
+        return currentRecordNumber;
+    }
+
+    public void setCurrentRecordNumber(int currentRecordNumber) {
+        this.currentRecordNumber = currentRecordNumber;
+    }
+
+    public int getSuccessfullyLoadedRecordNumber() {
+        return successfullyLoadedRecordNumber;
+    }
+
+    public void setSuccessfullyLoadedRecordNumber(int successfullyLoadedRecordNumber) {
+        this.successfullyLoadedRecordNumber = successfullyLoadedRecordNumber;
+    }
+
+    public int getFailLoadedRecordNumber() {
+        return failLoadedRecordNumber;
+    }
+
+    public void setFailLoadedRecordNumber(int failLoadedRecordNumber) {
+        this.failLoadedRecordNumber = failLoadedRecordNumber;
+    }
+
+    public Date getFinishedDate() {
+        return finishedDate;
+    }
+
+    public void setFinishedDate(Date finishedDate) {
+        this.finishedDate = finishedDate;
+    }
+
+    public Date getStartedDate() {
+        return startedDate;
+    }
+
+    public void setStartedDate(Date startedDate) {
+        this.startedDate = startedDate;
+    }
 }

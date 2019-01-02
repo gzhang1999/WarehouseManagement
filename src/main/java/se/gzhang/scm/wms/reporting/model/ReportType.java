@@ -16,35 +16,23 @@
  * limitations under the License.
  */
 
-package se.gzhang.scm.wms.common.model;
+package se.gzhang.scm.wms.reporting.model;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import se.gzhang.scm.wms.common.model.EnumWithDescription;
 
-@Entity
-@Table(name = "vehicle_type")
-public class VehicleType implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "vehicle_type_id")
-    private Integer id;
+public enum ReportType implements EnumWithDescription<String> {
 
-    @Column(name = "name")
-    private String name;
+    PDF("PDF"),
+    HTML("HTML");
 
-    public Integer getId() {
-        return id;
+    private String description;
+
+    private ReportType(String description) {
+        this.description = description;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    @Override
+    public String getDescription(){
+        return description;
     }
 }

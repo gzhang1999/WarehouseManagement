@@ -18,14 +18,12 @@
 
 package se.gzhang.scm.wms.authorization.model;
 
-import lombok.Data;
 import se.gzhang.scm.wms.layout.model.Warehouse;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.util.Set;
 
-@Data
 @Entity
 @Table(name = "user")
 public class User {
@@ -90,4 +88,107 @@ public class User {
         return id != null && id.equals(((User) o).id);
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
+    public boolean isRoleManager() {
+        return roleManager;
+    }
+
+    public void setRoleManager(boolean roleManager) {
+        this.roleManager = roleManager;
+    }
+
+    public boolean isUserManager() {
+        return userManager;
+    }
+
+    public void setUserManager(boolean userManager) {
+        this.userManager = userManager;
+    }
+
+    public boolean isMenuManager() {
+        return menuManager;
+    }
+
+    public void setMenuManager(boolean menuManager) {
+        this.menuManager = menuManager;
+    }
+
+    public boolean isChangePassword() {
+        return changePassword;
+    }
+
+    public void setChangePassword(boolean changePassword) {
+        this.changePassword = changePassword;
+    }
+
+    public Set<Warehouse> getWarehouses() {
+        return warehouses;
+    }
+
+    public void setWarehouses(Set<Warehouse> warehouses) {
+        this.warehouses = warehouses;
+    }
 }

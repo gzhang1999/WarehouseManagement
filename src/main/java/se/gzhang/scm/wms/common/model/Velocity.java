@@ -18,12 +18,9 @@
 
 package se.gzhang.scm.wms.common.model;
 
-import lombok.Data;
-
 import javax.persistence.*;
 import java.io.Serializable;
 
-@Data
 @Entity
 @Table(name = "velocity")
 public class Velocity implements Serializable {
@@ -35,4 +32,20 @@ public class Velocity implements Serializable {
 
     @Column(name = "name")
     private String name;
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

@@ -18,7 +18,6 @@
 
 package se.gzhang.scm.wms.layout.model;
 
-import lombok.Data;
 import se.gzhang.scm.wms.common.model.Address;
 
 import javax.persistence.*;
@@ -26,7 +25,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @Entity
 @Table(name = "warehouse")
 public class Warehouse implements Serializable {
@@ -71,5 +69,37 @@ public class Warehouse implements Serializable {
         if (this == o) return true;
         if (!(o instanceof Warehouse)) return false;
         return id != null && id.equals(((Warehouse) o).id);
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public List<Building> getBuildings() {
+        return buildings;
+    }
+
+    public void setBuildings(List<Building> buildings) {
+        this.buildings = buildings;
     }
 }

@@ -18,13 +18,9 @@
 
 package se.gzhang.scm.wms.menu.model;
 
-import lombok.Data;
-import se.gzhang.scm.wms.authorization.model.Role;
-
 import javax.persistence.*;
 import java.util.List;
 
-@Data
 @Entity
 @Table(name = "menu")
 public class MenuItem {
@@ -64,5 +60,75 @@ public class MenuItem {
         return id != null && id.equals(((MenuItem) o).id);
     }
 
+    public Integer getId() {
+        return id;
+    }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public int getParentMenuID() {
+        return parentMenuID;
+    }
+
+    public void setParentMenuID(int parentMenuID) {
+        this.parentMenuID = parentMenuID;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getIconClass() {
+        return iconClass;
+    }
+
+    public void setIconClass(String iconClass) {
+        this.iconClass = iconClass;
+    }
+
+    public String getMultiLanguageSupportID() {
+        return multiLanguageSupportID;
+    }
+
+    public void setMultiLanguageSupportID(String multiLanguageSupportID) {
+        this.multiLanguageSupportID = multiLanguageSupportID;
+    }
+
+    public int getSequence() {
+        return sequence;
+    }
+
+    public void setSequence(int sequence) {
+        this.sequence = sequence;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public List<MenuItem> getChildMenuList() {
+        return childMenuList;
+    }
+
+    public void setChildMenuList(List<MenuItem> childMenuList) {
+        this.childMenuList = childMenuList;
+    }
+
+    public String getParentMenuName() {
+        return parentMenuName;
+    }
+
+    public void setParentMenuName(String parentMenuName) {
+        this.parentMenuName = parentMenuName;
+    }
 }

@@ -18,9 +18,7 @@
 
 package se.gzhang.scm.wms.layout.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import lombok.Data;
 import se.gzhang.scm.wms.common.model.UnitOfMeasure;
 
 import javax.persistence.*;
@@ -28,7 +26,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @Entity
 @Table(name = "area")
 @JsonSerialize(using = AreaSerializer.class)
@@ -81,4 +78,67 @@ public class Area implements Serializable {
         return id != null && id.equals(((Area) o).id);
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Building getBuilding() {
+        return building;
+    }
+
+    public void setBuilding(Building building) {
+        this.building = building;
+    }
+
+    public List<Location> getLocations() {
+        return locations;
+    }
+
+    public void setLocations(List<Location> locations) {
+        this.locations = locations;
+    }
+
+    public List<UnitOfMeasure> getPickableUOMs() {
+        return pickableUOMs;
+    }
+
+    public void setPickableUOMs(List<UnitOfMeasure> pickableUOMs) {
+        this.pickableUOMs = pickableUOMs;
+    }
+
+    public AreaType getAreaType() {
+        return areaType;
+    }
+
+    public void setAreaType(AreaType areaType) {
+        this.areaType = areaType;
+    }
+
+    public VolumeType getVolumeType() {
+        return volumeType;
+    }
+
+    public void setVolumeType(VolumeType volumeType) {
+        this.volumeType = volumeType;
+    }
+
+    public Boolean getAllowConsolidation() {
+        return allowConsolidation;
+    }
+
+    public void setAllowConsolidation(Boolean allowConsolidation) {
+        this.allowConsolidation = allowConsolidation;
+    }
 }

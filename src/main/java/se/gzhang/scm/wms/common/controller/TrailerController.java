@@ -35,6 +35,7 @@ import se.gzhang.scm.wms.common.model.Trailer;
 import se.gzhang.scm.wms.common.service.CarrierService;
 import se.gzhang.scm.wms.common.service.TrailerService;
 import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.reporting.model.ReportArchive;
 import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
 
 import javax.sql.DataSource;
@@ -50,9 +51,6 @@ public class TrailerController {
     private TrailerService trailerService;
     @Autowired
     private CarrierService carrierService;
-
-    @Autowired
-    private DataSource dataSource;
 
     private static final String APPLICATION_ID = "Common";
     private static final String FORM_ID = "Trailer";
@@ -207,81 +205,28 @@ public class TrailerController {
         if (trailer == null) {
             return WebServiceResponseWrapper.raiseError(10000, "Can't find the trailer by id: " + trailerID);
         }
-
         try {
-
-            Map<String, Object> parameters = new HashMap<>();
-            parameters.put("trailerID", trailer.getId());
-
-            // File reportFile = ResourceUtils.getFile("classpath:static/reports/receiving_trailer.jasper");
-            // InputStream reportFileInputStream = new FileInputStream(reportFile);
-            ClassPathResource resource = new ClassPathResource("static/reports/receiving_trailer.jasper");
-            InputStream reportFileInputStream = resource.getInputStream();
-
-            /*********
-             ClassPathResource resource = new ClassPathResource("static/reports/receiving_trailer.jrxml");
-             InputStream reportFileInputStream = resource.getInputStream();
-            JasperReport jasperReport
-                    = JasperCompileManager.compileReport(reportFileInputStream);
-            JasperPrint jasperPrint =
-                    JasperFillManager.fillReport(
-                            jasperReport,
-                            parameters
-                    );
-             ****/
-            JasperPrint jasperPrint =
-                    JasperFillManager.fillReport(
-                            reportFileInputStream,
-                            parameters,
-                            dataSource.getConnection()
-                    );
-            // Export to PDF
-            JRPdfExporter exporter = new JRPdfExporter();
-
-            exporter.setExporterInput(new SimpleExporterInput(jasperPrint));
-            exporter.setExporterOutput(
-                    new SimpleOutputStreamExporterOutput("receiving_trailer.pdf"));
-
-            SimplePdfReportConfiguration reportConfig
-                    = new SimplePdfReportConfiguration();
-            reportConfig.setSizePageToContent(true);
-            reportConfig.setForceLineBreakPolicy(false);
-
-            SimplePdfExporterConfiguration exportConfig
-                    = new SimplePdfExporterConfiguration();
-            exportConfig.setMetadataAuthor("GZ");
-            // exportConfig.setEncrypted(true);
-            exportConfig.setAllowedPermissionsHint("PRINTING");
-
-            exporter.setConfiguration(reportConfig);
-            exporter.setConfiguration(exportConfig);
-
-            exporter.exportReport();
-
-            HtmlExporter htmlExporter = new HtmlExporter();
-
-            htmlExporter.setExporterInput(new SimpleExporterInput(jasperPrint));
-            htmlExporter.setExporterOutput(
-                    new SimpleHtmlExporterOutput("receiving_trailer.html"));
-
-            htmlExporter.exportReport();
+            List<ReportArchive> reportArchiveList = trailerService.printReport(trailer);
+            return new WebServiceResponseWrapper<List<ReportArchive>>(0, "", reportArchiveList);
         }
-        catch (JRException jrException) {
-            return WebServiceResponseWrapper.raiseError(10000, "JRException: " + jrException.getMessage());
-        }
-        catch (FileNotFoundException fileNotFoundException) {
-            return WebServiceResponseWrapper.raiseError(10000, "FileNotFoundException: " + fileNotFoundException.getMessage());
+        catch(IOException ioException) {
+            return WebServiceResponseWrapper.raiseError(10000, "IOException while print report for : " +
+                    "id: " + trailerID + " / number: " + trailer.getTrailerNumber() +
+                    ", IOException: " + ioException.getMessage());
 
         }
-        catch (IOException ioException) {
-            return WebServiceResponseWrapper.raiseError(10000, "IOException: " + ioException.getMessage());
+        catch(SQLException sqlException) {
+            return WebServiceResponseWrapper.raiseError(10000, "IOException while print report for : " +
+                    "id: " + trailerID + " / number: " + trailer.getTrailerNumber() +
+                    ", SQLException: " + sqlException.getMessage());
 
         }
-        catch (SQLException sqlException) {
-            return WebServiceResponseWrapper.raiseError(10000, "SQLException: " + sqlException.getMessage());
+        catch(JRException jrException){
+            return WebServiceResponseWrapper.raiseError(10000, "IOException while print report for : " +
+                    "id: " + trailerID + " / number: " + trailer.getTrailerNumber() +
+                    ", JRException: " + jrException.getMessage());
 
         }
-        return new WebServiceResponseWrapper<Trailer>(0, "", trailer);
 
     }
 
