@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+                          http://www.springframework.org/schema/webflow/spring-webflow.xsd">
+
+    <!-- returning and adding inside flow addLocationFlowModel instance -->
+    <input name="receiptid"/>
+    <on-start>
+        <evaluate expression="receivingFlowHandler.init(receiptid)"
+                  result="flowScope.receivingFlowModel" />
+    </on-start>
+
+    <view-state id="receiving" view="inbound/receipt/receiving" model="flowScope.receivingFlowModel">
+        <on-render>
+            <set name="viewScope.applicationID" value="'Inbound'" type="java.lang.String"></set>
+            <set name="viewScope.formID" value="'Receiving'" type="java.lang.String"></set>
+            <set name="viewScope.flowID" value="'Receipt.receiving'" type="java.lang.String"></set>
+        </on-render>
+        <transition on="previous"  to="home" />
+    </view-state>
+
+    <!-- end state -->
+    <end-state id="success" view="externalRedirect:contextRelative:/inbound/receipt?id=#{flowScope.receivingFlowModel.receipt.id}" />
+    <end-state id="home" view="externalRedirect:contextRelative:/inbound/receipt" />
+
+    <!-- Global Transition -->
+    <global-transitions>
+        <transition on="home" to="home" validate="false" />
+    </global-transitions>
+
+
+
+</flow>

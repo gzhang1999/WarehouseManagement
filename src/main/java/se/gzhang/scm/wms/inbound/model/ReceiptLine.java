@@ -19,11 +19,13 @@
 package se.gzhang.scm.wms.inbound.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import se.gzhang.scm.wms.inventory.model.Inventory;
 import se.gzhang.scm.wms.inventory.model.InventoryStatus;
 import se.gzhang.scm.wms.inventory.model.Item;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @Table(name = "receipt_line")
@@ -57,6 +59,9 @@ public class ReceiptLine implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="inventory_status_id")
     private InventoryStatus inventoryStatus;
+
+    @Transient
+    private List<Inventory> receivedInventory;
 
     @Override
     public boolean equals(Object obj) {
@@ -141,5 +146,13 @@ public class ReceiptLine implements Serializable {
 
     public void setInventoryStatus(InventoryStatus inventoryStatus) {
         this.inventoryStatus = inventoryStatus;
+    }
+
+    public List<Inventory> getReceivedInventory() {
+        return receivedInventory;
+    }
+
+    public void setReceivedInventory(List<Inventory> receivedInventory) {
+        this.receivedInventory = receivedInventory;
     }
 }

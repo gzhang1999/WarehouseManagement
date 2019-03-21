@@ -38,43 +38,52 @@
                 <div class="card">
                     <div class="card-header">
                         <h5>
-                            <a class="badge badge-success float-right" data-toggle="modal" href="#editReceiptModal" data-action="new" th:text="#{receipt.new}" >New Receipt</a>
+                            <a class="badge badge-success float-right" th:href="@{/flowAddReceipt}" data-action="new" th:text="#{receipt.new}" >New Receipt</a>
                         </h5>
                     </div>
                     <div class="card-body">
-                        <form class="form-inline" id="receipt_query" data-display="receiptTable" th:action="@{/ws/common/receipt/list}">
+                        <form class="form-inline" id="receipt_query" data-display="receiptTable" th:action="@{/ws/inbound/receipt/list}">
                             <div class="form-group my-sm-1">
                                 <label for="queryDriver" class="col-form-label" th:text="#{trailer.driver}">Driver:</label>
-                                <input type="text" class="form-control  mx-sm-4" id="queryDriver" name="trailerDriver" >
+                                <input type="text" class="form-control  mx-sm-4" id="queryDriver" name="trailerDriver" th:value="${url_query_trailerDriver}">
                             </div>
                             <div class="form-group my-sm-1">
                                 <label for="queryDriverTelephone" class="col-form-label" th:text="#{trailer.driver.telephone}">Driver Telephone:</label>
-                                <input type="text" class="form-control mx-sm-4" id="queryDriverTelephone" name="trailerDriverTelephone" >
+                                <input type="text" class="form-control mx-sm-4" id="queryDriverTelephone" name="trailerDriverTelephone"  th:value="${url_query_trailerDriverTelephone}">
                             </div>
                             <div class="form-group my-sm-1">
                                 <label for="queryLicensePlate" class="col-form-label" th:text="#{trailer.licensePlate}">License Plate:</label>
-                                <input type="text" class="form-control mx-sm-4" id="queryLicensePlate" name="trailerLicensePlate" >
+                                <input type="text" class="form-control mx-sm-4" id="queryLicensePlate" name="trailerLicensePlate" th:value="${url_query_trailerLicensePlate}">
                             </div>
                             <div class="form-group my-sm-1">
                                 <label for="queryTrailerNumber" class="col-form-label" th:text="#{trailer.number}">Trailer Number:</label>
-                                <input type="text" class="form-control ml-sm-4" id="queryTrailerNumber" name="trailerNumber" data-controltype="lookup" data-variable="trailer_number">
+                                <input type="text" class="form-control ml-sm-4" id="queryTrailerNumber" name="trailerNumber"
+                                       data-controltype="lookup" data-variable="trailer_number" th:value="${url_query_trailerNumber}">
                             </div>
                             <div class="form-group my-sm-1">
                                 <label for="queryTrailerLocation" class="col-form-label" th:text="#{receipt.trailer.location}">Trailer Location:</label>
-                                <input type="text" class="form-control mx-sm-4" id="queryTrailerLocation" name="trailerLocationName" >
+                                <input type="text" class="form-control mx-sm-4" id="queryTrailerLocation" name="trailerLocationName"  th:value="${url_query_trailerLocationName}">
                             </div>
                             <div class="form-group my-sm-1">
                                 <label for="queryReceiptID" class="col-form-label" th:text="#{receipt.id}">Receipt ID:</label>
-                                <input type="text" class="form-control mx-sm-4" id="queryReceiptID" name="receiptID" >
+                                <input type="text" class="form-control mx-sm-4" id="queryReceiptID" name="receiptID"  th:value="${url_query_receiptID}">
                             </div>
                             <div class="form-group my-sm-1">
                                 <label for="queryReceiptExternalID" class="col-form-label" th:text="#{receipt.externalID}">Receipt External ID:</label>
-                                <input type="text" class="form-control mx-sm-4" id="queryReceiptExternalID" name="receiptExternalID" >
+                                <input type="text" class="form-control mx-sm-4" id="queryReceiptExternalID" name="receiptExternalID"  th:value="${url_query_receiptExternalID}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryReceiptNumber" class="col-form-label" th:text="#{receipt.number}">Receipt Number:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryReceiptNumber" name="receiptNumber"  th:value="${url_query_receiptNumber}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryReceiptPurchaseOrderNumber" class="col-form-label" th:text="#{receipt.purchaseOrderNumber}">Receipt Purchase Order Number:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryReceiptPurchaseOrderNumber" name="receiptPurchaseOrderNumber"  th:value="${url_query_receiptPurchaseOrderNumber}">
                             </div>
                             <div class="form-group my-sm-1">
                                 <label for="queryReceipSupplier" class="col-form-label" th:text="#{receipt.supplierName}">Receipt Supplier Name:</label>
                                 <input type="text" class="form-control mx-sm-4" id="queryReceipSupplier" name="receiptSupplierName" data-autocomplete=true
-                                       data-variable='supplier_name'>
+                                       data-variable='supplier_name'  th:value="${url_query_receiptSupplierName}">
                             </div>
                         </form>
 
@@ -95,24 +104,40 @@
                             <div class="col-md-12">
                                 <table id = "receiptTable" class="table table-striped table-bordered display nowrap" style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
                                     <thead>
-                                    <tr>
-                                        <td th:text="#{receipt.id}">Receipt ID</td>
-                                        <td th:text="#{receipt.externalID}">Receipt External ID</td>
-                                        <td th:text="#{trailer.id}">Trailer ID</td>
-                                        <td th:text="#{trailer.type}">Trailer Type</td>
-                                        <td th:text="#{trailer.number}">Trailer Number</td>
-                                        <td th:text="#{trailer.licensePlate}">Trailer license plate</td>
-                                        <td th:text="#{trailer.driver}">Trailer Driver</td>
-                                        <td th:text="#{trailer.driver.telephone}">Trailer Driver's Telephone</td>
-                                        <td th:text="#{carrier.name}">Carrier Name</td>
-                                        <td th:text="#{trailer.state}">Trailer State</td>
-                                        <td th:text="#{trailer.location}">Trailer Location</td>
-                                        <td th:text="#{trailer.checkedInDate}">Trailer Checked in Date</td>
-                                        <td th:text="#{trailer.closedDate}">Trailer Closed Date</td>
-                                        <td th:text="#{trailer.dispatchedDate}">Trailer Dispatched Date</td>
-                                        <td></td>
-                                    </tr>
+                                        <tr>
+                                            <td th:text="#{receipt.id}">Receipt ID</td>
+                                            <td th:text="#{receipt.externalID}">Receipt External ID</td>
+                                            <td th:text="#{receipt.purchaseOrderNumber}">Purchase Order Number</td>
+                                            <td th:text="#{trailer.number}">Trailer Number</td>
+                                            <td th:text="#{trailer.licensePlate}">Trailer license plate</td>
+                                            <td th:text="#{supplier.name}">Supplier number</td>
+                                            <td th:text="#{supplier.description}">Supplier Description</td>
+                                            <td></td>
+                                        </tr>
                                     </thead>
+                                    <tbody th:if="${receiptList != null and not #lists.isEmpty(receiptList)}">
+                                        <tr  th:each="receipt : ${receiptList}" th:id="${'row_' + receipt.id}">
+                                            <td >
+                                                <a href='#' th:data-receiptid="${receipt.id}" onclick='showReceiptDetial(event)' th:text="${receipt.id}"></a>
+                                            </td>
+                                            <td th:text="#{receipt.externalID}"></td>
+                                            <td th:text="#{receipt.purchaseOrderNumber}"></td>
+                                            <td>
+                                                <span th:if="${receipt.trailer != null}" th:text="${receipt.trailer.trailerNumber}"></span>
+                                            </td>
+                                            <td>
+                                                <span th:if="${receipt.trailer != null}" th:text="${receipt.trailer.licensePlate}"></span>
+                                            </td>
+                                            <td th:text="${receipt.supplier.name}"></td>
+                                            <td th:text="${receipt.supplier.description}"></td>
+                                            <td>
+                                                <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#editReceiptModal'
+                                                        th:data-receiptid="${receipt.id}" th:text="#{edit}"></button>
+                                                <button class='btn btn-danger' type='button' th:data-receiptid="${receipt.id}"
+                                                        onclick='removeReceipt(event)' th:text="#{delete}"></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -151,8 +176,8 @@
                                 <input type="text" class="form-control" id="editReceiptModalTrailerDriver" disabled>
                             </div>
                             <div class="col-md-6">
-                                <label for="editReceiptModalTrailerNumber" class="col-form-label" th:text="#{trailer.number}">Trailer Number:</label>
-                                <input type="text" class="form-control" id="editReceiptModalTrailerNumber">
+                                <label for="editReceiptModalTrailerNumber" class="col-form-label" th:text="#{trailer.driver.telephone}">Trailer Driver's Telephone:</label>
+                                <input type="text" class="form-control" id="editReceiptModalTrailerDriverTelephone">
                             </div>
                         </div>
                         <hr />
@@ -190,6 +215,77 @@
         </div>
     </div>
 
+    <!-- Modal for add receipt line or editing existing receipt line-->
+    <div class="modal fade" id="editReceiptLineModal" tabindex="-1" role="dialog" aria-labelledby="editReceiptLineModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editReceiptLineModalLabel" th:text="#{receipt.line.editmodel.title}">Edit Receipt Line</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="editReceiptLineModalErrorMessage"></div>
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editReceiptLineModalReceiptID" class="col-form-label" th:text="#{receipt.id}">Receipt ID:</label>
+                                <input type="text" class="form-control" id="editReceiptLineModalReceiptID" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editReceiptLineModalReceiptNumber" class="col-form-label" th:text="#{receipt.number}">Receipt Number:</label>
+                                <input type="text" class="form-control" id="editReceiptLineModalReceiptNumber">
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editReceiptLineModalReceiptLineID" class="col-form-label" th:text="#{receipt.line.id}">Receipt Line ID:</label>
+                                <input type="text" class="form-control" id="editReceiptLineModalReceiptLineID">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editReceiptLineModalReceiptLineExternalID" class="col-form-label" th:text="#{receipt.line.externalID}">Receipt Line External ID:</label>
+                                <input type="text" class="form-control" id="editReceiptLineModalReceiptLineExternalID">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editReceiptLineModalReceiptLineNumber" class="col-form-label" th:text="#{receipt.line.number}">Receipt Line Number:</label>
+                                <input type="text" class="form-control" id="editReceiptLineModalReceiptLineNumber">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editReceiptLineModalReceiptLineItemNumber" class="col-form-label" th:text="#{item.number}">Receipt Line Item Number:</label>
+                                <input type="text" class="form-control" id="editReceiptLineModalReceiptLineItemNumber" data-autocomplete=true data-variable="item">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="editReceiptLineModalReceiptLineItemDescription" class="col-form-label" th:text="#{item.description}">Receipt Line Item Description:</label>
+                                <input type="text" class="form-control" id="editReceiptLineModalReceiptLineItemDescription"
+                                       readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editReceiptLineModalReceiptLineExpectedQuantity" class="col-form-label" th:text="#{receipt.line.expectedQuantity}">Receipt Line Expected Quantity:</label>
+                                <input type="text" class="form-control" id="editReceiptLineModalReceiptLineExpectedQuantity">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editReceiptLineModalReceiptLineInventoryStatus" class="col-form-label" th:text="#{receipt.line.inventoryStatus}">Receipt Line Inventory Status:</label>
+                                <select class="form-control" id="editReceiptLineModalReceiptLineInventoryStatus"  data-variable="inventoryStatus"></select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="receiptLineEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
 </div>
 <footer th:replace="fragment/footer :: app-footer"></footer>
@@ -212,25 +308,498 @@
                     "       <a href='#' data-receiptid='" + receipt.id + "' onclick='showReceiptDetial(event)'>" + receipt.id + "</a>" +
                     "   </td>" +
                     "   <td>" + receipt.externalID + "   </td>" +
-                    "   <td>" + receipt.trailer.id + "   </td>" +
-                    "   <td>" + $.i18n(receipt.trailer.type) + "   </td>" +
-                    "   <td>" + receipt.trailer.number + "   </td>" +
-                    "   <td>" + receipt.trailer.licensePlate + "   </td>" +
-                    "   <td>" + receipt.trailer.driver + "   </td>" +
-                    "   <td>" + receipt.trailer.driverTelephone + "   </td>" +
-                    "   <td>" + (receipt.trailer.carrier.name == undefined? "" : receipt.trailer.carrier.name) + "   </td>" +
-                    "   <td>" + $.i18n(receipt.trailer.state) + "   </td>" +
-                    "   <td>" + (receipt.trailer.location.name == undefined? "" : receipt.trailer.location.name) + "   </td>" +
-                    "   <td>" + receipt.trailer.checkedInDate + "   </td>" +
-                    "   <td>" + receipt.trailer.closedDate + "   </td>" +
-                    "   <td>" + receipt.trailer.dispatchedDate + "   </td>" +
-                    "   <td>";
-                htmlData += "   </td>" +
-                            "</tr>";
+                    "   <td>" + receipt.purchaseOrderNumber + "   </td>" +
+                    "   <td>" + (receipt.trailer.number == undefined ? "" : receipt.trailer.number) + "   </td>" +
+                    "   <td>" + (receipt.trailer.licensePlate == undefined? "" : receipt.trailer.licensePlate) + "   </td>" +
+                    "   <td>" + receipt.supplier.name + "   </td>" +
+                    "   <td>" + receipt.supplier.description + "   </td>" +
+                    "   <td> " +
+                    "       <a class='btn btn-success' href='#' data-receiptid='" + receipt.id + "' onclick='startReceiving(event)'>" + $.i18n("receiving") + "</a>" +
+                    "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#editReceiptModal' data-receiptid='" + receipt.id + "' >" + $.i18n("edit")+ "</button>"+
+                    "       <button class='btn btn-danger' type='button' data-receiptid='" + receipt.id + "' onclick='removeReceipt(event)'>" + $.i18n("delete")+ "</button>"+
+                    "   </td> "
+                     "</tr>";
             });
             var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
             table.rows.add(html).draw();
         }
+    }
+
+    var showReceiptDetial = function(event) {
+        var control = $(event.target);
+        var receiptID = control.data("receiptid");
+        displayReceiptDetail(receiptID);
+    }
+    var displayReceiptDetail = function(receiptID) {
+
+        var table = $("#receiptTable").DataTable();
+
+        var tr = $("#row_" + receiptID);
+        var row = table.row(tr);
+
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+            table.columns.adjust();
+        }
+        else {
+            // Close all other rows
+            table.rows().every(function(rowIdx, tableLoop, rowLoop) {
+                if (this.child.isShown()) {
+                    this.child.hide();
+                    var trNode = this.node();
+                    $(trNode).removeClass('shown');
+                }
+            });
+
+            var url = "/ws/inbound/receipt/query/" + receiptID + "?showInventory=true";
+            $.ajax({
+                url:url
+            }).done(function( res ) {
+                // display this row
+                console.log("Get receipt information:");
+                console.log(JSON.stringify(res));
+                row.child(formatReceiptInfomration(res.data)).show();
+                tr.addClass('shown');
+
+                $("#receiptLineDisplay-" + receiptID).DataTable();
+                $("#inventoryDisplay-" + receiptID).DataTable();
+
+                table.columns.adjust();
+            });
+
+        }
+    }
+
+
+    var formatReceiptInfomration = function(receipt) {
+
+        var receiptLineHtml = getFormatReceiptLineDisplay(receipt);
+        var trailerHtml = getFormatTrailerDisplay(receipt);
+        var inventoryHtml = getFormatInventoryDisplay(receipt);
+
+        var html = "<ul class='nav nav-tabs' role='tablist'> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link active' data-toggle='tab' href='#receiptLine' role='tab' aria-controls='receiptLine'>" + $.i18n("receipt.line") + "</a> " +
+                   "    </li> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link' data-toggle='tab' href='#trailer' role='tab' aria-controls='trailer'>" + $.i18n("trailer") + "</a> " +
+                   "    </li> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link ' data-toggle='tab' href='#inventory' role='tab' aria-controls='inventory'>" + $.i18n("receipt.inventory") + "</a> " +
+                   "    </li> " +
+                   "</ul> " +
+                   "<div class='tab-content'> " +
+                   "    <div class='tab-pane active' id='receiptLine' role='tabpanel'> " +
+                        receiptLineHtml +
+                   "    </div> " +
+                   "    <div class='tab-pane' id='trailer' role='tabpanel'>" +
+                        trailerHtml +
+                   "    </div> " +
+                   "    <div class='tab-pane ' id='inventory' role='tabpanel'>" +
+                        inventoryHtml +
+                   "    </div> " +
+                   "</div> ";
+        return html;
+    }
+
+    var getFormatTrailerDisplay = function(receipt) {
+        var trailerHtml = "<div class='card card-accent-success'> " +
+                          "    <div class='card-header'> " +
+                          "        <h5> " + (receipt.trailer.number == undefined ? $.i18nwd("message.receipt.without.trailer", "This receipt doesn't have trailer") : receipt.trailer.number) + " </h5>" +
+                          "    </div> " +
+                          "    <div class='card-body'> ";
+        if (receipt.trailer != undefined && receipt.trailer.id != undefined) {
+            trailerHtml +="        <ul class='row'> " +
+                          "            <li class='col-xs-6 col-sm-4 col-md-3'> " +
+                          "                <span>" + $.i18n("trailer.number") + "</span>: " +
+                          "                <span>" + (receipt.trailer.number == undefined ? "" : receipt.trailer.number) + "</span> " +
+                          "            </li> " +
+                          "            <li class='col-xs-6 col-sm-4 col-md-3'> " +
+                          "                <span>" + $.i18n("trailer.type") + "</span>: " +
+                                          (receipt.trailer.type == undefined ? "" :
+                                                  "                <span>" + $.i18nwd("dropdown.TrailerType." + receipt.trailer.type, receipt.trailer.type) + "</span> "
+                                          ) +
+                          "            </li> " +
+                          "            <li class='col-xs-6 col-sm-4 col-md-3'> " +
+                          "                <span>" + $.i18n("trailer.driver") + "</span>: " +
+                          "                <span>" + (receipt.trailer.driver == undefined ? "" : receipt.trailer.driver) + "</span> " +
+                          "            </li> " +
+                          "            <li class='col-xs-6 col-sm-4 col-md-3'> " +
+                          "                <span>" + $.i18n("trailer.driver.telephone") + "</span>: " +
+                          "                <span>" + (receipt.trailer.driverTelephone == undefined ? "" : receipt.trailer.driverTelephone) + "</span> " +
+                          "            </li> " +
+                          "            <li class='col-xs-6 col-sm-4 col-md-3'> " +
+                          "                <span>" + $.i18n("trailer.licensePlate") + "</span>: " +
+                          "                <span>" + (receipt.trailer.licensePlate == undefined ? "" : receipt.trailer.licensePlate) + "</span> " +
+                          "            </li> " +
+                          "            <li class='col-xs-6 col-sm-4 col-md-3'> " +
+                          "                <span>" + $.i18n("carrier") + "</span>: " +
+                          "                <span>" + (receipt.trailer.carrier.name == undefined ? "" :  + receipt.trailer.carrier.name) + "</span> " +
+                          "            </li> " +
+                          "        </ul> ";
+            }
+            trailerHtml += "    </div>  " +
+                          "</div>";
+
+
+        return trailerHtml;
+    }
+    var getFormatReceiptLineDisplay = function(receipt) {
+        var receiptLineHtml = "<div class='card card-accent-success'> " +
+                               "    <div class='card-header'> " +
+                               "        <h5> " +
+                               "            <a class='badge badge-primary float-right mx-2' data-toggle='modal' href='#editReceiptLineModal' data-receiptid='" + receipt.id + "' data-action='new'>" +  $.i18n('receipt.line.new') + "</a>" +
+                               "        </h5>" +
+                               "    </div> " +
+                               "    <div class='card-body'> " +
+                               "      <div class='row'> " +
+                               "      <div class='col-md-12'> " +
+                               "        <table id='receiptLineDisplay-" + receipt.id + "' class='table table-striped table-bordered display nowrap' style='width:100%' role='grid' data-tabletype='datatable' data-init='true'> " +
+                               "            <thead> " +
+                               "                <tr> " +
+                               "                   <th>" + $.i18n("receipt.line.number") + "</th> " +
+                               "                   <th>" + $.i18n("receipt.line.externalID") + "</th> " +
+                               "                   <th>" + $.i18n("item.number") + "</th> " +
+                               "                   <th>" + $.i18n("item.description") + "</th> " +
+                               "                   <th>" + $.i18n("receipt.line.expectedQuantity") + "</th> " +
+                               "                   <th></th> " +
+                               "               </tr> " +
+                               "           </thead> " +
+                               "           <tbody>";
+        $.each(receipt.receiptLines, function(index, receiptLine){
+            receiptLineHtml    += "  <tr>" +
+                                "    <td> "+ receiptLine.lineNumber + "</td> " +
+                                "    <td> "+ receiptLine.externalID + "</td> " +
+                                "    <td> "+ receiptLine.item.name + "</td> " +
+                                "    <td> "+ receiptLine.item.description + "</td> " +
+                                "    <td> "+ receiptLine.expectedQuantity + "</td> " +
+                                "    <td>" +
+                                "        <button class='btn btn-primary' type='button' data-toggle='modal' href='#editReceiptLineModal'  data-receiptlineid='" + receiptLine.id + "' data-action='change'>" + $.i18n("receipt.line.edit") + "</button>" +
+                                "        <button class='btn btn-danger' type='button' onclick='removeReceiptLine(event)' data-receiptlineid='" + receiptLine.id + "' data-action='delete'>" + $.i18n("receipt.line.delete") + "</button>" +
+                                "    </td> " +
+                                "</tr> ";
+        });
+        receiptLineHtml    += "          </tbody> " +
+                            "        </table> " +
+                            "    </div>  " +
+                            "    </div>  " +
+                            "  </div>  " +
+                            "</div>";
+
+
+        return receiptLineHtml;
+    }
+
+    var getFormatInventoryDisplay = function(receipt) {
+        var inventoryHtml = "<div class='card card-accent-success'> " +
+                               "    <div class='card-body'> " +
+                               "      <div class='row'> " +
+                               "      <div class='col-md-12'> " +
+                               "        <table id='inventoryDisplay-" + receipt.id + "' class='table table-striped table-bordered display nowrap' style='width:100%' role='grid' data-tabletype='datatable' data-init='true'> " +
+                               "            <thead> " +
+                               "                <tr> " +
+                               "                   <th>" + $.i18n("inventory.location") + "</th> " +
+                               "                   <th>" + $.i18n("inventory.lpn") + "</th> " +
+                               "                   <th>" + $.i18n("item.number") + "</th> " +
+                               "                   <th>" + $.i18n("item.description") + "</th> " +
+                               "                   <th>" + $.i18n("inventory.quantity") + "</th> " +
+                               "                   <th></th> " +
+                               "               </tr> " +
+                               "           </thead> " +
+                               "           <tbody>";
+
+        $.each(receipt.receiptLines, function(index, receiptLine){
+            console.log("receipt line: " + receiptLine.lineNumber + " received inventory: " + receiptLine.receivedInventory.length);
+            if (receiptLine.receivedInventory.length > 0) {
+                $.each(receiptLine.receivedInventory, function(index, inventory) {
+                    inventoryHtml    += "  <tr>" +
+                                        "    <td> " + inventory.location.name + "</td> " +
+                                        "    <td> " + inventory.lpn + "</td> ";
+                    if (inventory.itemFootprint == undefined || inventory.itemFootprint.item == undefined) {
+                        inventoryHtml +="    <td> </td> " +
+                                        "    <td> </td> ";
+                    }
+                    else {
+                        inventoryHtml +="    <td>" + inventory.itemFootprint.item.name + " </td> " +
+                                        "    <td>" + inventory.itemFootprint.item.description + "</td> ";
+                    }
+                    inventoryHtml   +=  "    <td> " + inventory.quantity + "</td> " +
+                                        "    <td></td> " +
+                                        "</tr> ";
+                });
+            }
+        });
+        inventoryHtml    += "          </tbody> " +
+                            "        </table> " +
+                            "    </div>  " +
+                            "    </div>  " +
+                            "  </div>  " +
+                            "</div>";
+
+
+        return inventoryHtml;
+    }
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+       $($.fn.dataTable.tables(true)).DataTable()
+          .scroller.measure();
+    });
+
+    $('#editReceiptModal').on('show.bs.modal', function (event) {
+        clearEditModal();
+        var button = $(event.relatedTarget);
+        var receiptID = button.data('receiptid');
+        var url = '/ws/inbound/receipt/query/'+receiptID;
+
+        $.ajax({url:url})
+            .done(function( res ) {
+                if (res.status == 0)
+                {
+                      var receipt = res.data
+                      if (receipt.trailer.id != undefined) {
+                          $('#editReceiptModalTrailerID').val(receipt.trailer.id);
+                          $('#editReceiptModalTrailerNumber').val(receipt.trailer.number);
+                          $('#editReceiptModalTrailerDriver').val(receipt.trailer.driver);
+                          $('#editReceiptModalTrailerDriverTelephone').val(receipt.trailer.driverTelephone);
+                      }
+                      $('#editReceiptModalReceiptID').val(receipt.id);
+                      $('#editReceiptModalReceiptExternalID').val(receipt.externalID);
+                      $('#editReceiptModalReceiptNumber').val(receipt.number);
+                      $('#editReceiptModalReceiptPurchaseOrderNumber').val(receipt.purchaseOrderNumber);
+
+                      if (receipt.supplier.id != undefined) {
+                        $('#editReceiptModalReceiptSupplier').val(receipt.supplier.id);
+                      }
+
+                      $('#editReceiptModalErrorMessage').text('');
+
+                      $('#editReceiptModalTrailerID').prop("disabled", true);
+                      $('#editReceiptModalTrailerNumber').prop("disabled", true);
+                      $('#editReceiptModalTrailerDriver').prop("disabled", true);
+                      $('#editReceiptModalTrailerDriverTelephone').prop("disabled", true);
+
+                      $('#editReceiptModalReceiptID').prop("disabled", true);
+                      $('#editReceiptModalReceiptNumber').prop("disabled", true);
+
+                  }
+                  else
+                  {
+                      $('#editReceiptModalErrorMessage').text(res.status + " : " + res.message);
+
+                      $('#editReceiptModalTrailerID').prop("disabled", true);
+                      $('#editReceiptModalTrailerNumber').prop("disabled", true);
+                      $('#editReceiptModalTrailerDriver').prop("disabled", true);
+                      $('#editReceiptModalTrailerDriverTelephone').prop("disabled", true);
+
+
+                      $('#editReceiptModalReceiptID').prop("disabled", true);
+                      $('#editReceiptModalReceiptExternalID').prop("disabled", true);
+                      $('#editReceiptModalReceiptNumber').prop("disabled", true);
+                      $('#editReceiptModalReceiptPurchaseOrderNumber').prop("disabled", true);
+                      $('#editReceiptModalReceiptSupplier').prop("disabled", true);
+
+                      $('#receiptEditSave').prop("disabled", true);
+
+
+                  }
+              });
+
+    })
+
+
+    var clearEditModal = function() {
+
+        $('#editReceiptModalTrailerID').val('');
+        $('#editReceiptModalTrailerNumber').val('');
+        $('#editReceiptModalTrailerDriver').val('');
+        $('#editReceiptModalTrailerDriverTelephone').val('');
+
+        $('#editReceiptModalReceiptID').val('');
+        $('#editReceiptModalReceiptExternalID').val('');
+        $('#editReceiptModalReceiptNumber').val('');
+        $('#editReceiptModalReceiptPurchaseOrderNumber').val('');
+        $('#editReceiptModalReceiptSupplier').val('');
+
+        $('#editReceiptModalErrorMessage').text('');
+    }
+
+    $('#receiptEditSave').click(function(){
+        var receiptID = $('#editReceiptModalReceiptID').val();
+        var url = "/ws/inbound/receipt/" + receiptID + "/edit";
+
+        $.ajax({
+            method:"POST",
+            url : url,
+            data:{
+                 receiptID: receiptID,
+                 externalID: $('#editReceiptModalReceiptExternalID').val(),
+                 receiptNumber: $('#editReceiptModalReceiptNumber').val(),
+                 purchaseOrderNumber: $('#editReceiptModalReceiptPurchaseOrderNumber').val(),
+                 supplierID: $('#editReceiptModalReceiptSupplier').val(),
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                refreshMainGrid();
+
+                $('#editModalErrorMessage').text('');
+
+                $('#editReceiptModal').modal('toggle');
+            }
+            else{
+                $('#editModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+    var refreshMainGrid = function() {
+        $("#receipt_query").submit();
+
+    }
+
+    var removeReceipt = function(event) {
+        var control = $(event.target);
+        var receiptID = control.data("receiptid");
+        var url = "/ws/inbound/receipt/" + receiptID + "/delete";
+        $.ajax({
+                method:"DELETE",
+                url : url
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    $("#receipt_query").submit();
+                }
+                else{
+                    console.log("Error when delete Receipt: " + JSON.stringify(res))
+                }
+            });
+
+    }
+
+    $('#editReceiptLineModal').on('show.bs.modal', function (event) {
+        clearEditReceiptLineModal();
+        var button = $(event.relatedTarget);
+        var receiptLineID = button.data('receiptlineid');
+        var url = '/ws/inbound/receipt/line/query/'+receiptLineID;
+
+        $.ajax({url:url})
+            .done(function( res ) {
+                if (res.status == 0)
+                {
+                    var receiptLine = res.data
+
+                    $('#editReceiptLineModalReceiptID').val(receiptLine.receipt.id);
+                    $('#editReceiptLineModalReceiptNumber').val(receiptLine.receipt.number);
+
+                    $('#editReceiptLineModalReceiptLineID').val(receiptLine.id);
+                    $('#editReceiptLineModalReceiptLineExternalID').val(receiptLine.externalID);
+                    $('#editReceiptLineModalReceiptLineNumber').val(receiptLine.lineNumber);
+                    $('#editReceiptLineModalReceiptLineItemNumber').val(receiptLine.item.name);
+                    $('#editReceiptLineModalReceiptLineItemDescription').val(receiptLine.item.description);
+                    $('#editReceiptLineModalReceiptLineExpectedQuantity').val(receiptLine.expectedQuantity);
+                    $('#editReceiptLineModalReceiptLineInventoryStatus').val(receiptLine.inventoryStatus.name);
+
+                    $('#editReceiptLineModalErrorMessage').text('');
+
+                    $('#editReceiptLineModalReceiptID').prop("disabled", true);
+                    $('#editReceiptLineModalReceiptNumber').prop("disabled", true);
+                    $('#editReceiptLineModalReceiptLineID').prop("disabled", true);
+                    $('#editReceiptLineModalReceiptLineNumber').prop("disabled", true);
+                    $('#editReceiptLineModalReceiptLineItemDescription').prop("disabled", true);
+
+                }
+                else
+                {
+                      $('#editReceiptLineModalErrorMessage').text(res.status + " : " + res.message);
+
+                      $('#editReceiptLineModalReceiptID').prop("disabled", true);
+                      $('#editReceiptLineModalReceiptNumber').prop("disabled", true);
+
+                      $('#editReceiptLineModalReceiptLineID').prop("disabled", true);
+                      $('#editReceiptLineModalReceiptLineExternalID').prop("disabled", true);
+                      $('#editReceiptLineModalReceiptLineNumber').prop("disabled", true);
+                      $('#editReceiptLineModalReceiptLineItemNumber').prop("disabled", true);
+                      $('#editReceiptLineModalReceiptLineItemDescription').prop("disabled", true);
+                      $('#editReceiptLineModalReceiptLineExpectedQuantity').prop("disabled", true);
+                      $('#editReceiptLineModalReceiptLineInventoryStatus').prop("disabled", true);
+
+                      $('#receiptLineEditSave').prop("disabled", true);
+
+
+                }
+            });
+
+    })
+
+
+    var clearEditReceiptLineModal = function() {
+
+        $('#editReceiptLineModalReceiptID').val('');
+        $('#editReceiptLineModalReceiptNumber').val('');
+
+        $('#editReceiptLineModalReceiptLineID').val('');
+        $('#editReceiptLineModalReceiptLineExternalID').val('');
+        $('#editReceiptLineModalReceiptLineNumber').val('');
+        $('#editReceiptLineModalReceiptLineItemNumber').val('');
+        $('#editReceiptLineModalReceiptLineItemDescription').val('');
+        $('#editReceiptLineModalReceiptLineExpectedQuantity').val('');
+        $('#editReceiptLineModalReceiptLineInventoryStatus').val('');
+
+        $('#editReceiptLineModalErrorMessage').text('');
+    }
+
+    $('#receiptLineEditSave').click(function(){
+        var receiptLineID = $('#editReceiptLineModalReceiptLineID').val();
+        var receiptID = $('#editReceiptLineModalReceiptID').val();
+        var url = "/ws/inbound/receipt/line/" + receiptLineID + "/edit";
+
+        $.ajax({
+            method:"POST",
+            url : url,
+            data:{
+                 receiptLineID: receiptLineID,
+                 externalID: $('#editReceiptLineModalReceiptLineExternalID').val(),
+                 expectedQuantity: $('#editReceiptLineModalReceiptLineExpectedQuantity').val(),
+                 itemName: $('#editReceiptLineModalReceiptLineItemNumber').val(),
+                 inventoryStatus: $('#editReceiptLineModalReceiptLineInventoryStatus').val(),
+            },
+            receiptID : receiptID
+        }).done(function( res ) {
+            if (res.status == 0) {
+                // Refresh the table
+
+                var table = $("#receiptTable").DataTable();
+
+                var tr = $("#row_" + receiptID);
+                var row = table.row(tr);
+
+                var url = '/ws/inbound/receipt/query/'+receiptID;
+                $.ajax({
+                    url:url
+                }).done(function( res ) {
+                    // display this row
+                    row.child(formatReceiptInfomration(res.data)).show();
+                    tr.addClass('shown');
+
+                    $("#receiptLineDisplay-" + receiptID).DataTable();
+                    $("#inventoryDisplay-" + receiptID).DataTable();
+
+                    table.columns.adjust();
+                });
+
+                $('#editModalErrorMessage').text('');
+
+                $('#editReceiptModal').modal('toggle');
+            }
+            else{
+                $('#editModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+    var startReceiving = function(event) {
+        var control = $(event.target);
+        var receiptID = control.data("receiptid");
+        window.open("/flowReceiving?receiptid=" + receiptID, "_self");
     }
 
 </script>

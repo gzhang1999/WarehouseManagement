@@ -93,6 +93,9 @@ public class AddTrailerFlowModel implements Serializable {
             newReceiptLine.setReceipt(currentReceipt);
             newReceiptLine.setItem(receiptLine.getItem());
             newReceiptLine.setInventoryStatus(receiptLine.getInventoryStatus());
+            // Always default the received quantity to 0 for new receipt line
+            newReceiptLine.setReceivedQuantity(0);
+
             addReceiptLine(newReceiptLine);
         }
         else {
@@ -124,7 +127,6 @@ public class AddTrailerFlowModel implements Serializable {
         if (existingReceiptLine != null) {
             getCurrentReceiptLinesList().remove(existingReceiptLine);
         }
-
     }
     private Receipt getExistingReceipt(Receipt receipt) {
         for(Receipt existingReceipt : receiptList) {

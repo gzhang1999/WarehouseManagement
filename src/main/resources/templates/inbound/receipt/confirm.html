@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <form method="post" enctype="multipart/form-data" >
+                        <div class="card-header" >
+                            <h5>
+                                <span th:text="#{trailer.confirm}"></span>
+                                <a class="badge badge-success float-right" th:href="@{'~' + ${flowExecutionUrl} + '&_eventId_home'}" th:text="#{trailer.new.return}" >Return to Trailer Display</a>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+
+                            <!-- Display all receipt information -->
+                            <div th:if="${addReceiptFlowModel.getCurrentReceipt() != null and not #strings.isEmpty(addReceiptFlowModel.getCurrentReceipt().number)}"
+                                class="my-4">
+
+                                <div class="card">
+                                    <div class="card-header text-white bg-success ">
+                                        <h5>
+                                            <span th:text="#{receipt}"></span> :
+                                            <span th:text="${addReceiptFlowModel.getCurrentReceipt().number}"></span>
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <ul class="row mb-4">
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{receipt.number}">Receipt Number</span>:
+                                                <span th:text="${addReceiptFlowModel.getCurrentReceipt().number}"></span>
+                                            </li>
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{receipt.externalID}">External ID</span>:
+                                                <span th:text="${addReceiptFlowModel.getCurrentReceipt().externalID}"></span>
+                                            </li>
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{receipt.purchaseOrderNumber}">Purchase Order Number</span>:
+                                                <span th:text="${addReceiptFlowModel.getCurrentReceipt().purchaseOrderNumber}"></span>
+                                            </li>
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{receipt.supplier}">Supplier</span>:
+                                                <span th:text="${addReceiptFlowModel.getCurrentReceipt().supplier == null ? '' : addReceiptFlowModel.getCurrentReceipt().supplier.description}"></span>
+                                            </li>
+                                        </ul>
+
+                                        <table class="table table-striped table-bordered display nowrap table-selectable" style="width:100%"
+                                               data-tabletype="datatable" data-init="true" data-scrollx="true" data-refresh="true"
+                                               id="receiptLinesTable">
+                                            <thead>
+                                                <tr>
+                                                    <td th:text="#{receipt.number}"></td>
+                                                    <td th:text="#{receipt.line.number}"></td>
+                                                    <td th:text="#{receipt.line.externalID}"></td>
+                                                    <td th:text="#{item.number}"></td>
+                                                    <td th:text="#{item.description}"></td>
+                                                    <td th:text="#{receipt.line.expectedQuantity}"></td>
+                                                    <td th:text="#{receipt.line.inventoryStatus}"></td>
+                                                </tr>
+                                            </thead>
+                                            <tbody th:if="${addReceiptFlowModel.getCurrentReceipt().receiptLineList != null and addReceiptFlowModel.getCurrentReceipt().receiptLineList.size() > 0}">
+                                                <tr th:each="receiptLine : ${addReceiptFlowModel.getCurrentReceipt().receiptLineList}" th:if="${not #strings.isEmpty(receiptLine.lineNumber)}">
+                                                    <td th:text="${addReceiptFlowModel.getCurrentReceipt().number}"></td>
+                                                    <td th:text="${receiptLine.lineNumber}"></td>
+                                                    <td th:text="${receiptLine.externalID}"></td>
+                                                    <td th:text="${receiptLine.item.name}"></td>
+                                                    <td th:text="${receiptLine.item.description}" ></td>
+                                                    <td th:text="${receiptLine.expectedQuantity}"></td>
+                                                    <td th:text="${receiptLine.inventoryStatus.name}"></td>
+                                                </tr>
+                                            </tbody>
+
+                                        </table>
+
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_previous" th:text="#{step.previous}">
+                                Previous</button>
+                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_serializeReceipt" th:text="#{step.flow.receipt.confirm}">
+                                <i class="fa fa-dot-circle-o"></i> Next</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+</body>
+</html>

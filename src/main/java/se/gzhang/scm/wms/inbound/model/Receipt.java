@@ -21,6 +21,8 @@ package se.gzhang.scm.wms.inbound.model;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import se.gzhang.scm.wms.common.model.Supplier;
 import se.gzhang.scm.wms.common.model.Trailer;
+import se.gzhang.scm.wms.inventory.model.Inventory;
+import se.gzhang.scm.wms.layout.model.Warehouse;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -48,6 +50,47 @@ public class Receipt  implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="supplier_id")
     private Supplier supplier;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "warehouse_id")
+    private Warehouse warehouse;
+
+
+    @OneToMany(
+            mappedBy = "receipt",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @OrderBy("line_number asc")
+    private List<ReceiptLine> receiptLineList = new ArrayList<>();
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trailer_id")
+    private Trailer trailer;
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Receipt)) {
+            return false;
+        }
+
+        // If both receipt has ID, make sure the ID are the same
+        // Otherwise, the receipts are same as long as the receipt numbers
+        // are the same
+        Receipt receipt = (Receipt)obj;
+        if (this.id != null && receipt.getId() != null) {
+            return this.id == receipt.getId();
+        }
+        else {
+            return this.getNumber().equals(receipt.getNumber());
+        }
+    }
 
     public Integer getId() {
         return id;
@@ -89,6 +132,14 @@ public class Receipt  implements Serializable {
         this.supplier = supplier;
     }
 
+    public Warehouse getWarehouse() {
+        return warehouse;
+    }
+
+    public void setWarehouse(Warehouse warehouse) {
+        this.warehouse = warehouse;
+    }
+
     public List<ReceiptLine> getReceiptLineList() {
         return receiptLineList;
     }
@@ -103,41 +154,6 @@ public class Receipt  implements Serializable {
 
     public void setTrailer(Trailer trailer) {
         this.trailer = trailer;
-    }
-
-    @OneToMany(
-            mappedBy = "receipt",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    @OrderBy("line_number asc")
-    private List<ReceiptLine> receiptLineList = new ArrayList<>();
-
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "trailer_id")
-    private Trailer trailer;
-
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof Receipt)) {
-            return false;
-        }
-
-        // If both receipt has ID, make sure the ID are the same
-        // Otherwise, the receipts are same as long as the receipt numbers
-        // are the same
-        Receipt receipt = (Receipt)obj;
-        if (this.id != null && receipt.getId() != null) {
-            return this.id == receipt.getId();
-        }
-        else {
-            return this.getNumber().equals(receipt.getNumber());
-        }
     }
 
 }

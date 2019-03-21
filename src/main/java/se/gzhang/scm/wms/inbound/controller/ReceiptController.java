@@ -22,17 +22,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import se.gzhang.scm.wms.common.model.Carrier;
-import se.gzhang.scm.wms.common.model.CarrierServiceLevel;
 import se.gzhang.scm.wms.common.model.Supplier;
 import se.gzhang.scm.wms.common.model.Trailer;
-import se.gzhang.scm.wms.common.service.CarrierService;
-import se.gzhang.scm.wms.common.service.CarrierServiceLevelService;
 import se.gzhang.scm.wms.common.service.SupplierService;
 import se.gzhang.scm.wms.common.service.TrailerService;
 import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.inbound.model.Receipt;
+import se.gzhang.scm.wms.inbound.model.ReceiptLine;
+import se.gzhang.scm.wms.inbound.service.ReceiptLineService;
 import se.gzhang.scm.wms.inbound.service.ReceiptService;
+import se.gzhang.scm.wms.inventory.model.Inventory;
 import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
 
 import java.util.List;
@@ -44,10 +43,15 @@ public class ReceiptController {
     private ReceiptService receiptService;
 
     @Autowired
+    private ReceiptLineService receiptLineService;
+
+    @Autowired
     private SupplierService supplierService;
 
     @Autowired
     private TrailerService trailerService;
+
+
 
 
     private static final String APPLICATION_ID = "Inbound";
@@ -55,13 +59,23 @@ public class ReceiptController {
 
 
     @RequestMapping(value="/inbound/receipt", method = RequestMethod.GET)
-    public ModelAndView listReceipts() {
+    public ModelAndView listReceipts(@RequestParam Map<String, String> parameters) {
         ModelAndView modelAndView = new ModelAndView();
 
         modelAndView.addObject("applicationID",APPLICATION_ID);
         modelAndView.addObject("formID",FORM_ID);
 
         modelAndView.setViewName("inbound/receipt");
+
+        if (parameters.size() > 0) {
+            for(Map.Entry<String, String> entry : parameters.entrySet()) {
+                modelAndView.addObject("url_query_" + entry.getKey() , entry.getValue());
+            }
+            List<Receipt> receiptList = receiptService.findReceipts(parameters);
+
+            modelAndView.addObject("receiptList",receiptList);
+
+        }
         return modelAndView;
     }
 
@@ -75,11 +89,24 @@ public class ReceiptController {
 
     @ResponseBody
     @RequestMapping(value="/ws/inbound/receipt/query/{id}")
-    public WebServiceResponseWrapper getReceipt(@PathVariable("id") int receiptID) {
+    public WebServiceResponseWrapper getReceipt(@PathVariable("id") int receiptID,
+                                                @RequestParam(value = "showInventory", required = false, defaultValue =  "false") boolean showInventory) {
 
         Receipt receipt = receiptService.findByReceiptId(receiptID);
         if (receipt == null) {
             return WebServiceResponseWrapper.raiseError(10000, "Can't find the receipt by id: " + receiptID);
+        }
+
+        // add received inventory to the customized field
+        if (showInventory) {
+            // Setup the received inventory for each line
+            receiptService.loadReceivedInventoryByReceipt(receipt);
+            int totalInventoryCount = 0;
+            for(ReceiptLine receiptLine : receipt.getReceiptLineList()) {
+                int inventoryCount = receiptLine.getReceivedInventory() == null ? 0 : receiptLine.getReceivedInventory().size();
+                totalInventoryCount += inventoryCount;
+
+            }
         }
         return new WebServiceResponseWrapper<Receipt>(0, "", receipt);
     }
@@ -143,6 +170,55 @@ public class ReceiptController {
             return WebServiceResponseWrapper.raiseError(ex.getCode(), ex.getMessage());
 
         }
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value="/ws/inbound/receipt/line/query/{id}")
+    public WebServiceResponseWrapper getReceiptLine(@PathVariable("id") int receiptLineID) {
+
+        ReceiptLine receiptLine = receiptLineService.findByReceiptLineId(receiptLineID);
+        if (receiptLine == null) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't find the receipt line by id: " + receiptLineID);
+        }
+        return new WebServiceResponseWrapper<ReceiptLine>(0, "", receiptLine);
+    }
+
+    @ResponseBody
+    @RequestMapping(value="/ws/inbound/receipt/{receiptID}/lines/{receiptLineID}/receiving")
+    public WebServiceResponseWrapper receiving(@PathVariable("receiptID") int receiptID,
+                                               @PathVariable("receiptLineID") int receiptLineID,
+                                               @RequestParam("location") String location,
+                                               @RequestParam("quantity") int quantity,
+                                               @RequestParam("itemFootprint") int itemFootprintID,
+                                               @RequestParam("inventoryStatus") String inventoryStatus,
+                                               @RequestParam(value = "lpn", required = false) String lpn,
+                                               @RequestParam("putawayWork") boolean generatePutawayWork) {
+
+        ReceiptLine receiptLine = receiptLineService.findByReceiptLineId(receiptLineID);
+        if (receiptLine == null) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't find the receipt line by id: " + receiptLineID);
+        }
+
+        Inventory inventory = receiptService.receiving(receiptLine,location,quantity,itemFootprintID,
+                                                       inventoryStatus,lpn,generatePutawayWork);
+
+        return new WebServiceResponseWrapper<Inventory>(0, "", inventory);
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value="/ws/inbound/receipt/lines/{receiptLineID}/inventory")
+    public WebServiceResponseWrapper getReceivedInventoryByReceiptLine(@PathVariable("receiptLineID") int receiptLineID) {
+
+        ReceiptLine receiptLine = receiptLineService.findByReceiptLineId(receiptLineID);
+        if (receiptLine == null) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't find the receipt line by id: " + receiptLineID);
+        }
+
+        List<Inventory> receivedInventory = receiptService.getReceivedInventoryByReceiptLine(receiptLineID);
+
+        return new WebServiceResponseWrapper<List<Inventory>>(0, "", receivedInventory);
     }
 
 }

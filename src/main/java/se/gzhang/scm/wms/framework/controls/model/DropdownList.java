@@ -44,6 +44,7 @@ public class DropdownList {
     @Column(name = "allow_blank")
     private boolean allowBlankRowFlag;
 
+
     @OneToMany(
             mappedBy = "dropdownList",
             cascade = CascadeType.ALL,
@@ -98,4 +99,5 @@ public class DropdownList {
     public void setDropdownOptions(List<DropdownOption> dropdownOptions) {
         this.dropdownOptions = dropdownOptions;
     }
+
 }

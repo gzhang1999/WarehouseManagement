@@ -55,4 +55,36 @@ public class WebServiceResponseWrapper<T> {
     public static WebServiceResponseWrapper raiseError(int errorCode, String errorMessage) {
         return new WebServiceResponseWrapper(errorCode, errorMessage, "");
     }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
+
+    public Map<String, String> getCustomFields() {
+        return customFields;
+    }
+
+    public void setCustomFields(Map<String, String> customFields) {
+        this.customFields = customFields;
+    }
 }

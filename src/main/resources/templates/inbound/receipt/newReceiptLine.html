@@ -96,19 +96,23 @@
                                         <ul class="row">
                                             <li class="col-xs-6 col-sm-4 col-md-3">
                                                 <span th:text="#{receipt.number}">Receipt Number</span>:
-                                                <span th:text="${addTrailerFlowModel.currentReceipt.number}"></span>
+                                                <span th:if="${addTrailerFlowModel != null}" th:text="${addTrailerFlowModel.currentReceipt.number}"></span>
+                                                <span th:if="${addReceiptFlowModel != null}" th:text="${addReceiptFlowModel.currentReceipt.number}"></span>
                                             </li>
                                             <li class="col-xs-6 col-sm-4 col-md-3">
                                                 <span th:text="#{receipt.externalID}">External ID</span>:
-                                                <span th:text="${addTrailerFlowModel.currentReceipt.externalID}"></span>
+                                                <span th:if="${addTrailerFlowModel != null}" th:text="${addTrailerFlowModel.currentReceipt.externalID}"></span>
+                                                <span th:if="${addReceiptFlowModel != null}" th:text="${addReceiptFlowModel.currentReceipt.externalID}"></span>
                                             </li>
                                             <li class="col-xs-6 col-sm-4 col-md-3">
                                                 <span th:text="#{receipt.purchaseOrderNumber}">Purchase Order Number</span>:
-                                                <span th:text="${addTrailerFlowModel.currentReceipt.purchaseOrderNumber}"></span>
+                                                <span th:if="${addTrailerFlowModel != null}" th:text="${addTrailerFlowModel.currentReceipt.purchaseOrderNumber}"></span>
+                                                <span th:if="${addReceiptFlowModel != null}" th:text="${addReceiptFlowModel.currentReceipt.purchaseOrderNumber}"></span>
                                             </li>
                                             <li class="col-xs-6 col-sm-4 col-md-3">
                                                 <span th:text="#{receipt.supplier}">Supplier</span>:
-                                                <span th:text="${addTrailerFlowModel.currentReceipt.supplier == null ? '' : addTrailerFlowModel.currentReceipt.supplier.description}"></span>
+                                                <span th:if="${addTrailerFlowModel != null}" th:text="${addTrailerFlowModel.currentReceipt.supplier == null ? '' : addTrailerFlowModel.currentReceipt.supplier.description}"></span>
+                                                <span th:if="${addReceiptFlowModel != null}" th:text="${addReceiptFlowModel.currentReceipt.supplier == null ? '' : addReceiptFlowModel.currentReceipt.supplier.description}"></span>
                                             </li>
                                         </ul>
                                     </div>
@@ -157,7 +161,10 @@
                                         <a data-toggle="collapse" href="#receiptLineInfo" aria-expanded="true"
                                            aria-controls="receiptLineInfo" th:text="#{receipt.lines}">Receipt Line Info</a>
                                         <a class="badge badge-success float-right">Totally
-                                            <span class="mx-1" th:text="${receipt != null && receipt.receiptLineList != null} ? ${#lists.size(receipt.receiptLineList)} : '0'"></span>
+                                            <span class="mx-1" th:if="${addTrailerFlowModel != null}"
+                                                  th:text="${addTrailerFlowModel.currentReceipt != null && addTrailerFlowModel.currentReceipt.receiptLineList != null} ? ${#lists.size(addTrailerFlowModel.currentReceipt.receiptLineList)} : '0'"></span>
+                                            <span class="mx-1" th:if="${addReceiptFlowModel != null}"
+                                                  th:text="${addReceiptFlowModel.currentReceipt != null && addReceiptFlowModel.currentReceipt.receiptLineList != null} ? ${#lists.size(addReceiptFlowModel.currentReceipt.receiptLineList)} : '0'"></span>
                                             Lines
                                         </a>
                                     </h5>
@@ -179,9 +186,24 @@
                                                     <td></td>
                                                 </tr>
                                             </thead>
-                                            <tbody th:if="${addTrailerFlowModel.getCurrentReceiptLinesList() != null and addTrailerFlowModel.getCurrentReceiptLinesList().size() > 0}">
+                                            <tbody th:if="${addTrailerFlowModel != null and addTrailerFlowModel.getCurrentReceiptLinesList() != null and addTrailerFlowModel.getCurrentReceiptLinesList().size() > 0}">
                                                 <tr th:each="receiptLine : ${addTrailerFlowModel.getCurrentReceiptLinesList()}" th:if="${not #strings.isEmpty(receiptLine.lineNumber)}">
                                                     <td th:text="${addTrailerFlowModel.currentReceipt.number}"></td>
+                                                    <td th:text="${receiptLine.lineNumber}" data-fieldname="lineNumber"></td>
+                                                    <td th:text="${receiptLine.externalID}" data-fieldname="externalID"></td>
+                                                    <td th:text="${receiptLine.item.name}" data-fieldname="item"></td>
+                                                    <td th:text="${receiptLine.item.description}" ></td>
+                                                    <td th:text="${receiptLine.expectedQuantity}" data-fieldname="expectedQuantity"></td>
+                                                    <td th:text="${receiptLine.inventoryStatus.name}" data-fieldname="inventoryStatus"></td>
+                                                    <td>
+                                                        <button type="submit" class="btn btn-sm btn-danger btn-remove-row"  name="_eventId_removeReceiptLine" th:data-receiptlinenumber="${receiptLine.lineNumber}" th:text="#{remove}">
+                                                            Remove</button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            <tbody th:if="${addReceiptFlowModel != null and addReceiptFlowModel.getCurrentReceipt() != null and addReceiptFlowModel.getCurrentReceipt().getReceiptLineList() != null and addReceiptFlowModel.getCurrentReceipt().getReceiptLineList().size() > 0}">
+                                                <tr th:each="receiptLine : ${addReceiptFlowModel.getCurrentReceipt().getReceiptLineList()}" th:if="${not #strings.isEmpty(receiptLine.lineNumber)}">
+                                                    <td th:text="${addReceiptFlowModel.currentReceipt.number}"></td>
                                                     <td th:text="${receiptLine.lineNumber}" data-fieldname="lineNumber"></td>
                                                     <td th:text="${receiptLine.externalID}" data-fieldname="externalID"></td>
                                                     <td th:text="${receiptLine.item.name}" data-fieldname="item"></td>
@@ -207,11 +229,16 @@
                         <div class="card-footer">
                             <button type="submit" class="btn btn-sm btn-primary" name="_eventId_previous" th:text="#{step.previous}">
                                 <i class="fa fa-dot-circle-o"></i> Previous</button>
-                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_moreReceipt" th:text="#{step.flow.trailer.saveAndMoreReceipt}">
+                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_moreReceipt" th:if="${addTrailerFlowModel != null}"
+                                    th:text="#{step.flow.trailer.saveAndMoreReceipt}">
                                 <i class="fa fa-dot-circle-o"></i> Next</button>
                             <button type="submit" class="btn btn-sm btn-primary" name="_eventId_saveReceiptLine" th:text="#{step.flow.trailer.saveAndMoreReceiptLine}">
                                 <i class="fa fa-dot-circle-o"></i> Next</button>
-                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_confirmTrailer" th:text="#{step.flow.trailer.saveAndConfirmTrailer}">
+                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_confirmTrailer"  th:if="${addTrailerFlowModel != null}"
+                                    th:text="#{step.flow.trailer.saveAndConfirmTrailer}" >
+                                <i class="fa fa-dot-circle-o"></i> Next</button>
+                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_confirmReceipt"  th:if="${addReceiptFlowModel != null}"
+                                    th:text="#{step.flow.trailer.saveAndConfirmReceipt}" >
                                 <i class="fa fa-dot-circle-o"></i> Next</button>
                         </div>
 

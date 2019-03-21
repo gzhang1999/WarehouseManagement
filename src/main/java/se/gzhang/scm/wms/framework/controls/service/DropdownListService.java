@@ -19,8 +19,10 @@
 package se.gzhang.scm.wms.framework.controls.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import se.gzhang.scm.wms.common.model.EnumWithDescription;
 import se.gzhang.scm.wms.framework.controls.model.DropdownList;
 import se.gzhang.scm.wms.framework.controls.model.DropdownOption;
@@ -29,8 +31,10 @@ import se.gzhang.scm.wms.framework.controls.repository.DropdownListRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service("dropdownListService")
 public class DropdownListService {
@@ -40,7 +44,8 @@ public class DropdownListService {
     private EntityManagerFactory entityManagerFactory;
 
     @Cacheable("dropdownList")
-    public DropdownList findByVariable(String variable){
+    public DropdownList findByVariable(String variable,
+                                       Map<String, String> parameters){
         DropdownList dropdownList = dropdownListRepository.findByVariable(variable);
 
         // Check if we need to get the options from database table or
@@ -49,7 +54,7 @@ public class DropdownListService {
             if (dropdownList.getCommand() != null
                 && !dropdownList.getCommand().equals("")) {
                 // Let's execute the SQL and construct another list of dropdown options
-                dropdownList.setDropdownOptions(getDropdownOptionsFromSQL(dropdownList));
+                dropdownList.setDropdownOptions(getDropdownOptionsFromSQL(dropdownList, parameters));
             }
             else if(dropdownList.getEnumClass() != null
                     && !dropdownList.getEnumClass().equals("")) {
@@ -60,10 +65,25 @@ public class DropdownListService {
         return dropdownList;
     }
 
-    private List<DropdownOption> getDropdownOptionsFromSQL(DropdownList dropdownList) {
+    @CacheEvict(value="dropdownList",allEntries=true)
+    public void evictCache() {
+        // evict all caches
+    }
+
+    private List<DropdownOption> getDropdownOptionsFromSQL(DropdownList dropdownList, Map<String, String> parameters) {
         String sqlCommand = dropdownList.getCommand();
+        if (!parameters.isEmpty()) {
+            sqlCommand += " where ";
+            for(Map.Entry<String, String> entry : parameters.entrySet()) {
+                sqlCommand += entry.getKey() + " = '" + entry.getValue() + "' and " ;
+            }
+            if (sqlCommand.endsWith(" and ")) {
+                sqlCommand = sqlCommand.substring(0, sqlCommand.lastIndexOf(" and "));
+            }
+        }
         EntityManager session = entityManagerFactory.createEntityManager();
         try {
+            System.out.println(">>>>>>>  Start to execute SQL: " + sqlCommand);
             List<DropdownOption> dropdownOptionList = session.createNativeQuery(sqlCommand, DropdownOption.class)
                     .getResultList();
 

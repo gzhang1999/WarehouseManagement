@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+                          http://www.springframework.org/schema/webflow/spring-webflow.xsd">
+
+    <!-- returning and adding inside flow addLocationFlowModel instance -->
+    <on-start>
+        <evaluate expression="addReceiptFlowHandler.init()"
+                  result="flowScope.addReceiptFlowModel" />
+    </on-start>
+
+    <view-state id="addReceipt" view="inbound/receipt/new" model="flowScope.addReceiptFlowModel">
+        <on-render>
+            <set name="viewScope.applicationID" value="'Inbound'" type="java.lang.String"></set>
+            <set name="viewScope.formID" value="'Receipt'" type="java.lang.String"></set>
+            <set name="viewScope.flowID" value="'Receipt.new'" type="java.lang.String"></set>
+        </on-render>
+        <transition on="saveReceipt" to="saveReceipt" />
+        <transition on="previous"  to="home" />
+    </view-state>
+
+    <!-- Step 1.1: save the trailer information  -->
+    <action-state id="saveReceipt">
+        <evaluate expression="addReceiptFlowHandler.saveReceipt(flowScope.addReceiptFlowModel, requestParameters, externalContext.nativeRequest.session)" />
+        <transition to="setupReceiptLine" />
+    </action-state>
+
+    <view-state id="setupReceiptLine" view="inbound/receipt/newReceiptLine"  model="flowScope.addReceiptFlowModel">
+        <on-render>
+            <set name="viewScope.applicationID" value="'Inbound'" type="java.lang.String"></set>
+            <set name="viewScope.formID" value="'Receipt'" type="java.lang.String"></set>
+            <set name="viewScope.flowID" value="'Receipt.Line'" type="java.lang.String"></set>
+        </on-render>
+        <transition on="saveReceiptLine"  to="saveReceiptLine" />
+        <transition on="confirmReceipt"  to="saveReceiptLineAndConfirmReceipt" />
+        <transition on="previous"  to="setupReceipt" />
+        <transition on="removeReceiptLine"  to="removeReceiptLine" />
+    </view-state>
+
+    <action-state id="saveReceiptLineAndConfirmReceipt">
+        <evaluate expression="addReceiptFlowHandler.saveReceiptLine(flowScope.addReceiptFlowModel, requestParameters)" />
+        <transition to="confirmReceipt" />
+    </action-state>
+
+    <action-state id="removeReceiptLine">
+        <evaluate expression="addReceiptFlowHandler.removeReceiptLine(flowScope.addReceiptFlowModel, requestParameters)" />
+        <transition to="setupReceiptLine" />
+    </action-state>
+
+    <action-state id="saveReceiptLine">
+        <evaluate expression="addReceiptFlowHandler.saveReceiptLine(flowScope.addReceiptFlowModel, requestParameters)" />
+        <transition to="setupReceiptLine" />
+    </action-state>
+
+    <view-state id="confirmReceipt" view="inbound/receipt/confirm"  model="flowScope.addReceiptFlowModel">
+        <on-render>
+            <set name="viewScope.applicationID" value="'Inbound'" type="java.lang.String"></set>
+            <set name="viewScope.formID" value="'Receipt'" type="java.lang.String"></set>
+            <set name="viewScope.flowID" value="'Receipt.Confirm'" type="java.lang.String"></set>
+        </on-render>
+        <transition on="serializeReceipt"  to="serializeReceipt" />
+        <transition on="previous"  to="setupReceiptLine" />
+    </view-state>
+    <action-state id="serializeReceipt">
+        <evaluate expression="addReceiptFlowHandler.serializeReceipt(flowScope.addReceiptFlowModel)" />
+        <transition to="success" />
+    </action-state>
+
+    <!-- end state -->
+    <end-state id="success" view="externalRedirect:contextRelative:/inbound/receipt?id=#{flowScope.addReceiptFlowModel.currentReceipt.id}" />
+    <end-state id="home" view="externalRedirect:contextRelative:/inbound/receipt" />
+
+    <!-- Global Transition -->
+    <global-transitions>
+        <transition on="home" to="home" validate="false" />
+    </global-transitions>
+
+
+
+</flow>

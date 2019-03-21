@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import se.gzhang.scm.wms.authorization.service.UserService;
 import se.gzhang.scm.wms.configuration.service.PolicyService;
 import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.inbound.model.ReceiptLine;
 import se.gzhang.scm.wms.inventory.model.Inventory;
 import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.inventory.model.ItemFootprint;
@@ -192,6 +193,11 @@ public class InventoryService {
 
                 if(criteriaList.containsKey("lpn") && !criteriaList.get("lpn").isEmpty()) {
                     predicates.add(criteriaBuilder.equal(root.get("lpn"), criteriaList.get("lpn")));
+                }
+                if(criteriaList.containsKey("receiptLineID") && !criteriaList.get("receiptLineID").isEmpty()) {
+                    Join<Inventory, ReceiptLine> joinReceiptLine = root.join("receiptLine",JoinType.INNER);
+                    predicates.add(criteriaBuilder.equal(joinReceiptLine.get("id"), criteriaList.get("receiptLineID")));
+
                 }
 
                 if ((criteriaList.containsKey("itemName") && !criteriaList.get("itemName").isEmpty()) ||

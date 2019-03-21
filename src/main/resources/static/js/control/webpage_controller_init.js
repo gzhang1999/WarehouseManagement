@@ -199,29 +199,70 @@ var dropdownListCache = {
     }
 };
 
-var loadDropdownList = function() {
+var initDropdownLists = function() {
     $('select').each(function(){
         var variable = $(this).data("variable");
+
         if (variable != undefined && variable != "") {
-            // Call AJAX to load the content of the dropdown list
-            // from webservice or cache
-            loadDropdownListContent(variable)
-
-            // Register a keydown action so when the user press F5,
-            // we will clear cache and reload the content from web service
-            $(this).keydown(function(event){
-                // F5 code = 116
-                if(event.which == 116) {
-                    // We won't refresh the whole page
-                    event.preventDefault();
-                    loadDropdownListContentExcludeCache(variable);
-                }
-
-            })
+            var selectionControl = $(this);
+            loadDropdownList(selectionControl, true, true);
          }
     });
 }
 
+var loadDropdownList = function(selectionControl, registerEventOnFilterVariable, loadFromCache) {
+    var variable = selectionControl.data("variable");
+    var cacheKey = variable;
+    var parameters = "";
+
+    if (loadFromCache == false) {
+        parameters += "cache=false";
+    }
+
+    // check if we need to filter this dropdown list by values
+    // from other controls
+    if (selectionControl.data("filter-variable")) {
+        var filterVariables = selectionControl.data("filter-variable");
+        var filterVariableArray = filterVariables.split(",");
+
+        if (filterVariableArray.length > 0) {
+            $.each(filterVariableArray, function(index, value) {
+                var filterVariableName = value;
+                if($("#" + filterVariableName).val()) {
+                    var filterVariableValue = $("#" + filterVariableName).val();
+                    var filterVariableParameterName = $("#" + filterVariableName).prop("name") ?
+                                                      $("#" + filterVariableName).prop("name") : $("#" + filterVariableName).prop("id");
+                    parameters = parameters + filterVariableParameterName + "=" + filterVariableValue + "&";
+                }
+
+                // every time the filter variable changed, let's refresh the current auto complete
+                // control's valid options
+                if (registerEventOnFilterVariable) {
+                    $("#" + filterVariableName).focusout(function(event){
+                        loadDropdownList(selectionControl, false);
+                    });
+                }
+            });
+        }
+    }
+
+    // Call AJAX to load the content of the dropdown list
+    // from webservice or cache
+    loadDropdownListContent(selectionControl.prop("id"), variable, parameters, loadFromCache);
+
+    // Register a keydown action so when the user press F5,
+    // we will clear cache and reload the content from web service
+    selectionControl.keydown(function(event){
+        // F5 code = 116
+        if(event.which == 116) {
+            // We won't refresh the whole page
+            event.preventDefault();
+            loadDropdownList(variable, false, false);
+        }
+    });
+}
+
+/**************
 var loadDropdownListContentExcludeCache = function(variable) {
     var url = '/ws/control/dropdown/' + variable + "?cache=false";
     $.ajax({
@@ -232,28 +273,34 @@ var loadDropdownListContentExcludeCache = function(variable) {
     });
 
 }
-var loadDropdownListContent = function(variable) {
+**************/
+
+var loadDropdownListContent = function(dropdownListID, variable, parameters, loadFromCache) {
     var url = '/ws/control/dropdown/' + variable;
+    if (parameters.length > 0) {
+        url += "?" + parameters;
+    }
+    console.log("start to load content for selection: " + dropdownListID + "\n >> URL: " + url);
     $.ajax({
         url:url,
         beforeSend: function() {
-            if (dropdownListCache.exist(url)) {
+            if (dropdownListCache.exist(url) && loadFromCache != false) {
                 var data = dropdownListCache.get(url);
-                renderSelection(data.variable, data);
+                renderSelection(dropdownListID, data.variable, data);
                 return false;
             }
             return true;
         }
     }).done(function( res ) {
-        renderSelection(res.data.variable, res.data);
+        renderSelection(dropdownListID, res.data.variable, res.data);
         dropdownListCache.set(url, res.data);
     });
 
 }
 
-var renderSelection = function(variable, data) {
+var renderSelection = function(dropdownListID, variable, data) {
 
-    var selectionControls = $('select[data-variable="' + variable + '"]');
+    var selectionControls = $("#" + dropdownListID);
     if(selectionControls.length != 0) {
         selectionControls.each(function(){
             var selectionControl = $(this);
@@ -364,40 +411,74 @@ var initAutoCompleteControls = function() {
     if(inputForAutoComplete.length != 0) {
         inputForAutoComplete.each(function(){
             var inputControl = $(this);
-            var variable = inputControl.data("variable");
-            // If we already have the variable in cache, then
-            // load from cache. Otherwise, get from
-            // server
-            if (autoCompleteCache.exist(variable)) {
-                inputControl.autocomplete({
-                    source: autoCompleteCache.get(variable)
-                });
-            }
-            else {
-                var url = '/ws/control/autocomplete/' + variable;
-                $.ajax({
-                    url:url,
-                    variable:variable
-                }).done(function( res ) {
+            loadAutoComplete(inputControl, true);
+        });
+    }
+}
 
-                    var matchControls = $("input[data-autocomplete]").filter(function () {
-                        return $.trim($(this).data("autocomplete")) != '' && $(this).data("variable") == variable;
+var loadAutoComplete = function(inputControl, registerEventOnFilterVariable) {
+
+    var variable = inputControl.data("variable");
+
+    // We will get the data from web service and save it
+    // in local cache
+    var cacheKey = variable;
+    var url = '/ws/control/autocomplete/' + variable;
+
+    if (inputControl.data("filter-variable")) {
+        var filterVariables = inputControl.data("filter-variable");
+        var filterVariableArray = filterVariables.split(",");
+
+        if (filterVariableArray.length > 0) {
+            cacheKey = cacheKey + "#";
+            url = url + "?";
+
+            $.each(filterVariableArray, function(index, value) {
+                var filterVariableName = value;
+                if($("#" + filterVariableName).val()) {
+                    var filterVariableValue = $("#" + filterVariableName).val();
+                    var filterVariableParameterName = $("#" + filterVariableName).prop("name") ?
+                                           $("#" + filterVariableName).prop("name") : $("#" + filterVariableName).prop("id");
+                    cacheKey = cacheKey + filterVariableParameterName + "=" + filterVariableValue + "&";
+                    url = url + filterVariableParameterName + "=" + filterVariableValue + "&";
+                }
+
+                // every time the filter variable changed, let's refresh the current auto complete
+                // control's valid options
+                if (registerEventOnFilterVariable) {
+                    $("#" + filterVariableName).focusout(function(event){
+                        loadAutoComplete(inputControl, false);
                     });
+                }
+            });
+        }
+    }
 
-                    if(matchControls.length != 0) {
-                        matchControls.each(function(){
+    if (autoCompleteCache.exist(cacheKey)) {
+        inputControl.autocomplete({
+            source: autoCompleteCache.get(cacheKey)
+        });
+    }
+    else {
+        $.ajax({
+            url:url,
+            variable:variable,
+            cacheKey:cacheKey
+        }).done(function( res ) {
 
-                            $(this).autocomplete({
-                                source: res.data
-                            });
-                        });
-                    }
-                    autoCompleteCache.set(variable, res.data);
+            var matchControls = $("input[data-autocomplete]").filter(function () {
+                return $.trim($(this).data("autocomplete")) != '' && $(this).data("variable") == variable;
+            });
+
+            if(matchControls.length != 0) {
+                matchControls.each(function(){
+
+                    $(this).autocomplete({
+                        source: res.data
+                    });
                 });
-
             }
-
-
+            autoCompleteCache.set(cacheKey, res.data);
         });
 
     }
@@ -505,12 +586,29 @@ var getLookupModalHtml = function(id, data) {
                        "                       </thead> " +
                        "                       <tbody> ";
 
+    // check if we need to return any value other than the lookup variable
+    var lookupRelatedControl = $('[data-lookup="' + id + '"]');
+
     $.each(data.resultSet.data, function(index, row){
         lookupModalHtml += " <tr> ";
 
+
+        var param = "";
+        if(lookupRelatedControl.length != 0) {
+            lookupRelatedControl.each(function(){
+                var relatedControlID = lookupRelatedControl.prop("id");
+                var relatedControlVariableName = lookupRelatedControl.data("variable");
+                $.each(data.resultSet.columns, function(index, column){
+                    if (column.columnName == relatedControlVariableName) {
+                        param += relatedControlID + "=" + row[column.columnName] + ";";
+                    }
+                });
+            });
+        }
+
         $.each(data.resultSet.columns, function(index, column){
             if (column.columnName == data.returnColumn) {
-                lookupModalHtml += "<td><a href='#' onclick='lookupSelect(\"" + id + "\", \"" + row[column.columnName] + "\")'>" + row[column.columnName] + "</a></td>";
+                lookupModalHtml += "<td><a href='#' onclick='lookupSelect(\"" + id + "\", \"" + row[column.columnName] + "\", \"" + param + "\")'>" + row[column.columnName] + "</a></td>";
             }
             else {
                 lookupModalHtml += "<td>" + row[column.columnName] + "</td>";
@@ -528,8 +626,26 @@ var getLookupModalHtml = function(id, data) {
                       "</div>";
     return lookupModalHtml
 }
-var lookupSelect = function(id, value) {
+var lookupSelect = function(id, value, parameters) {
     $("#" + id).val(value);
+    // Parameters is in the format of a list fo key=value,
+    // separated by ;
+    if (parameters != ""){
+        var parameterArray = parameters.split(";");
+        $.each(parameterArray, function(index, parameter){
+            if (parameter != "") {
+                var keyValuePair = parameter.split("=");
+                // only continue when it is key=value
+                // key is the id of the control and
+                // value is the value we would like to fill into the control
+                if (keyValuePair.size == 2) {
+                    var key = keyValuePair[0];
+                    var value = keyValuePair[1];
+                    $("#" + key).val(value);
+                }
+            }
+        });
+    }
     $("#lookupModal").modal("hide");
 }
 $(document).ready( function () {
@@ -544,7 +660,7 @@ $(document).ready( function () {
     // Init checkbox to be tri-state checkbox
     initCheckBox();
 
-    loadDropdownList();
+    initDropdownLists();
 
     initValidation();
 

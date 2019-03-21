@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                        <div class="card-header" >
+                            <h5>
+                                <a class="badge badge-success float-right" th:href="@{'~' + ${flowExecutionUrl} + '&_eventId_home'}" th:text="#{flow.return.home}" >Return Hom</a>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Display the trailer and its receipt if we are from 'creating trailer' process -->
+                            <div class="card" th:if="${receivingFlowModel.receipt.trailer != null}">
+                                <div class="card-body">
+                                    <ul class="row">
+                                        <li class="col-xs-6 col-sm-4 col-md-3">
+                                            <span th:text="#{trailer.number}">Trailer Number</span>:
+                                            <span th:text="${receivingFlowModel.receipt.trailer.trailerNumber}"></span>
+                                        </li>
+                                        <li class="col-xs-6 col-sm-4 col-md-3">
+                                            <span th:text="#{trailer.type}">Type</span>:
+                                            <span th:text="${receivingFlowModel.receipt.trailer.trailerType}"></span>
+                                        </li>
+                                        <li class="col-xs-6 col-sm-4 col-md-3">
+                                            <span th:text="#{trailer.driver}">Driver</span>:
+                                            <span th:text="${receivingFlowModel.receipt.trailer.driver}"></span>
+                                        </li>
+                                        <li class="col-xs-6 col-sm-4 col-md-3">
+                                            <span th:text="#{trailer.driver.telephone}">Driver Telephone</span>:
+                                            <span th:text="${receivingFlowModel.receipt.trailer.driverTelephone}"></span>
+                                        </li>
+                                        <li class="col-xs-6 col-sm-4 col-md-3">
+                                            <span th:text="#{trailer.licensePlate}">License Plate</span>:
+                                            <span th:text="${receivingFlowModel.receipt.trailer.licensePlate}"></span>
+                                        </li>
+                                        <li class="col-xs-6 col-sm-4 col-md-3">
+                                            <span th:text="#{carrier}">carrier</span>:
+                                            <span th:text="${receivingFlowModel.receipt.trailer.carrier.description}"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- Display all the receipts information -->
+                            <div class="card" >
+                                <div class="card-body">
+                                    <ul class="row">
+                                        <li class="col-xs-6 col-sm-4 col-md-3">
+                                            <span th:text="#{receipt.number}">Receipt Number</span>:
+                                            <span th:text="${receivingFlowModel.receipt.number}"></span>
+                                        </li>
+                                        <li class="col-xs-6 col-sm-4 col-md-3">
+                                            <span th:text="#{receipt.externalID}">Receipt External ID</span>:
+                                            <span th:text="${receivingFlowModel.receipt.externalID}"></span>
+                                        </li>
+                                        <li class="col-xs-6 col-sm-4 col-md-3">
+                                            <span th:text="#{receipt.purchaseOrderNumber}">Receipt Purchase Order Number</span>:
+                                            <span th:text="${receivingFlowModel.receipt.purchaseOrderNumber}"></span>
+                                        </li>
+                                        <li class="col-xs-6 col-sm-4 col-md-3">
+                                            <span th:text="#{supplier}">Supplier</span>:
+                                            <span th:text="${receivingFlowModel.receipt.supplier.name}"></span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="card" >
+                                <div class="card-header">
+                                    <span th:text="#{message.receiving.displayReceivedInventory}" class="mr-4"></span>
+                                    <input type="radio" id="collapse" name="showInventoryDetail" value="collapse" class="ml-2"
+                                           checked >
+                                    <label for="collapse" th:text="#{collapse}" class="ml-1">Collapse all</label>
+                                    <input type="radio" id="expand" name="showInventoryDetail" value="expand" class="ml-2"
+                                           >
+                                    <label for="expand" th:text="#{expand}" class="ml-1">Expand all</label>
+                                </div>
+                                <div class="card-body">
+                                    <table id = "receiptLineTable" class="table table-striped table-bordered display nowrap" style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
+                                        <thead>
+                                        <tr>
+                                            <td th:text="#{receipt.line.id}">Receipt Line ID</td>
+                                            <td th:text="#{receipt.line.externalID}">Receipt Line External ID</td>
+                                            <td th:text="#{receipt.line.number}">Receipt Line Number</td>
+                                            <td th:text="#{item}">Item Number</td>
+                                            <td th:text="#{item.description}">Item Description</td>
+                                            <td th:text="#{receipt.line.inventoryStatus}">Expected Inventory Status</td>
+                                            <td th:text="#{receipt.line.expectedQuantity}">Expected Quantity</td>
+                                            <td th:text="#{receipt.line.receivedQuantity}">Received Quantity</td>
+                                            <td></td>
+                                        </tr>
+                                        </thead>
+                                        <tbody th:if="${receivingFlowModel.receipt.receiptLineList != null and not #lists.isEmpty(receivingFlowModel.receipt.receiptLineList)}">
+                                        <tr  th:each="receiptLine : ${receivingFlowModel.receipt.receiptLineList}"
+                                             th:id="${'row_' + receiptLine.id}" th:data-receiptlineid="${receiptLine.id}">
+                                            <td th:text="${receiptLine.id}"></td>
+                                            <td th:text="${receiptLine.externalID}"></td>
+                                            <td th:text="${receiptLine.lineNumber}"></td>
+                                            <td>
+                                                <span th:if="${receiptLine.item != null}" th:text="${receiptLine.item.name}"></span>
+                                            </td>
+                                            <td>
+                                                <span th:if="${receiptLine.item != null}" th:text="${receiptLine.item.description}"></span>
+                                            </td>
+                                            <td th:text="${receiptLine.inventoryStatus.name}"></td>
+                                            <td th:text="${receiptLine.expectedQuantity}"></td>
+                                            <td>
+                                                <a href='#'>
+                                                    <span th:text="${receiptLine.receivedQuantity}" th:id="${'showReceivedInventory_' + receiptLine.id}"
+                                                          th:data-receiptlineid="${receiptLine.id}" onclick='showReceivedInventoryDetail(event)'
+                                                    ></span>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#receivingModal'
+                                                        th:text="#{button.display.receiving}"
+                                                        th:data-receiptlineid="${receiptLine.id}" th:data-receiptid="${receivingFlowModel.receipt.id}"
+                                                        th:data-itemname="${receiptLine.item.name}" th:data-itemid="${receiptLine.item.id}"
+                                                        th:data-itemdescription="${receiptLine.item.description}"></button>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a class="btn btn-primary" th:href="@{'~' + ${flowExecutionUrl} + '&_eventId_home'}" th:text="#{step.complete}" >Complete</a>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for receiving inventory -->
+    <div class="modal fade" id="receivingModal" tabindex="-1" role="dialog" aria-labelledby="receivingModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="receivingModalLabel" th:text="#{receiving}">Receiving</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="receivingModalErrorMessage"></div>
+                    <form>
+                        <div class="row" >
+                            <div class="col-md-4">
+                                <label for="receivingModalReceiptID" class="col-form-label" th:text="#{receipt.id}">Receipt ID:</label>
+                                <input type="text" class="form-control" id="receivingModalReceiptID" readonly>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="receivingModalReceiptLineID" class="col-form-label" th:text="#{receipt.line.id}">Receipt Line:</label>
+                                <input type="text" class="form-control" id="receivingModalReceiptLineID" readonly>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="receivingModalItem" class="col-form-label" th:text="#{item.id}">Item:</label>
+                                <input type="text" class="form-control" id="receivingModalItem" name="item_id" readonly>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="receivingModalItemName" class="col-form-label" th:text="#{item.name}">Item:</label>
+                                <input type="text" class="form-control" id="receivingModalItemName" name="itemName" readonly>
+                            </div>
+                            <div class="col-md-8">
+                                <label for="receivingModalItemDescription" class="col-form-label" th:text="#{item.description}">Item Description:</label>
+                                <input type="text" class="form-control" id="receivingModalItemDescription" readonly >
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label for="receivingModalItemFootprint" class="col-form-label" th:text="#{item.footprint}">Item:</label>
+                                <select class="form-control" id="receivingModalItemFootprint" name="itemFootprint"
+                                        data-variable="itemFootprint" data-filter-variable="receivingModalItem"> </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="receivingModalArea" class="col-form-label" th:text="#{area}">Area:</label>
+                                <select class="form-control" id="receivingModalArea" name="area_id" data-variable="area" ></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="receivingModalLocation" class="col-form-label" th:text="#{location}">Location:</label>
+                                <input type="text" class="form-control" id="receivingModalLocation" data-autocomplete=true
+                                       data-variable="location" data-filter-variable="receivingModalArea">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="receivingModalQuantity" class="col-form-label" th:text="#{quantity}">Quantity:</label>
+                                <input type="text" class="form-control" id="receivingModalQuantity">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="receivingModalInventoryStatus" class="col-form-label" th:text="#{inventory.inventoryStatus}">Inventory Status:</label>
+                                <select class="form-control" id="receivingModalInventoryStatus" name="inventoryStatus" data-variable="inventoryStatus"> </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="receivingModalLPN" class="col-form-label" th:text="#{lpn}">LPN:</label>
+                                <input type="text" class="form-control" id="receivingModalLPN">
+                            </div>
+                            <div class="col-md-6 align-middle py-3" >
+                                <input type="checkbox" id ="receivingModalPutawayWork">
+                                <label for="receivingModalPutawayWork" class="col-form-label" th:text="#{message.receiving.putawayWork}">Generate Putaway Work:</label>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="receivingModalReceivingConfirm" th:text="#{confirm}">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<!--
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+    -->
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+
+    $('#receivingModal').on('show.bs.modal', function (event) {
+        clearReceivingModal();
+        var button = $(event.relatedTarget);
+        var receiptID = button.data("receiptid");
+        var receiptLineID = button.data("receiptlineid");
+        var itemID = button.data("itemid");
+        var itemName = button.data("itemname");
+        var itemDescription = button.data("itemdescription");
+
+        $("#receivingModalReceiptID").val(receiptID);
+        $("#receivingModalReceiptLineID").val(receiptLineID);
+        $("#receivingModalItem").val(itemID);
+        $("#receivingModalItemName").val(itemName);
+        $("#receivingModalItemDescription").val(itemDescription);
+
+        // after setup the item name, let's refresh the
+        // item footprint to filter by this specific item
+        var selectionControl = $("#receivingModalItemFootprint")
+        loadDropdownList(selectionControl, false, true);
+    })
+
+    var clearReceivingModal = function() {
+        $("#receivingModalReceiptID").val("");
+        $("#receivingModalReceiptLineID").val("");
+        $("#receivingModalItem").val("");
+        $("#receivingModalItemName").val("");
+        $("#receivingModalItemDescription").val("");
+        $("#receivingModalItemFootprint").val("");
+        $("#receivingModalArea").val("");
+        $("#receivingModalLocation").val("");
+        $("#receivingModalQuantity").val("");
+        $("#receivingModalInventoryStatus").val("");
+        $("#receivingModalLPN").val("");
+        $("#receivingModalPutawayWork").prop("checked", false);
+        $("#receivingModalErrorMessage").text("");
+    }
+
+    $('#receivingModalReceivingConfirm').click(function(){
+        var receiptLineID = $('#receivingModalReceiptLineID').val();
+        var receiptID = $('#receivingModalReceiptID').val();
+        var url = "/ws/inbound/receipt/" + receiptID + "/lines/" + receiptLineID + "/receiving";
+
+        $.ajax({
+            method:"POST",
+            url : url,
+            receiptLineID : receiptLineID,
+            data:{
+                 receiptLineID: receiptLineID,
+                 location: $('#receivingModalLocation').val(),
+                 quantity: $('#receivingModalQuantity').val(),
+                 itemFootprint: $('#receivingModalItemFootprint').val(),
+                 inventoryStatus: $('#receivingModalInventoryStatus').val(),
+                 lpn:  $('#receivingModalLPN').val(),
+                 putawayWork: $("#receivingModalPutawayWork").prop("checked")
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+
+                $('#receivingModalErrorMessage').text('');
+
+                $('#receivingModal').modal('toggle');
+
+                // Refresh to show the received inventory
+                refreshReceivedInventoryDisplay(receiptLineID, res.data.quantity);
+            }
+            else{
+                $('#receivingModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+    $("input[name='showInventoryDetail']").change(function(){
+        if($(this).val() == "expand") {
+            expandAllReceivedInventory();
+        }
+        else {
+            collapseAllReceivedInventory();
+        }
+    });
+    $("input[name='showInventoryDetail']").click(function(){
+        if($(this).val() == "collapse") {
+            collapseAllReceivedInventory();
+        }
+    });
+
+    // Function to display the received inventory for all lines(when the user choose
+    // the option of 'expand all')
+    var expandAllReceivedInventory = function() {
+        var table = $("#receiptLineTable").DataTable();
+
+        // expand all rows
+        table.rows().every(function(rowIdx, tableLoop, rowLoop) {
+            var row = table.row(rowIdx);
+            var tr = row.node();
+            var receiptLineID = $(tr).data("receiptlineid");
+            displayReceivedInventoryDetail(receiptLineID, false, true);
+        });
+
+    }
+
+    // Function to display the received inventory for all lines(when the user choose
+    // the option of 'expand all')
+    var collapseAllReceivedInventory = function() {
+        var table = $("#receiptLineTable").DataTable();
+
+        // Close all rows
+        table.rows().every(function(rowIdx, tableLoop, rowLoop) {
+            if (this.child.isShown()) {
+                this.child.hide();
+                var trNode = this.node();
+                $(trNode).removeClass('shown');
+            }
+        });
+
+        table.columns.adjust();
+    }
+
+    var refreshReceivedInventoryDisplay = function(receiptLineID, quantity) {
+
+        displayReceivedInventoryDetail(receiptLineID, true, true);
+
+        var receivedQuantity = parseInt($("#showReceivedInventory_" + receiptLineID).text());
+        receivedQuantity += quantity;
+        $("#showReceivedInventory_" + receiptLineID).text(receivedQuantity);
+
+    }
+
+    var showReceivedInventoryDetail = function(event) {
+        var control = $(event.target);
+        var receiptLineID = control.data("receiptlineid");
+        displayReceivedInventoryDetail(receiptLineID, true, false);
+    }
+
+    var displayReceivedInventoryDetail = function(receiptLineID, closeOtherDisplay, forceShow) {
+        var table = $("#receiptLineTable").DataTable();
+
+        var tr = $("#row_" + receiptLineID);
+        var row = table.row(tr);
+
+        if ( forceShow == false && row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+            table.columns.adjust();
+        }
+        else {
+            if (closeOtherDisplay == true) {
+                // Close all other rows
+                table.rows().every(function(rowIdx, tableLoop, rowLoop) {
+                    if (this.child.isShown()) {
+                        this.child.hide();
+                        var trNode = this.node();
+                        $(trNode).removeClass('shown');
+                    }
+                });
+            }
+
+            var url = "/ws/inbound/receipt/lines/" + receiptLineID + "/inventory";
+            $.ajax({
+                receiptLineID:receiptLineID,
+                url:url
+            }).done(function( res ) {
+                // display this row
+                row.child(formatReceivedInventoryInformation(receiptLineID, res.data)).show();
+                tr.addClass('shown');
+
+                $("#inventoryDisplay-" + receiptLineID).DataTable();
+
+                table.columns.adjust();
+            });
+
+        }
+    }
+
+    var formatReceivedInventoryInformation = function(receiptLineID, receivedInventoryList) {
+        var html = "<ul class='nav nav-tabs' role='tablist'> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link active' data-toggle='tab' href='#inventory' role='tab' aria-controls='inventory'>" + $.i18n("receipt.inventory") + "</a> " +
+                   "    </li> " +
+                   "</ul> " +
+                   "<div class='tab-content'> " +
+                   "    <div class='tab-pane active' id='inventory' role='tabpanel'> " +
+                   getFormatInventoryDisplay(receiptLineID, receivedInventoryList)
+                   "    </div> " +
+                   "</div> ";
+        return html;
+    }
+
+    var getFormatInventoryDisplay = function(receiptLineID, receivedInventoryList) {
+        var inventoryHtml = "<div class='card card-accent-success'> " +
+                               "    <div class='card-body'> " +
+                               "      <div class='row'> " +
+                               "      <div class='col-md-12'> " +
+                               "        <table id='inventoryDisplay-" + receiptLineID + "' class='table table-striped table-bordered display nowrap' style='width:100%' role='grid' data-tabletype='datatable' data-init='true'> " +
+                               "            <thead> " +
+                               "                <tr> " +
+                               "                   <th>" + $.i18n("inventory.location") + "</th> " +
+                               "                   <th>" + $.i18n("inventory.lpn") + "</th> " +
+                               "                   <th>" + $.i18n("item.number") + "</th> " +
+                               "                   <th>" + $.i18n("item.description") + "</th> " +
+                               "                   <th>" + $.i18n("inventory.quantity") + "</th> " +
+                               "                   <th></th> " +
+                               "               </tr> " +
+                               "           </thead> " +
+                               "           <tbody>";
+
+        if (receivedInventoryList.length > 0) {
+            $.each(receivedInventoryList, function(index, inventory) {
+                inventoryHtml    += "  <tr>" +
+                                    "    <td> " + inventory.location.name + "</td> " +
+                                    "    <td> " + inventory.lpn + "</td> ";
+                if (inventory.itemFootprint == undefined || inventory.itemFootprint.item == undefined) {
+                    inventoryHtml +="    <td> </td> " +
+                                    "    <td> </td> ";
+                }
+                else {
+                    inventoryHtml +="    <td>" + inventory.itemFootprint.item.name + " </td> " +
+                                    "    <td>" + inventory.itemFootprint.item.description + "</td> ";
+                }
+                inventoryHtml   +=  "    <td> " + inventory.quantity + "</td> " +
+                                    "    <td></td> " +
+                                    "</tr> ";
+            });
+        }
+
+        inventoryHtml    += "          </tbody> " +
+                            "        </table> " +
+                            "    </div>  " +
+                            "    </div>  " +
+                            "  </div>  " +
+                            "</div>";
+
+
+        return inventoryHtml;
+    }
+
+
+
+</script>
+</body>
+
+</html>

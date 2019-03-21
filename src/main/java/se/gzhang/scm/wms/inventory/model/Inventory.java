@@ -19,6 +19,7 @@
 package se.gzhang.scm.wms.inventory.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import se.gzhang.scm.wms.inbound.model.ReceiptLine;
 import se.gzhang.scm.wms.layout.model.Location;
 
 import javax.persistence.*;
@@ -32,7 +33,7 @@ public class Inventory {
     @Column(name = "inventory_id")
     private Integer id;
 
-    @ManyToOne(cascade={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="item_footprint_id")
     private ItemFootprint itemFootprint;
 
@@ -47,9 +48,14 @@ public class Inventory {
     @Column(name="quantity")
     private int quantity;
 
-    @ManyToOne(cascade={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="inventory_status_id")
     private InventoryStatus inventoryStatus;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="receipt_line_id")
+    private ReceiptLine receiptLine;
+
 
     public Integer getId() {
         return id;
@@ -97,5 +103,13 @@ public class Inventory {
 
     public void setInventoryStatus(InventoryStatus inventoryStatus) {
         this.inventoryStatus = inventoryStatus;
+    }
+
+    public ReceiptLine getReceiptLine() {
+        return receiptLine;
+    }
+
+    public void setReceiptLine(ReceiptLine receiptLine) {
+        this.receiptLine = receiptLine;
     }
 }

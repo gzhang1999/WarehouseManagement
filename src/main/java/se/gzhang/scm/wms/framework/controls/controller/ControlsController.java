@@ -31,6 +31,7 @@ import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class ControlsController {
@@ -44,13 +45,11 @@ public class ControlsController {
     @ResponseBody
     @RequestMapping(value="/ws/control/dropdown/{variable}", method = RequestMethod.GET)
     public WebServiceResponseWrapper getDropdownList(@PathVariable("variable") String variable,
-                                                     @RequestParam(name = "cache", required = false,defaultValue = "true") Boolean readFromCache) {
-        if (readFromCache == false) {
-            // Clear the cache of the dropdown list
-            cacheManager.getCache("dropdownList").evict(variable);
-        }
+                                                     @RequestParam Map<String, String> parameters) {
 
-        DropdownList dropdownList = dropdownListService.findByVariable(variable);
+        parameters = processDropdownListCache(parameters);
+
+        DropdownList dropdownList = dropdownListService.findByVariable(variable, parameters);
 
         if(dropdownList == null) {
             return WebServiceResponseWrapper.raiseError(10002, "Cannot find drop down list content for variable : " + variable);
@@ -67,13 +66,11 @@ public class ControlsController {
     // Auto complete will be treated in the same way as dropdown list but it will only return a list of
     // String
     public WebServiceResponseWrapper getAutoCompleteList(@PathVariable("variable") String variable,
-                                                     @RequestParam(name = "cache", required = false,defaultValue = "true") Boolean readFromCache) {
-        if (readFromCache == false) {
-            // Clear the cache of the dropdown list
-            cacheManager.getCache("dropdownList").evict(variable);
-        }
+                                                         @RequestParam Map<String, String> parameters) {
 
-        DropdownList dropdownList = dropdownListService.findByVariable(variable);
+        parameters = processDropdownListCache(parameters);
+
+        DropdownList dropdownList = dropdownListService.findByVariable(variable, parameters);
 
         List<String> autoCompleteList = new ArrayList<>();
         if (dropdownList != null &&
@@ -100,4 +97,25 @@ public class ControlsController {
 
         return new WebServiceResponseWrapper<LookupTextbox>(0, "", lookupTextbox);
     }
+
+    // Check if the user explicitly specify that we will need to refresh the cache and
+    // load the content again(parameters contains a parameter cache = false)
+    private Map<String, String> processDropdownListCache(Map<String, String> parameters) {
+
+        boolean clearCache = false;
+        if (parameters.containsKey("cache")) {
+            clearCache = (parameters.get("cache").toString().equalsIgnoreCase("false"));
+            // Remove it from the map so that the map only contains the business
+            // related parameters.
+            parameters.remove("cache");
+        }
+
+        // cache, key will be variable#Parameters-1=XXXX&Parameters-2=YYYY
+        if (clearCache == true) {
+            // Clear the cache of the dropdown list
+            dropdownListService.evictCache();
+        }
+        return parameters;
+    }
+
 }

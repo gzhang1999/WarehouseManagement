@@ -30,13 +30,22 @@ import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.inbound.model.Receipt;
 import se.gzhang.scm.wms.inbound.model.ReceiptLine;
 import se.gzhang.scm.wms.inbound.repository.ReceiptRepository;
+import se.gzhang.scm.wms.inventory.model.Inventory;
+import se.gzhang.scm.wms.inventory.model.InventoryStatus;
+import se.gzhang.scm.wms.inventory.model.ItemFootprint;
+import se.gzhang.scm.wms.inventory.service.InventoryService;
+import se.gzhang.scm.wms.inventory.service.InventoryStatusService;
+import se.gzhang.scm.wms.inventory.service.ItemFootprintService;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.Building;
 import se.gzhang.scm.wms.layout.model.Location;
+import se.gzhang.scm.wms.layout.model.LocationSerializer;
+import se.gzhang.scm.wms.layout.service.LocationService;
 
 import javax.persistence.criteria.*;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +54,16 @@ public class ReceiptService {
 
     @Autowired
     ReceiptRepository receiptRepository;
+    @Autowired
+    InventoryStatusService inventoryStatusService;
+    @Autowired
+    InventoryService inventoryService;
+    @Autowired
+    LocationService locationService;
+    @Autowired
+    ReceiptLineService receiptLineService;
+    @Autowired
+    ItemFootprintService itemFootprintService;
 
     public List<Receipt> findAll(){
 
@@ -77,17 +96,17 @@ public class ReceiptService {
             public Predicate toPredicate(Root<Receipt> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> predicates = new ArrayList<Predicate>();
 
-                if(criteriaList.containsKey("id") && !criteriaList.get("id").isEmpty()) {
-                    predicates.add(criteriaBuilder.equal(root.get("id"), criteriaList.get("id")));
+                if(criteriaList.containsKey("receiptID") && !criteriaList.get("receiptID").isEmpty()) {
+                    predicates.add(criteriaBuilder.equal(root.get("id"), criteriaList.get("receiptID")));
                 }
-                if(criteriaList.containsKey("externalID") && !criteriaList.get("externalID").isEmpty()) {
-                    predicates.add(criteriaBuilder.equal(root.get("externalID"), criteriaList.get("externalID")));
+                if(criteriaList.containsKey("receiptExternalID") && !criteriaList.get("receiptExternalID").isEmpty()) {
+                    predicates.add(criteriaBuilder.equal(root.get("externalID"), criteriaList.get("receiptExternalID")));
                 }
-                if(criteriaList.containsKey("number") && !criteriaList.get("number").isEmpty()) {
-                    predicates.add(criteriaBuilder.equal(root.get("number"), criteriaList.get("number")));
+                if(criteriaList.containsKey("receiptNumber") && !criteriaList.get("receiptNumber").isEmpty()) {
+                    predicates.add(criteriaBuilder.equal(root.get("number"), criteriaList.get("receiptNumber")));
                 }
-                if(criteriaList.containsKey("purchaseOrderNumber") && !criteriaList.get("purchaseOrderNumber").isEmpty()) {
-                    predicates.add(criteriaBuilder.equal(root.get("purchaseOrderNumber"), criteriaList.get("purchaseOrderNumber")));
+                if(criteriaList.containsKey("receiptPurchaseOrderNumber") && !criteriaList.get("receiptPurchaseOrderNumber").isEmpty()) {
+                    predicates.add(criteriaBuilder.equal(root.get("purchaseOrderNumber"), criteriaList.get("receiptPurchaseOrderNumber")));
                 }
 
 
@@ -160,7 +179,9 @@ public class ReceiptService {
                                  String externalID,
                                  String purchaseOrderNumber,
                                  Supplier supplier){
-        if (receipt.getTrailer().getTrailerState() != TrailerState.EXPECTED) {
+
+        // If the receipt belongs to a trailer, make sure we havn't checked the trailer
+        if (receipt.getTrailer() != null && receipt.getTrailer().getTrailerState() != TrailerState.EXPECTED) {
             throw new GenericException(10000, "Can not change the receipt when the trailer is already checked in");
         }
         receipt.setExternalID(externalID);
@@ -169,5 +190,72 @@ public class ReceiptService {
 
 
         return save(receipt);
+    }
+
+    public Inventory receiving(ReceiptLine receiptLine,
+                          String locationString,
+                          int quantity,
+                          int itemFootprintID,
+                          String inventoryStatusString,
+                          String lpn,
+                          boolean generatePutawayWork) {
+        InventoryStatus inventoryStatus = inventoryStatusService.findByInventoryStatusName(inventoryStatusString);
+        Location location = locationService.findByLocationName(locationString);
+        ItemFootprint itemFootprint = itemFootprintService.findByItemFootprintId(itemFootprintID);
+
+        Inventory inventory = new Inventory();
+        inventory.setInventoryStatus(inventoryStatus);
+        inventory.setLocation(location);
+        inventory.setLpn(lpn);
+        inventory.setQuantity(quantity);
+        inventory.setItemFootprint(itemFootprint);
+
+        inventory.setReceiptLine(receiptLine);
+
+        // update the receipt line's received quantity
+        receiptLine.setReceivedQuantity(receiptLine.getReceivedQuantity() + quantity);
+        receiptLineService.save(receiptLine);
+
+        return inventoryService.createInventory(inventory, "Receiving", "Receiving");
+
+    }
+    public List<Inventory> getReceivedInventoryByReceiptLine(ReceiptLine receiptLine){
+        return getReceivedInventoryByReceiptLine(receiptLine.getId());
+    }
+    public List<Inventory> getReceivedInventoryByReceiptLine(int receiptLineID){
+        Map<String, String> criteria = new HashMap<>();
+        criteria.put("receiptLineID", String.valueOf(receiptLineID));
+        return inventoryService.findInventory(criteria);
+    }
+    public List<Inventory> getReceivedInventoryByReceipt(Receipt receipt){
+        List<Inventory> receivedInventory = new ArrayList<>();
+        for(ReceiptLine receiptLine : receipt.getReceiptLineList()){
+            List<Inventory> receivedInventoryByReceiptLine = getReceivedInventoryByReceiptLine(receiptLine);
+            if (receivedInventoryByReceiptLine.size() > 0) {
+                receivedInventory.addAll(receivedInventoryByReceiptLine);
+            }
+        }
+        return receivedInventory;
+    }
+    public List<Inventory> getReceivedInventoryByReceipt(int receiptID){
+        return getReceivedInventoryByReceipt(findByReceiptId(receiptID));
+    }
+
+    public void loadReceivedInventoryByReceiptLine(ReceiptLine receiptLine){
+
+        List<Inventory> receivedInventory = getReceivedInventoryByReceiptLine(receiptLine.getId());
+        receiptLine.setReceivedInventory(receivedInventory);
+    }
+    public void loadReceivedInventoryByReceiptLine(int receiptLineID){
+        loadReceivedInventoryByReceiptLine(receiptLineService.findByReceiptLineId(receiptLineID));
+    }
+
+    public void loadReceivedInventoryByReceipt(Receipt receipt){
+        for(ReceiptLine receiptLine : receipt.getReceiptLineList()){
+            loadReceivedInventoryByReceiptLine(receiptLine);
+        }
+    }
+    public void loadReceivedInventoryByReceipt(int receiptID){
+        loadReceivedInventoryByReceipt(findByReceiptId(receiptID));
     }
 }
