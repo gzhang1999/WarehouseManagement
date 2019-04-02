@@ -23,11 +23,12 @@ import se.gzhang.scm.wms.inbound.model.ReceiptLine;
 import se.gzhang.scm.wms.layout.model.Location;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "inventory")
 @JsonSerialize(using = InventorySerializer.class)
-public class Inventory {
+public class Inventory implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "inventory_id")
@@ -56,6 +57,41 @@ public class Inventory {
     @JoinColumn(name="receipt_line_id")
     private ReceiptLine receiptLine;
 
+    // The next location on the movement path
+    // that the inventory will go.
+    // For example, when putaway, the destination
+    // of the putaway or hop location
+    // when shipping, the destination may be the
+    // stage or an WIP(Work In Process) location
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "next_location_id", referencedColumnName="location_id")
+    private Location nextLocation;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "destination_location_id", referencedColumnName="location_id")
+    private Location destinationLocation;
+
+    // Temporary location used when running mock putaway
+    // The value is calculated on a fly and will be moved to
+    // the destinationLocaiton field after user's confirm
+    @Transient
+    private Location suggestedDestinationLocation;
+
+    @Override
+    public boolean equals(Object anObject) {
+        if (this == anObject) {
+            return true;
+        }
+        if (anObject instanceof Inventory) {
+            Inventory anotherInventory = (Inventory)anObject;
+            if (anotherInventory.getId() != null &&
+                    getId() != null &&
+                    anotherInventory.getId().equals(getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public Integer getId() {
         return id;
@@ -111,5 +147,29 @@ public class Inventory {
 
     public void setReceiptLine(ReceiptLine receiptLine) {
         this.receiptLine = receiptLine;
+    }
+
+    public Location getNextLocation() {
+        return nextLocation;
+    }
+
+    public void setNextLocation(Location nextLocation) {
+        this.nextLocation = nextLocation;
+    }
+
+    public Location getDestinationLocation() {
+        return destinationLocation;
+    }
+
+    public void setDestinationLocation(Location destinationLocation) {
+        this.destinationLocation = destinationLocation;
+    }
+
+    public Location getSuggestedDestinationLocation() {
+        return suggestedDestinationLocation;
+    }
+
+    public void setSuggestedDestinationLocation(Location suggestedDestinationLocation) {
+        this.suggestedDestinationLocation = suggestedDestinationLocation;
     }
 }

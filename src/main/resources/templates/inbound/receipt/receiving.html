@@ -216,17 +216,18 @@
                             <div class="col-md-6">
                                 <label for="receivingModalLocation" class="col-form-label" th:text="#{location}">Location:</label>
                                 <input type="text" class="form-control" id="receivingModalLocation" data-autocomplete=true
-                                       data-variable="location" data-filter-variable="receivingModalArea">
+                                       data-variable="location" data-filter-variable="receivingModalArea" required>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <label for="receivingModalQuantity" class="col-form-label" th:text="#{quantity}">Quantity:</label>
-                                <input type="text" class="form-control" id="receivingModalQuantity">
+                                <input type="text" class="form-control" id="receivingModalQuantity" required>
                             </div>
                             <div class="col-md-6">
                                 <label for="receivingModalInventoryStatus" class="col-form-label" th:text="#{inventory.inventoryStatus}">Inventory Status:</label>
-                                <select class="form-control" id="receivingModalInventoryStatus" name="inventoryStatus" data-variable="inventoryStatus"> </select>
+                                <select class="form-control" id="receivingModalInventoryStatus" name="inventoryStatus"
+                                        data-variable="inventoryStatus" required> </select>
                             </div>
                         </div>
                         <div class="row">

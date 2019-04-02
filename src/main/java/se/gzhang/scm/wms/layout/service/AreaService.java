@@ -28,6 +28,7 @@ import se.gzhang.scm.wms.layout.repository.AreaRepository;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -79,6 +80,12 @@ public class AreaService {
             }
         });
 
+    }
+
+    public List<Area> findReceingStageAreas() {
+        Map<String, String> receivingStageAreaCriteria = new HashMap<>();
+        receivingStageAreaCriteria.put("areaType", AreaType.INBOUND_STAGE.name());
+        return findArea(receivingStageAreaCriteria);
     }
 
     public Area save(Area area) {

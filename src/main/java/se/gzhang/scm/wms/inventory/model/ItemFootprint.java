@@ -21,13 +21,14 @@ package se.gzhang.scm.wms.inventory.model;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "item_footprint")
 @JsonSerialize(using = ItemFootprintSerializer.class)
-public class ItemFootprint {
+public class ItemFootprint implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -49,7 +50,7 @@ public class ItemFootprint {
     private List<ItemFootprintUOM> itemFootprintUOMs = new ArrayList<>();
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     // @JoinColumn(name = "item_id", insertable = false, updatable = false)
     @JoinColumn(name = "item_id")
     private Item item;
@@ -58,6 +59,27 @@ public class ItemFootprint {
     // for this item
     @Column(name = "default_footprint")
     private boolean defaultFootprint;
+
+
+    @Override
+    public boolean equals(Object anObject) {
+        if (this == anObject) {
+            return true;
+        }
+        if (anObject instanceof ItemFootprint) {
+            ItemFootprint anotherItemFootprint = (ItemFootprint)anObject;
+            if (anotherItemFootprint.getId() != null &&
+                    getId() != null &&
+                    anotherItemFootprint.getId().equals(getId())) {
+                return true;
+            }
+            if (anotherItemFootprint.getName().equals(getName()) &&
+                    anotherItemFootprint.getItem().equals(getItem())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public Integer getId() {
         return id;

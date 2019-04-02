@@ -22,11 +22,12 @@ package se.gzhang.scm.wms.inventory.model;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import se.gzhang.scm.wms.common.model.UnitOfMeasure;
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "item_footprint_uom")
 @JsonSerialize(using = ItemFootprintUOMSerializer.class)
-public class ItemFootprintUOM {
+public class ItemFootprintUOM implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -43,27 +44,47 @@ public class ItemFootprintUOM {
     private ItemFootprint itemFootprint;
 
     @Column(name = "quantity")
-    private int quantity;
+    private Integer quantity;
 
     @Column(name = "length")
-    private double length;
+    private Double length;
     @Column(name = "width")
-    private double width;
+    private Double width;
     @Column(name = "height")
-    private double height;
+    private Double height;
     @Column(name = "weight")
-    private double weight;
+    private Double weight;
 
     @Column(name = "stock_flag")
-    private boolean stockUOM = false;
+    private Boolean stockUOM = false;
     @Column(name = "case_flag")
-    private boolean caseUOM = false;
+    private Boolean caseUOM = false;
     @Column(name = "pallet_flag")
-    private boolean palletUOM = false;
+    private Boolean palletUOM = false;
 
 
     @Column(name = "carton_flag")
-    private boolean cartonUOM = false;
+    private Boolean cartonUOM = false;
+
+    @Override
+    public boolean equals(Object anObject) {
+        if (this == anObject) {
+            return true;
+        }
+        if (anObject instanceof ItemFootprintUOM) {
+            ItemFootprintUOM anotherItemFootprintUOM = (ItemFootprintUOM)anObject;
+            if (anotherItemFootprintUOM.getId() != null &&
+                    getId() != null &&
+                    anotherItemFootprintUOM.getId().equals(getId())) {
+                return true;
+            }
+            if (anotherItemFootprintUOM.getItemFootprint().equals(getItemFootprint()) &&
+                    anotherItemFootprintUOM.getUnitOfMeasure().equals(getUnitOfMeasure())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public Integer getId() {
         return id;

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+<style>
+.scroll {
+    max-height: 750px;
+    overflow-y: auto;
+}
+
+</style>
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <form id="putawayPolicyForm" method="post" enctype="multipart/form-data">
+                    <div class="card">
+                        <div class="card-header" >
+                            <h5>
+                                <span th:text="#{putaway.policy}"></span>
+                                <a class="badge badge-success float-right" th:href="@{'~' + ${flowExecutionUrl} + '&_eventId_home'}" th:text="#{flow.steps.return}" >Return to Putaway Policy Display</a>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row my-2">
+                                <div class="col-md-3 form-inline">
+                                    <label for="sequence" class="col-form-label" th:text="#{putaway.policy.sequence}">Sequence:</label>
+                                    <input type="text" class="form-control col-md-8 ml-3" id="sequence" name="sequence" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header" >
+                            <h5>
+                                <span th:text="#{putaway.policy.criteria}"></span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row my-2">
+                                <div class="col-md-6 form-inline">
+                                   <label for="item" class="col-form-label" th:text="#{item.name}">Item:</label>
+                                   <input type="text" class="form-control col-md-8 ml-3" id="item" name="item"  data-controltype='lookup' data-variable='item'>
+                                </div>
+                                <div class="col-md-6 form-inline">
+                                    <label for="itemFamily" class="col-form-label" th:text="#{item.family}">Item Family:</label>
+                                    <input type="text" class="form-control col-md-8 ml-3" id="itemFamily" name="itemFamily"  data-controltype='lookup' data-variable='itemFamily'>
+                                </div>
+                            </div>
+                            <div class="row my-2">
+                                <div class="col-md-4 form-inline">
+                                    <label for="supplier" class="col-form-label" th:text="#{supplier.name}">Supplier:</label>
+                                    <input type="text" class="form-control col-md-8 ml-3" id="supplier" name="supplier"  data-controltype='lookup' data-variable='supplier'>
+                                </div>
+                                <div class="col-md-4 form-inline">
+                                    <label for="trailer" class="col-form-label" th:text="#{trailer.number}">Trailer:</label>
+                                    <input type="text" class="form-control col-md-8 ml-3" id="trailer" name="trailer"  data-controltype='lookup' data-variable='trailer'>
+                                </div>
+                                <div class="col-md-4 form-inline">
+                                    <label for="receipt" class="col-form-label" th:text="#{receipt.number}">Receipt:</label>
+                                    <input type="text" class="form-control col-md-8 ml-3" id="receipt" name="receipt"  data-controltype='lookup' data-variable='receipt'>
+                                </div>
+                            </div>
+                            <div class="row my-2">
+                                <div class="col-md-3 form-inline">
+                                    <label for="minSize" class="col-form-label" th:text="#{putaway.policy.minimumSize}">Minimum Size:</label>
+                                    <input type="text" class="form-control ml-3" id="minSize" name="minSize" >
+                                </div>
+                                <div class="col-md-3 form-inline">
+                                    <label for="maxSize" class="col-form-label" th:text="#{putaway.policy.maximumSize}">Maximum Size:</label>
+                                    <input type="text" class="form-control ml-3" id="maxSize" name="maxSize" >
+                                </div>
+                                <div class="col-md-3 form-inline">
+                                    <label for="minWeight" class="col-form-label" th:text="#{putaway.policy.minimumWeight}">Minimum Weight:</label>
+                                    <input type="text" class="form-control ml-3" id="minWeight" name="minWeight" >
+                                </div>
+                                <div class="col-md-3 form-inline">
+                                    <label for="maxWeight" class="col-form-label" th:text="#{putaway.policy.maximumWeight}">Maximum Weight:</label>
+                                    <input type="text" class="form-control ml-3" id="maxWeight" name="maxWeight" >
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="card-footer">
+                           <button type="submit" class="btn btn-sm btn-primary" name="_eventId_previous" th:text="#{flow.steps.home}">
+                               <i class="fa fa-dot-circle-o"></i> Home</button>
+                           <button type="submit" class="btn btn-sm btn-primary" name="_eventId_submit" th:text="#{flow.steps.next}">
+                               <i class="fa fa-dot-circle-o"></i> Next</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+    $("#putawayPolicyForm").validate();
+
+</script>
+</body>
+</html>

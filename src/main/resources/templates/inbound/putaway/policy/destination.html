@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+<style>
+.scroll {
+    max-height: 750px;
+    overflow-y: auto;
+}
+
+</style>
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <span th:text="#{putaway.policy.criteria}"></span>
+                            <a class="badge badge-success float-right fa-2x" th:href="@{'~' + ${flowExecutionUrl} + '&_eventId_home'}"
+                               th:text="#{flow.steps.return}"  >Return to Putaway Policy Display</a>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="row">
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{item.number}">Item Number</span>:
+                                <span th:text="${addPutawayPolicyFlowModel.putawayPolicy?.item?.name}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{item.family}">Item Family</span>:
+                                <span th:text="${addPutawayPolicyFlowModel.putawayPolicy?.itemFamily?.name}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{supplier}">Supplier</span>:
+                                <span th:text="${addPutawayPolicyFlowModel.putawayPolicy?.supplier?.name}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{trailer.number}">Trailer</span>:
+                                <span th:text="${addPutawayPolicyFlowModel.putawayPolicy?.trailer?.number}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{receipt.number}">Receipt</span>:
+                                <span th:text="${addPutawayPolicyFlowModel.putawayPolicy?.receipt?.number}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{putaway.policy.minimumSize}">MinimumSize</span>:
+                                <span th:text="${addPutawayPolicyFlowModel.putawayPolicy?.minimumSize == null} ? 'N/A' : ${addPutawayPolicyFlowModel.putawayPolicy?.minimumSize}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{putaway.policy.maximumSize}">MaximumSize</span>:
+                                <span th:text="${addPutawayPolicyFlowModel.putawayPolicy?.maximumSize == null} ? 'N/A' : ${addPutawayPolicyFlowModel.putawayPolicy?.maximumSize}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{putaway.policy.minimumWeight}">MinimumWeight</span>:
+                                <span th:text="${addPutawayPolicyFlowModel.putawayPolicy?.minimumWeight == null} ? 'N/A' : ${addPutawayPolicyFlowModel.putawayPolicy?.minimumWeight}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{putaway.policy.maximumWeight}">MaximumWeight</span>:
+                                <span th:text="${addPutawayPolicyFlowModel.putawayPolicy?.maximumWeight == null} ? 'N/A' : ${addPutawayPolicyFlowModel.putawayPolicy?.maximumWeight}"></span>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+                <div class="card">
+                    <form method="post" enctype="multipart/form-data">
+                        <div class="card-header" >
+                            <span th:text="#{putaway.policy.destination}"></span>
+                         </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6 ">
+                                   <label for="area" class="col-form-label" th:text="#{area}">Area:</label>
+                                   <select class="form-control" id="area" name="area_id" data-variable="area"></select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="areaGroup" class="col-form-label" th:text="#{area.group}">Area Group:</label>
+                                    <input type="text" class="form-control" id="areaGroup" name="areaGroup"
+                                           data-autocomplete=true data-variable="areaGroup">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="location" class="col-form-label" th:text="#{location}">Location:</label>
+                                    <input class="form-control" id="location" name="location"
+                                            data-variable="location"  data-filter-variable="area">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="locationGroup" class="col-form-label" th:text="#{location.group}">Location Group:</label>
+                                    <input type="text" class="form-control" id="locationGroup"  name="locationGroup"
+                                           data-autocomplete=true data-variable="locationGroup">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="locationLevel" class="col-form-label" th:text="#{location.level}">Location Level:</label>
+                                    <input type="text" class="form-control" id="locationLevel" name="locationLevel">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="locationAisle" class="col-form-label" th:text="#{location.aisle}">Location Aisle:</label>
+                                    <input type="text" class="form-control" id="locationAisle" name="locationAisle">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="card-footer">
+                           <button type="submit" class="btn btn-sm btn-primary" name="_eventId_previous" th:text="#{step.previous}">
+                               <i class="fa fa-dot-circle-o"></i> Home</button>
+                           <button type="submit" class="btn btn-sm btn-primary" name="_eventId_submit" th:text="#{step.next}">
+                               <i class="fa fa-dot-circle-o"></i> Next</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+</body>
+</html>

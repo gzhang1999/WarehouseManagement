@@ -129,5 +129,6 @@
   "inventory.location":"库位",
   "inventory.lpn":"LPN",
   "inventory.quantity":"数量",
+  "putaway.policy.execute": "执行",
   "message.receipt.without.trailer": "当前入库单没有车辆关联"
 }

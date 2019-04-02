@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{location.group.new}" >New Location Group</a>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="location_group_query" data-display="locationGroupTable" th:action="@{/ws/layout/location/group/list}">
+                            <div class="form-group">
+                                <label for="queryLocationGroupName" class="col-form-label" th:text="#{location.group.name}">Location Group Name:</label>
+                                <input class="form-control  mx-sm-4" id="queryLocationGroupName" name="name" >
+                            </div>
+                            <div class="form-group">
+                                <label for="queryLocationGroupDescription" class="col-form-label" th:text="#{location.group.description}">Location Group Description:</label>
+                                <input class="form-control  mx-sm-4" id="queryLocationGroupDescription" name="description" >
+                            </div>
+
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="location_group_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="location_group_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "locationGroupTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true">
+                                    <thead>
+                                        <tr>
+                                            <td th:text="#{location.group.id}">Location Group ID</td>
+                                            <td th:text="#{location.group.name}">Location Group Name</td>
+                                            <td th:text="#{location.group.description}">Location Group Description</td>
+                                            <td></td>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr th:each="locationGroup : ${locationGroupList}">
+                                            <td th:text="${locationGroup.id}"></td>
+                                            <td th:text="${locationGroup.name}" th:id="'locationGroupName-' + ${locationGroup.id}"></td>
+                                            <td th:text="${locationGroup.description}" th:id="'locationGroupDescription-' + ${locationGroup.id}"></td>
+                                            <td>
+                                                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editModal" th:text="#{edit}"
+                                                        th:data-locationgroupid="${locationGroup.id}" th:data-locationgroupname="${locationGroup.name}"
+                                                        data-action="change" >Edit</button>
+                                                <button class="btn btn-danger" type="button" th:text="#{delete}" onclick="removeLocationGroup(event)"
+                                                        th:data-locationgroupid="${locationGroup.id}" >Delete Location Group</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel" th:text="#{location.group.editmodel.title}">Edit Location Group</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="editModalErrorMessage"></div>
+                    <form>
+                        <div class="form-group">
+                            <label for="editModalLocationGroupID" class="col-form-label" th:text="#{location.group.id}">Location Group ID:</label>
+                            <input type="text" class="form-control" id="editModalLocationGroupID" name="locationGroupID" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalLocationGroupName" class="col-form-label" th:text="#{location.group.name}">Location Group Name:</label>
+                            <input type="text" class="form-control" id="editModalLocationGroupName" name="locationGroupName">
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalLocationGroupDescription" class="col-form-label" th:text="#{location.group.description}">Location Group Description:</label>
+                            <input type="text" class="form-control" id="editModalLocationGroupDescription" name="locationGroupDescription">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="locationGroupEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+
+
+    <script>
+    // Function to render table
+    // This function will be called by the javascript from query_form.js
+    // It works as a stub function that after we get content from
+    // query_form.js, this function will render the datatable
+    var renderTable = function(tableID, data, customFields) {
+
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            var htmlData = "";
+            $.each(data, function(index, locationGroup){
+                htmlData +=
+                    "<tr>" +
+                    "   <td>" + locationGroup.id + "</td>" +
+                    "   <td id='locationGroupName-" +  locationGroup.id + "'>" + locationGroup.name + "</td>" +
+                    "   <td id='locationGroupDescription-" +  locationGroup.id + "'>" + locationGroup.description + "</td>" +
+                    "   <td>" +
+                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' " +
+                    "           text='edit' data-action='change' data-locationgroupid='" + areaGroup.id + "' data-locationgroupname='" + locationGroup.name+ "'>" + $.i18n("edit")+ "</button>" +
+                    "       <button class='btn btn-danger' type='button' onclick='removeLocationGroup(event)' data-locationgroupid='" + locationGroup.id + "'>" + $.i18n("delete")+ "</button>" +
+                     "   </td>" +
+                    "</tr>";
+            });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
+        }
+    }
+
+    // Show the edit modal when the user press
+    // 1. Edit button to modify an existing area
+    // or
+    // 2. New button to create a new area
+    $('#editModal').on('show.bs.modal', function (event) {
+      clearEditModal();
+      var button = $(event.relatedTarget);
+      var action = button.data('action');
+      if (action == 'change') {
+          var locationGroupID = button.data('locationgroupid');
+          var url = '/ws/layout/location/group/query/'+locationGroupID;
+          $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var locationGroup = res.data
+                      $('#editModalLocationGroupID').val(locationGroup.id);
+                      $('#editModalLocationGroupName').val(locationGroup.name);
+                      $('#editModalLocationGroupDescription').val(locationGroup.description);
+                      $('#editModalErrorMessage').text('');
+                      setEnableOfEditModal(true);
+
+                  }
+                  else
+                  {
+                      $('#editModalErrorMessage').text(res.status + " : " + res.message);
+                      setEnableOfEditModal(false);
+
+                  }
+              });
+      }
+      else if (action == 'new') {
+          setEnableOfEditModal(true);
+      }
+
+    })
+
+    var setEnableOfEditModal = function(enabled) {
+        // Always disable the Location Group id
+        $('#editModalLocationGroupID').prop("disabled", true);
+
+        $('#editModalLocationGroupName').prop("disabled", !enabled);
+        $('#editModalLocationGroupDescription').prop("disabled", !enabled);
+
+        $('#locationGroupEditSave').prop("disabled", !enabled);
+    }
+
+
+    var clearEditModal = function() {
+        $('#editModalLocationGroupID').val('');
+        $('#editModalLocationGroupName').val('');
+        $('#editModalLocationGroupDescription').val('');
+
+        $('#editModalErrorMessage').text('');
+    }
+
+    $('#locationGroupEditSave').click(function(){
+        var locationGroupID = $('#editModalLocationGroupID').val();
+        var url = "/ws/layout/location/group";
+        // action to log if we are creating a new area
+        // or editing a existing area
+        var actionCode = "new";
+        if (locationGroupID == '') {
+            // location group id textbox is empty, let's add
+            // the location group
+            url += "/new";
+        }
+        else {
+            // location group id textbox is not empty, let's change
+            // the location group
+            url += "/edit";
+            actionCode = "edit";
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            actionCode : actionCode,
+            data:{
+                 locationGroupID: locationGroupID,
+                 name: $('#editModalLocationGroupName').val(),
+                 description: $('#editModalLocationGroupDescription').val()
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                if (actionCode == "new") {
+
+                    var locationGroupList = [];
+                    var locationGroup = res.data;
+                    locationGroupList.push(locationGroup);
+
+                    renderTable("locationGroupTable", locationGroupList, res.customFields);
+                }
+                else {
+                    // We just changed a existing location group,
+                    // Let's update the existing result without affect
+                    // the other records in the display table
+                    var locationGroupID = res.data.id;
+
+                    $('#locationGroupName-' + locationGroupID).text(res.data.name);
+                    $('#locationGroupDescription-' + locationGroupID).text(res.data.description);
+                }
+
+                $('#editModalErrorMessage').text('');
+
+                $('#editModal').modal('toggle');
+            }
+            else{
+                $('#editModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+    var refreshLocationGroupDisplay = function() {
+        $("#location_group_query").submit();
+    }
+
+    var removeLocationGroup = function(event) {
+        var control = $(event.target);
+        var locationGroupID = control.data("locationgroupid");
+        var url = "/ws/layout/location/delete";
+        $.ajax({
+                method:"POST",
+                url : url,
+                data:{
+                     locationGroupID : locationGroupID
+                }
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    refreshLocationGroupDisplay();
+                }
+                else{
+                    console.log("Error when delete location group: " + JSON.stringify(res))
+                }
+            });
+
+    }
+
+
+    </script>
+</body>
+</html>

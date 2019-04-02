@@ -150,15 +150,12 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <label for="editInventoryModalAreaName" class="col-form-label" th:text="#{area}">Area:</label>
-                                <select class="form-control" id="editInventoryModalAreaName" data-variable="area"></select>
+                                <select class="form-control" id="editInventoryModalAreaName" name="area_id" data-variable="area"></select>
                             </div>
-                            <div class="col-md-2">
-                                <label for="editInventoryModalLocationID" class="col-form-label" th:text="#{location.id}">Location ID:</label>
-                                <input type="text" class="form-control" id="editInventoryModalLocationID">
-                            </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label for="editInventoryModalLocationName" class="col-form-label" th:text="#{location}">Location:</label>
-                                <input type="text" class="form-control" id="editInventoryModalLocationName">
+                                <input type="text" class="form-control" id="editInventoryModalLocationName" data-autocomplete=true
+                                       data-variable="location" data-filter-variable="editInventoryModalAreaName" required>
                             </div>
                         </div>
                         <hr />
@@ -754,7 +751,6 @@
                   if (res.status == 0)
                   {
                       var itemFootprint = res.data;
-                      console.log("display item footprint\n" + JSON.stringify(itemFootprint));
 
                       // display this row
                       row.child(formatItemFootprintInfomration(itemFootprint)).show();
@@ -774,25 +770,48 @@
     }
 
     var formatItemFootprintInfomration = function(itemFootprint) {
-        var footprintUOMGrid =
-                              "<table id='itemFootprintDisplay-" + itemFootprint.id + "' class='table table-striped table-bordered display nowrap dataTable no-footer' style='width:100%' role='grid' style='width:100%'>" +
+        var html = "<ul class='nav nav-tabs' role='tablist'> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link active' data-toggle='tab' href='#inventory' role='tab' aria-controls='inventory'>" + $.i18n("receipt.inventory") + "</a> " +
+                   "    </li> " +
+                   "</ul> " +
+                   "<div class='tab-content'> " +
+                   "    <div class='tab-pane active' id='inventory' role='tabpanel'> " +
+                   getFormatItemFootprintInfomration(itemFootprint)
+                   "    </div> " +
+                   "</div> ";
+        return html;
+    }
+
+    var getFormatItemFootprintInfomration = function(itemFootprint) {
+        var footprintUOMGridInformation =
+                              "<div class='card card-accent-success'> " +
+                              "    <div class='card-body'> " +
+                              "      <div class='row'> " +
+                              "      <div class='col-md-12'> " +
+                              " <table id='itemFootprintDisplay-" + itemFootprint.id + "' class='table table-striped table-bordered display nowrap dataTable no-footer' style='width:100%' role='grid' style='width:100%'>" +
                               "  <thead> " +
                               "    <tr> " +
-                              "        <th>" + $.i18n("carrier.servicelevel.name") + "</th> " +
-                              "        <th>" + $.i18n("carrier.servicelevel.description") + "</th> " +
+                              "        <th>" + $.i18n("unitOfMeasure") + "</th> " +
+                              "        <th>" + $.i18n("quantity") + "</th> " +
                               "    </tr> " +
                               "  </thead> " +
                               "  <tbody> ";
         $.each(itemFootprint.footprintUOMs, function(index, footprintUOM){
-            footprintUOMGrid += "<tr> " +
+            footprintUOMGridInformation += "<tr> " +
                                 "    <td>" + footprintUOM.unitOfMeasure.description + "</td> " +
                                 "    <td>" + footprintUOM.quantity + "</td> " +
                                 "</tr>";
 
         });
-        footprintUOMGrid += " </tbody> " +
-                            "</table>";
-        return footprintUOMGrid;
+        footprintUOMGridInformation +=
+                            " </tbody> " +
+                            "</table>" +
+                            "    </div>  " +
+                            "    </div>  " +
+                            "  </div>  " +
+                            "</div>";
+        return footprintUOMGridInformation;
     }
 
 </script>

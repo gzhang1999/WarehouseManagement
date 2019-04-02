@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <a class="badge badge-success float-right" data-toggle="modal" href="#editModal" data-action="new" th:text="#{area.group.new}" >New Area Group</a>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="area_group_query" data-display="areaGroupTable" th:action="@{/ws/layout/area/group/list}">
+                            <div class="form-group">
+                                <label for="queryAreaGroupName" class="col-form-label" th:text="#{area.group.name}">Area Group Name:</label>
+                                <input class="form-control  mx-sm-4" id="queryAreaGroupName" name="name" >
+                            </div>
+                            <div class="form-group">
+                                <label for="queryAreaGroupDescription" class="col-form-label" th:text="#{area.group.description}">Area Group Description:</label>
+                                <input class="form-control  mx-sm-4" id="queryAreaGroupDescription" name="description" >
+                            </div>
+
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="area_group_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="area_group_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "areaGroupTable" class="table table-striped table-bordered" style="width:100%" data-tabletype="datatable" data-init="true">
+                                    <thead>
+                                        <tr>
+                                            <td th:text="#{area.group.id}">Area Group ID</td>
+                                            <td th:text="#{area.group.name}">Area Group Name</td>
+                                            <td th:text="#{area.group.description}">Area Group Description</td>
+                                            <td></td>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr th:each="areaGroup : ${areaGroupList}">
+                                            <td th:text="${areaGroup.id}"></td>
+                                            <td th:text="${areaGroup.name}" th:id="'areaGroupName-' + ${areaGroup.id}"></td>
+                                            <td th:text="${areaGroup.description}" th:id="'areaGroupDescription-' + ${areaGroup.id}"></td>
+                                            <td>
+                                                <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editModal" th:text="#{edit}"
+                                                        th:data-areagroupid="${areaGroup.id}" th:data-areagroupname="${areaGroup.name}" data-action="change" >Edit</button>
+                                                <button class="btn btn-danger" type="button" th:text="#{delete}" onclick="removeAreaGroup(event)"
+                                                        th:data-areagroupid="${areaGroup.id}" >Delete Area Group</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel" th:text="#{area.group.editmodel.title}">Edit Area Group</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="editModalErrorMessage"></div>
+                    <form>
+                        <div class="form-group">
+                            <label for="editModalAreaGroupID" class="col-form-label" th:text="#{area.group.id}">Area Group ID:</label>
+                            <input type="text" class="form-control" id="editModalAreaGroupID" name="areaGroupID" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalAreaGroupName" class="col-form-label" th:text="#{area.group.name}">Area Group Name:</label>
+                            <input type="text" class="form-control" id="editModalAreaGroupName" name="areaGroupName">
+                        </div>
+                        <div class="form-group">
+                            <label for="editModalAreaGroupDescription" class="col-form-label" th:text="#{area.group.description}">Area Group Description:</label>
+                            <input type="text" class="form-control" id="editModalAreaGroupDescription" name="areaGroupDescription">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="areaGroupEditSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+
+
+    <script>
+    // Function to render table
+    // This function will be called by the javascript from query_form.js
+    // It works as a stub function that after we get content from
+    // query_form.js, this function will render the datatable
+    var renderTable = function(tableID, data, customFields) {
+
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            var htmlData = "";
+            $.each(data, function(index, areaGroup){
+                htmlData +=
+                    "<tr>" +
+                    "   <td>" + areaGroup.id + "</td>" +
+                    "   <td id='areaGroupName-" +  areaGroup.id + "'>" + areaGroup.name + "</td>" +
+                    "   <td id='areaGroupDescription-" +  areaGroup.id + "'>" + areaGroup.description + "</td>" +
+                    "   <td>" +
+                    "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' " +
+                    "           text='edit' data-action='change' data-areagroupid='" + areaGroup.id + "' data-areagroupname='" + areaGroup.name+ "'>" + $.i18n("edit")+ "</button>" +
+                    "       <button class='btn btn-danger' type='button' onclick='removeAreaGroup(event)' data-areagroupid='" + areaGroup.id + "'>" + $.i18n("delete")+ "</button>" +
+                     "   </td>" +
+                    "</tr>";
+            });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
+        }
+    }
+
+    // Show the edit modal when the user press
+    // 1. Edit button to modify an existing area
+    // or
+    // 2. New button to create a new area
+    $('#editModal').on('show.bs.modal', function (event) {
+      clearEditModal();
+      var button = $(event.relatedTarget);
+      var action = button.data('action');
+      if (action == 'change') {
+          var areaGroupID = button.data('areagroupid');
+          var url = '/ws/layout/area/group/query/'+areaGroupID;
+          $.ajax({url:url})
+              .done(function( res ) {
+                  if (res.status == 0)
+                  {
+                      var areaGroup = res.data
+                      $('#editModalAreaGroupID').val(areaGroup.id);
+                      $('#editModalAreaGroupName').val(areaGroup.name);
+                      $('#editModalAreaGroupDescription').val(areaGroup.description);
+                      $('#editModalErrorMessage').text('');
+                      setEnableOfEditModal(true);
+
+                  }
+                  else
+                  {
+                      $('#editModalErrorMessage').text(res.status + " : " + res.message);
+                      setEnableOfEditModal(false);
+
+                  }
+              });
+      }
+      else if (action == 'new') {
+          setEnableOfEditModal(true);
+      }
+
+    })
+
+    var setEnableOfEditModal = function(enabled) {
+        // Always disable the Area Group id
+        $('#editModalAreaGroupID').prop("disabled", true);
+
+        $('#editModalAreaGroupName').prop("disabled", !enabled);
+        $('#editModalAreaGroupDescription').prop("disabled", !enabled);
+
+        $('#areaGroupEditSave').prop("disabled", !enabled);
+    }
+
+
+    var clearEditModal = function() {
+        $('#editModalAreaGroupID').val('');
+        $('#editModalAreaGroupName').val('');
+        $('#editModalAreaGroupDescription').val('');
+
+        $('#editModalErrorMessage').text('');
+    }
+
+    $('#areaGroupEditSave').click(function(){
+        var areaGroupID = $('#editModalAreaGroupID').val();
+        var url = "/ws/layout/area/group";
+        // action to log if we are creating a new area
+        // or editing a existing area
+        var actionCode = "new";
+        if (areaGroupID == '') {
+            // area id textbox is empty, let's add
+            // the area
+            url += "/new";
+        }
+        else {
+            // area id textbox is not empty, let's change
+            // the area
+            url += "/edit";
+            actionCode = "edit";
+        }
+        $.ajax({
+            method:"POST",
+            url : url,
+            actionCode : actionCode,
+            data:{
+                 areaGroupID: areaGroupID,
+                 name: $('#editModalAreaGroupName').val(),
+                 description: $('#editModalAreaGroupDescription').val()
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                if (actionCode == "new") {
+                    // wrap the new area with an array type
+                    // as the display table(renderTable) function
+                    // can only process array, even there's only one
+                    // element in the array
+                    var areaGroupList = [];
+                    var areaGroup = res.data;
+                    areaGroupList.push(areaGroup);
+                    // if we just create an new area group, let's just
+                    // display this new area group in the display table
+                    renderTable("areaGroupTable", areaGroupList, res.customFields);
+                }
+                else {
+                    // We just changed a existing area group,
+                    // Let's update the existing result without affect
+                    // the other records in the display table
+                    var areaGroupID = res.data.id;
+
+                    $('#areaGroupName-' + areaGroupID).text(res.data.name);
+                    $('#areaGroupDescription-' + areaGroupID).text(res.data.description);
+                }
+
+                $('#editModalErrorMessage').text('');
+
+                $('#editModal').modal('toggle');
+            }
+            else{
+                $('#editModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+
+    var refreshAreaGroupDisplay = function() {
+        $("#area_group_query").submit();
+    }
+
+    var removeAreaGroup = function(event) {
+        var control = $(event.target);
+        var areaGroupID = control.data("areagroupid");
+        var url = "/ws/layout/area/delete";
+        $.ajax({
+                method:"POST",
+                url : url,
+                data:{
+                     areaGroupID : areaGroupID
+                }
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    refreshAreaGroupDisplay();
+                }
+                else{
+                    console.log("Error when delete area group: " + JSON.stringify(res))
+                }
+            });
+
+    }
+
+
+    </script>
+</body>
+</html>

@@ -75,6 +75,30 @@ public class Item implements Serializable {
     )
     private List<ItemBarcode> itemBarcodes = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "item_family_id")
+    private ItemFamily itemFamily;
+
+    @Override
+    public boolean equals(Object anObject) {
+        if (this == anObject) {
+            return true;
+        }
+        if (anObject instanceof Item) {
+            Item anotherItem = (Item)anObject;
+            if (anotherItem.getId() != null &&
+                    getId() != null &&
+                    anotherItem.getId().equals(getId())) {
+                return true;
+            }
+            if (anotherItem.getName().equals(getName()) &&
+                    anotherItem.getWarehouse().getId().equals(getWarehouse().getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -137,5 +161,13 @@ public class Item implements Serializable {
 
     public void setItemBarcodes(List<ItemBarcode> itemBarcodes) {
         this.itemBarcodes = itemBarcodes;
+    }
+
+    public ItemFamily getItemFamily() {
+        return itemFamily;
+    }
+
+    public void setItemFamily(ItemFamily itemFamily) {
+        this.itemFamily = itemFamily;
     }
 }

@@ -24,10 +24,9 @@ import org.springframework.stereotype.Service;
 import se.gzhang.scm.wms.common.model.Velocity;
 import se.gzhang.scm.wms.common.service.VelocityService;
 import se.gzhang.scm.wms.exception.GenericException;
-import se.gzhang.scm.wms.layout.model.Area;
-import se.gzhang.scm.wms.layout.model.AreaType;
-import se.gzhang.scm.wms.layout.model.Building;
-import se.gzhang.scm.wms.layout.model.Location;
+import se.gzhang.scm.wms.inventory.model.Inventory;
+import se.gzhang.scm.wms.inventory.service.InventoryService;
+import se.gzhang.scm.wms.layout.model.*;
 import se.gzhang.scm.wms.layout.repository.LocationRepository;
 import se.gzhang.scm.wms.system.tools.service.FileUploadOptionService;
 
@@ -51,6 +50,9 @@ public class LocationService {
     @Autowired
     private FileUploadOptionService fileUploadOptionService;
 
+    @Autowired
+    private InventoryService inventoryService;
+
     public Location findByLocationId(int id) {
         return locationRepository.findById(id);
     }
@@ -69,10 +71,6 @@ public class LocationService {
 
 
     public List<Location> findLocation(Map<String, String> criteriaList) {
-        System.out.println("Find location by :");
-        for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
-            System.out.println(entry.getKey() + " : " + entry.getValue());
-        }
         return locationRepository.findAll(new Specification<Location>() {
             @Override
             public Predicate toPredicate(Root<Location> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
@@ -278,5 +276,39 @@ public class LocationService {
         location.setCoordinateZ(coordinateZ);
 
         return location;
+    }
+
+    // Allocate the location to the inventory as a destination
+    public void allocateLocation(Location location, Inventory inventory) {
+        inventory.setDestinationLocation(location);
+        inventoryService.save(inventory);
+        if (location.getArea().getVolumeType().equals(VolumeType.EACH)) {
+            location.setPendingVolumn(location.getPendingVolumn() + inventory.getQuantity());
+            save(location);
+        }
+        else {
+            // By default, we will use size(length * width * height) to calculate
+            // the size of the inventory and location
+            double size = inventoryService.getSize(inventory);
+            location.setPendingVolumn(location.getPendingVolumn() + size);
+            save(location);
+        }
+    }
+
+    // de-allocate(release) the location from the inventory
+    public void deallocateLocation(Location location, Inventory inventory) {
+        inventory.setDestinationLocation(null);
+        inventoryService.save(inventory);
+        if (location.getArea().getVolumeType().equals(VolumeType.EACH)) {
+            location.setPendingVolumn(location.getPendingVolumn() - inventory.getQuantity());
+            save(location);
+        }
+        else {
+            // By default, we will use size(length * width * height) to calculate
+            // the size of the inventory and location
+            double size = inventoryService.getSize(inventory);
+            location.setPendingVolumn(location.getPendingVolumn() - size);
+            save(location);
+        }
     }
 }

@@ -28,14 +28,17 @@ import se.gzhang.scm.wms.inbound.model.ReceiptLine;
 import se.gzhang.scm.wms.inventory.model.Inventory;
 import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.inventory.model.ItemFootprint;
+import se.gzhang.scm.wms.inventory.model.ItemFootprintUOM;
 import se.gzhang.scm.wms.inventory.repository.InventoryRepository;
 import se.gzhang.scm.wms.layout.model.Area;
+import se.gzhang.scm.wms.layout.model.AreaType;
 import se.gzhang.scm.wms.layout.model.Building;
 import se.gzhang.scm.wms.layout.model.Location;
 import se.gzhang.scm.wms.layout.service.LocationService;
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -132,16 +135,48 @@ public class InventoryService {
     }
 
     public Inventory moveInventory(Inventory inventory, Location destinationLocation) {
+        // check if the movement is allowed
+        if (!validateMovement(inventory, destinationLocation)) {
+            throw new GenericException(-1, "Not valid movement");
+        }
+
         inventory.setLocation(destinationLocation);
+
+        // clear the supposed destination location after we actually move
+        // the inventory into this location
+        if (destinationLocation.equals(inventory.getDestinationLocation())) {
+            locationService.deallocateLocation(destinationLocation, inventory);
+
+        }
         return save(inventory);
+    }
+
+    // Check if we can move the inventory to the destination
+    private boolean validateMovement(Inventory inventory, Location destinationLocation) {
+        // return true if we have no suggested destination
+        // or the actual destination is the same as the suggested destination
+        if (inventory.getDestinationLocation() == null ||
+                inventory.getDestinationLocation().equals(destinationLocation)) {
+            return true;
+        }
+        // now we know we have a suggested destination but it is not the same as
+        // the actual destination location. return true if the actual destination is
+        // in a Pickup and Dopisit area
+        if (destinationLocation.getArea().getAreaType().equals(AreaType.PICKUP_AND_DEPOSIT)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public List<Inventory> findInventoryByLPN(String lpn) {
+        Map<String, String> criteria = new HashMap<>();
+        criteria.put("lpn", lpn);
+        return findInventory(criteria);
     }
 
 
     public List<Inventory> findInventory(Map<String, String> criteriaList) {
-        System.out.println("Find inventory by: ");
-        for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
-            System.out.println(">> " + entry.getKey() + " : " + entry.getValue());
-        }
         return inventoryRepository.findAll(new Specification<Inventory>() {
             @Override
             public Predicate toPredicate(Root<Inventory> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
@@ -202,7 +237,8 @@ public class InventoryService {
 
                 if ((criteriaList.containsKey("itemName") && !criteriaList.get("itemName").isEmpty()) ||
                         (criteriaList.containsKey("itemDescription") && !criteriaList.get("itemDescription").isEmpty())) {
-                    Join<Inventory, Item> joinItem = root.join("item",JoinType.INNER);
+                    Join<Inventory, ItemFootprint> joinItemFootprint = root.join("itemFootprint",JoinType.INNER);
+                    Join<ItemFootprint, Item> joinItem = joinItemFootprint.join("item",JoinType.INNER);
 
 
                     if(criteriaList.containsKey("itemName") && !criteriaList.get("itemName").isEmpty()) {
@@ -212,12 +248,53 @@ public class InventoryService {
                         predicates.add(criteriaBuilder.like(joinItem.get("description"), criteriaList.get("itemDescription")));
                     }
                 }
-
                 Predicate[] p = new Predicate[predicates.size()];
                 return criteriaBuilder.and(predicates.toArray(p));
 
             }
         });
+    }
+
+    public double getSize(Inventory inventory) {
+        if (inventory.getItemFootprint() == null) {
+            return 0.0;
+        }
+
+        ItemFootprintUOM stockUOM = getStockUOM(inventory.getItemFootprint());
+        if (stockUOM == null) {
+            return 0.0;
+        }
+
+        // both size and weight are calcuated based upon the stock uom
+        return (inventory.getQuantity() / stockUOM.getQuantity()) * stockUOM.getHeight()
+                * stockUOM.getWidth() * stockUOM.getLength();
+    }
+
+    public double getWeight(Inventory inventory) {
+        if (inventory.getItemFootprint() == null) {
+            return 0.0;
+        }
+
+        ItemFootprintUOM stockUOM = getStockUOM(inventory.getItemFootprint());
+        if (stockUOM == null) {
+            return 0.0;
+        }
+
+        // both size and weight are calcuated based upon the stock uom
+        return (inventory.getQuantity() / stockUOM.getQuantity()) * stockUOM.getWeight();
+    }
+
+    private ItemFootprintUOM getStockUOM(ItemFootprint itemFootprint) {
+
+        List<ItemFootprintUOM> itemFootprintUOMList = itemFootprint.getItemFootprintUOMs();
+        ItemFootprintUOM stockUOM = null;
+        for(ItemFootprintUOM uom : itemFootprintUOMList) {
+            if (uom.isStockUOM()) {
+                stockUOM = uom;
+            }
+        }
+        return stockUOM;
+
     }
 
 }

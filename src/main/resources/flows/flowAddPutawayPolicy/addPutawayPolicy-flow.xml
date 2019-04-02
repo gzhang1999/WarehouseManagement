@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+                          http://www.springframework.org/schema/webflow/spring-webflow.xsd">
+
+
+    <on-start>
+        <evaluate expression="addPutawayPolicyFlowHandler.init()"
+                  result="flowScope.addPutawayPolicyFlowModel" />
+    </on-start>
+
+    <view-state id="putawayPolicyCriteria" view="inbound/putaway/policy/criteria" model="flowScope.addPutawayPolicyFlowModel">
+        <on-render>
+            <set name="viewScope.applicationID" value="'Inbound'" type="java.lang.String"></set>
+            <set name="viewScope.formID" value="'PutawayPolicy'" type="java.lang.String"></set>
+            <set name="viewScope.flowID" value="'PutawayPolicy.New'" type="java.lang.String"></set>
+        </on-render>
+        <transition on="submit"  to="savePutawayPolicyCriteria" />
+        <transition on="previous"  to="home" />
+    </view-state>
+
+    <action-state id="savePutawayPolicyCriteria">
+        <evaluate expression="addPutawayPolicyFlowHandler.saveCriteria(flowScope.addPutawayPolicyFlowModel, requestParameters)" />
+        <transition to="putawayPolicyDestination" />
+    </action-state>
+
+
+    <view-state id="putawayPolicyDestination" view="inbound/putaway/policy/destination" model="flowScope.addPutawayPolicyFlowModel">
+        <on-render>
+            <set name="viewScope.applicationID" value="'Inbound'" type="java.lang.String"></set>
+            <set name="viewScope.formID" value="'PutawayPolicy'" type="java.lang.String"></set>
+            <set name="viewScope.flowID" value="'PutawayPolicy.New'" type="java.lang.String"></set>
+        </on-render>
+        <transition on="submit"  to="savePutawayPolicy" />
+        <transition on="previous"  to="putawayPolicyCriteria" />
+    </view-state>
+
+    <action-state id="savePutawayPolicy">
+        <evaluate expression="addPutawayPolicyFlowHandler.savePutawayPolicy(flowScope.addPutawayPolicyFlowModel, requestParameters)" />
+        <transition to="putawayPolicyResult" />
+    </action-state>
+
+    <view-state id="putawayPolicyResult" view="inbound/putaway/policy/result" model="flowScope.addPutawayPolicyFlowModel">
+        <on-render>
+            <set name="viewScope.applicationID" value="'Inbound'" type="java.lang.String"></set>
+            <set name="viewScope.formID" value="'PutawayPolicy'" type="java.lang.String"></set>
+            <set name="viewScope.flowID" value="'PutawayPolicy.New'" type="java.lang.String"></set>
+        </on-render>
+        <transition on="success"  to="success" />
+    </view-state>
+
+    <!-- end state -->
+    <end-state id="success" view="externalRedirect:contextRelative:/inbound/putaway/policy?id=#{flowScope.addPutawayPolicyFlowModel.putawayPolicy.id}" />
+    <end-state id="home" view="externalRedirect:contextRelative:/inbound/putaway/policy" />
+
+    <!-- Global Transition -->
+    <global-transitions>
+        <transition on="home" to="home" validate="false" />
+    </global-transitions>
+
+
+
+</flow>

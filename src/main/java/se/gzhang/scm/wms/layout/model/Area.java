@@ -25,6 +25,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "area")
@@ -58,6 +59,10 @@ public class Area implements Serializable {
 
     @Column(name = "area_type")
     private AreaType areaType;
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JoinTable(name = "area_group_assignment", joinColumns = @JoinColumn(name = "area_id"), inverseJoinColumns = @JoinColumn(name = "area_group_id"))
+    private Set<AreaGroup> areaGroups;
 
     // How we calculate the volume of the location in this area
     // 1. EACH: Volume is calculated by how many eaches we can
@@ -140,5 +145,13 @@ public class Area implements Serializable {
 
     public void setAllowConsolidation(Boolean allowConsolidation) {
         this.allowConsolidation = allowConsolidation;
+    }
+
+    public Set<AreaGroup> getAreaGroups() {
+        return areaGroups;
+    }
+
+    public void setAreaGroups(Set<AreaGroup> areaGroups) {
+        this.areaGroups = areaGroups;
     }
 }

@@ -78,6 +78,103 @@ public class InventorySerializer extends StdSerializer<Inventory> {
         }
         jgen.writeEndObject();
 
+
+        jgen.writeFieldName("nextLocation");
+        jgen.writeStartObject();
+        if (inventory.getNextLocation() != null) {
+            jgen.writeNumberField("id", inventory.getNextLocation().getId());
+            jgen.writeStringField("name", inventory.getNextLocation().getName());
+
+            jgen.writeFieldName("area");
+            jgen.writeStartObject();
+            if (inventory.getLocation().getArea() != null) {
+                jgen.writeNumberField("id", inventory.getNextLocation().getArea().getId());
+                jgen.writeStringField("name", inventory.getNextLocation().getArea().getName());
+
+                jgen.writeFieldName("building");
+                jgen.writeStartObject();
+                if (inventory.getNextLocation().getArea().getBuilding() != null) {
+                    jgen.writeNumberField("id", inventory.getNextLocation().getArea().getBuilding().getId());
+                    jgen.writeStringField("name", inventory.getNextLocation().getArea().getBuilding().getName());
+                    jgen.writeFieldName("warehouse");
+                    jgen.writeStartObject();
+                    if (inventory.getNextLocation().getArea().getBuilding().getWarehouse() != null) {
+                        jgen.writeNumberField("id", inventory.getNextLocation().getArea().getBuilding().getWarehouse().getId());
+                        jgen.writeStringField("name", inventory.getNextLocation().getArea().getBuilding().getWarehouse().getName());
+                    }
+                    jgen.writeEndObject();
+                }
+                jgen.writeEndObject();
+            }
+            jgen.writeEndObject();
+        }
+        jgen.writeEndObject();
+
+
+        jgen.writeFieldName("destinationLocation");
+        jgen.writeStartObject();
+        if (inventory.getDestinationLocation() != null) {
+            jgen.writeNumberField("id", inventory.getDestinationLocation().getId());
+            jgen.writeStringField("name", inventory.getDestinationLocation().getName());
+
+            jgen.writeFieldName("area");
+            jgen.writeStartObject();
+            if (inventory.getDestinationLocation().getArea() != null) {
+                jgen.writeNumberField("id", inventory.getDestinationLocation().getArea().getId());
+                jgen.writeStringField("name", inventory.getDestinationLocation().getArea().getName());
+
+                jgen.writeFieldName("building");
+                jgen.writeStartObject();
+                if (inventory.getDestinationLocation().getArea().getBuilding() != null) {
+                    jgen.writeNumberField("id", inventory.getDestinationLocation().getArea().getBuilding().getId());
+                    jgen.writeStringField("name", inventory.getDestinationLocation().getArea().getBuilding().getName());
+                    jgen.writeFieldName("warehouse");
+                    jgen.writeStartObject();
+                    if (inventory.getDestinationLocation().getArea().getBuilding().getWarehouse() != null) {
+                        jgen.writeNumberField("id", inventory.getDestinationLocation().getArea().getBuilding().getWarehouse().getId());
+                        jgen.writeStringField("name", inventory.getDestinationLocation().getArea().getBuilding().getWarehouse().getName());
+                    }
+                    jgen.writeEndObject();
+                }
+                jgen.writeEndObject();
+            }
+            jgen.writeEndObject();
+        }
+        jgen.writeEndObject();
+
+        jgen.writeFieldName("suggestedDestinationLocation");
+        jgen.writeStartObject();
+        if (inventory.getSuggestedDestinationLocation() != null) {
+            jgen.writeNumberField("id", inventory.getSuggestedDestinationLocation().getId());
+            jgen.writeStringField("name", inventory.getSuggestedDestinationLocation().getName());
+
+            jgen.writeFieldName("area");
+            jgen.writeStartObject();
+            if (inventory.getSuggestedDestinationLocation().getArea() != null) {
+                jgen.writeNumberField("id", inventory.getSuggestedDestinationLocation().getArea().getId());
+                jgen.writeStringField("name", inventory.getSuggestedDestinationLocation().getArea().getName());
+
+                jgen.writeFieldName("building");
+                jgen.writeStartObject();
+                if (inventory.getSuggestedDestinationLocation().getArea().getBuilding() != null) {
+                    jgen.writeNumberField("id", inventory.getSuggestedDestinationLocation().getArea().getBuilding().getId());
+                    jgen.writeStringField("name", inventory.getSuggestedDestinationLocation().getArea().getBuilding().getName());
+                    jgen.writeFieldName("warehouse");
+                    jgen.writeStartObject();
+                    if (inventory.getSuggestedDestinationLocation().getArea().getBuilding().getWarehouse() != null) {
+                        jgen.writeNumberField("id", inventory.getSuggestedDestinationLocation().getArea().getBuilding().getWarehouse().getId());
+                        jgen.writeStringField("name", inventory.getSuggestedDestinationLocation().getArea().getBuilding().getWarehouse().getName());
+                    }
+                    jgen.writeEndObject();
+                }
+                jgen.writeEndObject();
+            }
+            jgen.writeEndObject();
+        }
+        jgen.writeEndObject();
+
+
+
         // write item / footprint
         jgen.writeFieldName("itemFootprint");
         jgen.writeStartObject();

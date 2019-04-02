@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+<style>
+.scroll {
+    max-height: 750px;
+    overflow-y: auto;
+}
+
+</style>
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <!-- policy criteria -->
+                <div class="card">
+                    <div class="card-header">
+                        <span th:text="#{putaway.policy.criteria}"></span>
+                    </div>
+                    <div class="card-body">
+                        <ul class="row">
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{item.number}">Item Number</span>:
+                                <span th:text="${putawayFlowModel.putawayPolicy?.item?.name}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{item.family}">Item Family</span>:
+                                <span th:text="${putawayFlowModel.putawayPolicy?.itemFamily?.name}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{supplier}">Supplier</span>:
+                                <span th:text="${putawayFlowModel.putawayPolicy?.supplier?.name}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{trailer.number}">Trailer</span>:
+                                <span th:text="${putawayFlowModel.putawayPolicy?.trailer?.number}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{receipt.number}">Receipt</span>:
+                                <span th:text="${putawayFlowModel.putawayPolicy?.receipt?.number}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{putaway.policy.minimumSize}">MinimumSize</span>:
+                                <span th:text="${putawayFlowModel.putawayPolicy?.minimumSize == null} ? 'N/A' : ${putawayFlowModel.putawayPolicy?.minimumSize}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{putaway.policy.maximumSize}">MaximumSize</span>:
+                                <span th:text="${putawayFlowModel.putawayPolicy?.maximumSize == null} ? 'N/A' : ${putawayFlowModel.putawayPolicy?.maximumSize}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{putaway.policy.minimumWeight}">MinimumWeight</span>:
+                                <span th:text="${putawayFlowModel.putawayPolicy?.minimumWeight == null} ? 'N/A' : ${putawayFlowModel.putawayPolicy?.minimumWeight}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{putaway.policy.maximumWeight}">MaximumWeight</span>:
+                                <span th:text="${putawayFlowModel.putawayPolicy?.maximumWeight == null} ? 'N/A' : ${putawayFlowModel.putawayPolicy?.maximumWeight}"></span>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- putaway destination -->
+                <div class="card">
+                    <div class="card-header">
+                        <span th:text="#{putaway.policy.destination}"></span>
+                    </div>
+                    <div class="card-body">
+                        <ul class="row">
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{area}">Area Name</span>:
+                                <span th:text="${putawayFlowModel.putawayPolicy?.area?.name}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{area.group}">Area Group Name</span>:
+                                <span th:text="${putawayFlowModel.putawayPolicy?.areaGroup?.name}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{location}">Location Name</span>:
+                                <span th:text="${putawayFlowModel.putawayPolicy?.location?.name}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{location.group}">Location Group</span>:
+                                <span th:text="${putawayFlowModel.putawayPolicy?.locationGroup?.name}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{location.level}">Location Level</span>:
+                                <span th:text="${putawayFlowModel.putawayPolicy?.locationLevel}"></span>
+                            </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{location.aisle}">Location Aisle</span>:
+                                <span th:text="${putawayFlowModel.putawayPolicy?.locationAisleID}"></span>
+                            </li>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!--
+                 Run the policy against any inventory that still in receiving stage and not having
+                 putaway destination yet. The system will assign an destination suggestion to the LPN
+                 Note: Only inventory has LPN can be putaway with rules
+                  -->
+                <div class="card">
+                    <div class="card-header" >
+                        <span th:text="#{putaway.policy.result.receiveStage}"></span>
+                    </div>
+                    <div class="card-body">
+                        <table id = "putawayResultTable" class="table table-striped table-bordered display nowrap"
+                               style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
+                            <thead>
+                            <tr>
+                                <td></td> <!-- checkbox to select certain LPN for putaway -->
+                                <td th:text="#{lpn}">LPN</td>
+                                <td th:text="#{item.name}">Item Name</td>
+                                <td th:text="#{item.description}">Item Description</td>
+                                <td th:text="#{quantity}">Quantity</td>
+                                <td th:text="#{location}">Current Location</td>
+                                <td th:text="#{putaway.policy.suggestedDestination}">Suggested Destination</td>
+                                <td th:text="#{inventory.destination}">Actual Destination</td>
+                            </tr>
+                            </thead>
+                            <tbody th:if="${not #lists.isEmpty(putawayFlowModel.inventoryList)}">
+
+                            <tr th:each="inventory : ${putawayFlowModel.inventoryList}">
+                                <td>
+                                    <input type="checkbox" th:data-type="inventory_checkbox"
+                                           th:data-lpn="${inventory.lpn}" th:disabled="${inventory.suggestedDestinationLocation?.name == null}"
+                                           th:data-suggestdestination="${inventory.suggestedDestinationLocation?.name}">
+                                </td>
+                                <td th:text="${inventory.lpn}"></td>
+                                <td th:text="${inventory.itemFootprint.item.name}"></td>
+                                <td th:text="${inventory.itemFootprint.item.description}"></td>
+                                <td th:text="${inventory.quantity}"></td>
+                                <td th:text="${inventory.location?.name}"></td>
+                                <td th:text="${inventory.suggestedDestinationLocation?.name}"></td>
+                                <td th:text="${inventory.destinationLocation?.name}"></td>
+                            </tr>
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div class="card-footer">
+                       <button type="button" class="btn btn-sm btn-success" id="btnReceiveStagePutaway"
+                               th:text="#{putaway.policy.result.receiveStage.execute}"></button>
+                        <button type="button" class="btn btn-sm btn-primary" id="btnReceiveStagePutawayWork"
+                                th:text="#{putaway.policy.result.receiveStage.generateWork}"></button>
+                    </div>
+                </div>
+
+                <div>
+                    <a class="btn btn-primary btn-sm active" role="button" th:href="@{'~' + ${flowExecutionUrl} + '&_eventId_success'}"
+                       th:text="#{flow.steps.complete}" >Complete</a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+    $("#btnReceiveStagePutaway").click(function(){
+        var url="/ws/inbound/putaway/";
+        // Loop through all lines and putaway the inventory that selected
+
+        var checkboxList = $("input[data-type='inventory_checkbox']:checkbox:checked");
+
+        if(checkboxList.length != 0) {
+            checkboxList.each(function(){
+                var lpn = $(this).data("lpn")
+                var suggestDestination = $(this).data("suggestdestination");
+                $.ajax({
+                    method:"POST",
+                    url : url,
+                    data:{
+                         lpn: lpn,
+                         suggestDestination: suggestDestination
+                    }
+                }).done(function(res) {
+                     console.log("get result:\n" + JSON.stringify(res));
+
+                })
+            });
+        }
+
+
+    })
+
+</script>
+</body>
+</html>

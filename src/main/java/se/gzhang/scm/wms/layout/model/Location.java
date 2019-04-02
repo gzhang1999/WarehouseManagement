@@ -27,6 +27,7 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "location")
@@ -48,23 +49,32 @@ public class Location  implements Serializable {
     private String aisleID;
 
     @Column(name = "pickable")
-    private boolean pickable;
+    private Boolean pickable = false;
 
     @Column(name = "storable")
-    private boolean storable;
+    private Boolean storable = false;
 
     @Column(name = "usable")
-    private boolean usable;
+    private Boolean usable = false;
 
 
     @Column(name = "length")
-    private double length;
+    private Double length = 0.0;
     @Column(name = "width")
-    private double width;
+    private Double width = 0.0;
     @Column(name = "height")
-    private double height;
+    private Double height = 0.0;
     @Column(name = "volume")
-    private double volume;
+    private Double volume = 0.0;
+    @Column(name = "pending_volume")
+    private Double pendingVolumn = 0.0;
+
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(name = "location_group_assignment", joinColumns = @JoinColumn(name = "location_id"), inverseJoinColumns = @JoinColumn(name = "location_group_id"))
+    private Set<LocationGroup> locationGroups;
+
+    @Column(name = "level")
+    private String level;
 
     // Velocity of the location
     @OneToOne(cascade={CascadeType.MERGE,CascadeType.DETACH, CascadeType.PERSIST}, fetch = FetchType.EAGER)
@@ -86,16 +96,17 @@ public class Location  implements Serializable {
     @OneToMany(
             mappedBy = "location",
             cascade = CascadeType.ALL,
-            orphanRemoval = true
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
     )
     private List<Inventory> inventoryList = new ArrayList<>();
     // Coordinate used for labor management
     @Column(name = "coordinate_x")
-    private double coordinateX;
+    private Double coordinateX;
     @Column(name = "coordinate_y")
-    private double coordinateY;
+    private Double coordinateY;
     @Column(name = "coordinate_z")
-    private double coordinateZ;
+    private Double coordinateZ;
 
     @Override
     public boolean equals(Object o) {
@@ -239,5 +250,29 @@ public class Location  implements Serializable {
 
     public void setCoordinateZ(double coordinateZ) {
         this.coordinateZ = coordinateZ;
+    }
+
+    public Set<LocationGroup> getLocationGroups() {
+        return locationGroups;
+    }
+
+    public void setLocationGroups(Set<LocationGroup> locationGroups) {
+        this.locationGroups = locationGroups;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
+    }
+
+    public double getPendingVolumn() {
+        return pendingVolumn;
+    }
+
+    public void setPendingVolumn(double pendingVolumn) {
+        this.pendingVolumn = pendingVolumn;
     }
 }

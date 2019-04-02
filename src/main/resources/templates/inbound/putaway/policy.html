@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <a class="badge badge-success float-right" th:href="@{/flowAddPutawayPolicy}" data-action="new" th:text="#{putaway.policy.new}" >New Puraway Rule</a>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="putaway_policy_query" data-display="putawayPolicyTable" th:action="@{/ws/inbound/putaway/policy/list}">
+                            <div class="form-group my-sm-1">
+                                <label for="queryItem" class="col-form-label" th:text="#{item}">Item:</label>
+                                <input type="text" class="form-control  mx-sm-4" id="queryItem" name="item"
+                                       data-autocomplete="true" data-variable="item">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryItemFamily" class="col-form-label" th:text="#{item.family}">Item Family</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryItemFamily" name="itemFamily"
+                                       data-autocomplete="true" data-variable="item_family">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="querySupplier" class="col-form-label" th:text="#{supplier}">Supplier:</label>
+                                <input type="text" class="form-control mx-sm-4" id="querySupplier" name="supplier"
+                                       data-autocomplete="true" data-variable="supplier">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryTrailerNumber" class="col-form-label" th:text="#{trailer.number}">Trailer Number:</label>
+                                <input type="text" class="form-control ml-sm-4" id="queryTrailerNumber" name="trailerNumber"
+                                       data-controltype="lookup" data-variable="trailer_number">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryReceiptNumber" class="col-form-label" th:text="#{receipt.number}">Receipt Number:</label>
+                                <input type="text" class="form-control ml-sm-4" id="queryReceiptNumber" name="receiptNumber"
+                                       data-controltype="lookup" data-variable="receipt_number">
+                            </div>
+                            <!-- Field not directly related to the putaway rule's DB table but we can get all the
+                              -- putaway rule criter fields from the following input
+                              -- 1. Inventory's identifier
+                              -->
+                            <br />
+                            <div class="form-group my-sm-1">
+                                <label for="queryLPN" class="col-form-label" th:text="#{lpn}">LPN:</label>
+                                <input type="text" class="form-control ml-sm-4" id="queryLPN" name="lpn">
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="putaway_policy_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="putaway_policy_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "putawayPolicyTable" class="table table-striped table-bordered display nowrap"
+                                       style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
+                                    <thead>
+                                        <tr>
+                                            <td th:text="#{putaway.policy.id}">Puraway Policy ID</td>
+                                            <td th:text="#{putaway.policy.sequence}">Puraway Policy Sequence</td>
+                                            <td th:text="#{item.name}">Item Name</td>
+                                            <td th:text="#{item.description}">Item Description</td>
+                                            <td th:text="#{item.family}">Item Family</td>
+                                            <td th:text="#{supplier.name}">Supplier Name</td>
+                                            <td th:text="#{trailer.number}">Trailer Number</td>
+                                            <td th:text="#{receipt.number}">Receipt Number</td>
+                                            <td th:text="#{putaway.policy.minimumSize}">Minimum Size</td>
+                                            <td th:text="#{putaway.policy.maximumSize}">Maximum Size</td>
+                                            <td th:text="#{putaway.policy.minimumWeight}">Minimum Weight</td>
+                                            <td th:text="#{putaway.policy.maximumWeight}">Maximum Weight</td>
+                                            <td th:text="#{area.name}">Area Name</td>
+                                            <td th:text="#{areaGroup.name}">Area Group Name</td>
+                                            <td th:text="#{location.name}">Location Name</td>
+                                            <td th:text="#{locationGroup.name}">Location Group Name</td>
+                                            <td th:text="#{location.level}">Location Level</td>
+                                            <td th:text="#{location.aisle}">Location Aisle</td>
+                                            <td></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:if="${not #lists.isEmpty(putawayPolicyList)}" th:each="putawayPolicy : ${putawayPolicyList}">
+                                            <td th:text="${putawayPolicy.id}">Puraway Policy ID</td>
+                                            <td th:text="${putawayPolicy.sequence}">Puraway Policy Sequence</td>
+                                            <td th:text="${putawayPolicy.item?.name}">Item Name</td>
+                                            <td th:text="${putawayPolicy.item?.description}">Item Description</td>
+                                            <td th:text="${putawayPolicy.itemFamily?.name}">Item Family</td>
+                                            <td th:text="${putawayPolicy.supplier?.name}">Supplier Name</td>
+                                            <td th:text="${putawayPolicy.trailer?.number}">Trailer Number</td>
+                                            <td th:text="${putawayPolicy.receipt?.number}">Receipt Number</td>
+                                            <td th:text="${putawayPolicy.minimumSize}">Minimum Size</td>
+                                            <td th:text="${putawayPolicy.maximumSize}">Maximum Size</td>
+                                            <td th:text="${putawayPolicy.minimumWeight}">Minimum Weight</td>
+                                            <td th:text="${putawayPolicy.maximumWeight}">Maximum Weight</td>
+                                            <td th:text="${putawayPolicy.area?.name}">Area Name</td>
+                                            <td th:text="${putawayPolicy.areaGroup?.name}">Area Group Name</td>
+                                            <td th:text="${putawayPolicy.location?.name}">Location Name</td>
+                                            <td th:text="${putawayPolicy.locationGroup?.name}">Location Group Name</td>
+                                            <td th:text="${putawayPolicy.locationLevel}">Location Level</td>
+                                            <td th:text="${putawayPolicy.locationAisleID}">Location Aisle</td>
+                                            <td>
+                                                <a class="btn btn-primary active" role="button" aria-pressed="true"
+                                                   href="#" th:data-putawaypolicyid="${putawayPolicy.id}" onclick="startPutaway(event)"
+                                                   th:text="#{putaway.policy.execute}" >Execute Putaway</a>
+                                                <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#editModal'
+                                                        th:data-putawaypolicyid="${putawayPolicy.id}" th:text="#{edit}"></button>
+                                                <button class='btn btn-danger' type='button' th:data-putawaypolicyid="${putawayPolicy.id}"
+                                                        onclick='removePutawayPolicy(event)' th:text="#{delete}"></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+
+    var renderTable = function(tableID, data, customFields) {
+
+        var table = $("#" + tableID).DataTable();
+        console.log("Get following returns from policy server: \n" + JSON.stringify(data));
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            var htmlData = "";
+            $.each(data, function(index, putawayPolicy){
+                htmlData +=
+                    "<tr  id='row_" + putawayPolicy.id + "'>" +
+                    "   <td> " + putawayPolicy.id + "   </td>" +
+                    "   <td>" + putawayPolicy.sequence + "   </td>" +
+                    "   <td>" + (putawayPolicy.item.name == undefined ? "" : putawayPolicy.item.name) + "   </td>" +
+                    "   <td>" + (putawayPolicy.item.description == undefined ? "" : putawayPolicy.item.description) + "   </td>" +
+                    "   <td>" + (putawayPolicy.itemFamily.name == undefined ? "" : putawayPolicy.itemFamily.name) + "   </td>" +
+                    "   <td>" + (putawayPolicy.supplier.name == undefined ? "" : putawayPolicy.supplier.name) + "   </td>" +
+                    "   <td>" + (putawayPolicy.trailer.number == undefined ? "" : putawayPolicy.trailer.number) + "   </td>" +
+                    "   <td>" + (putawayPolicy.receipt.number == undefined ? "" : putawayPolicy.receipt.number) + "   </td>" +
+                    "   <td>" + (putawayPolicy.minimumSize == undefined ? "" : putawayPolicy.minimumSize) + "   </td>" +
+                    "   <td>" + (putawayPolicy.maximumSize == undefined ? "" : putawayPolicy.maximumSize) + "   </td>" +
+                    "   <td>" + (putawayPolicy.minimumWeight == undefined ? "" : putawayPolicy.minimumWeight) + "   </td>" +
+                    "   <td>" + (putawayPolicy.maximumWeight == undefined ? "" : putawayPolicy.maximumWeight) + "   </td>" +
+                    "   <td>" + (putawayPolicy.area.name == undefined ? "" : putawayPolicy.area.name) + "   </td>" +
+                    "   <td>" + (putawayPolicy.areaGroup.name == undefined ? "" : putawayPolicy.areaGroup.name) + "   </td>" +
+                    "   <td>" + (putawayPolicy.location.name == undefined ? "" : putawayPolicy.location.name) + "   </td>" +
+                    "   <td>" + (putawayPolicy.locationGroup.name == undefined ? "" : putawayPolicy.locationGroup.name) + "   </td>" +
+                    "   <td>" + putawayPolicy.locationLevel + "   </td>" +
+                    "   <td>" + putawayPolicy.locationAisle + "   </td>" +
+                    "   <td> " +
+                    "       <a class='btn btn-primary active' role='button' aria-pressed='true' " +
+                    "          href='#' data-putawaypolicyid='" + putawayPolicy.id + "' onclick='startPutaway(event)'> "  + $.i18n("putaway.policy.execute") + "</a>" +
+                    "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#editModal' " +
+                    "          data-putawaypolicyid='" + putawayPolicy.id + "' >" + $.i18n("edit")+ "</button>"+
+                    "       <button class='btn btn-danger' type='button' data-putawaypolicyid='" + putawayPolicy.id + "' " +
+                    "           onclick='removePutawayPolicy(event)' >" + $.i18n("delete") + "</button>" +
+                    "   </td> "
+                     "</tr>";
+            });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
+        }
+    }
+
+    var startPutaway = function(event) {
+        var control = $(event.target);
+        var putawayPolicyID = control.data("putawaypolicyid");
+        window.open("/flowPutaway?putawaypolicyid=" + putawayPolicyID, "_self");
+    }
+
+
+</script>
+</body>
+</html>

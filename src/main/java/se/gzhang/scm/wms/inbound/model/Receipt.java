@@ -21,7 +21,6 @@ package se.gzhang.scm.wms.inbound.model;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import se.gzhang.scm.wms.common.model.Supplier;
 import se.gzhang.scm.wms.common.model.Trailer;
-import se.gzhang.scm.wms.inventory.model.Inventory;
 import se.gzhang.scm.wms.layout.model.Warehouse;
 
 import javax.persistence.*;
