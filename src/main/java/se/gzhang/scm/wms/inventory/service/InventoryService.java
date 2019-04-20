@@ -140,6 +140,7 @@ public class InventoryService {
             throw new GenericException(-1, "Not valid movement");
         }
 
+        Location sourceLocation = inventory.getLocation();
         inventory.setLocation(destinationLocation);
 
         // clear the supposed destination location after we actually move
@@ -148,6 +149,9 @@ public class InventoryService {
             locationService.deallocateLocation(destinationLocation, inventory);
 
         }
+        // refresh the locaiton volume after the inventory movement.
+        locationService.refreshLocationUsedVolume(sourceLocation);
+        locationService.refreshLocationUsedVolume(destinationLocation);
         return save(inventory);
     }
 
@@ -177,6 +181,9 @@ public class InventoryService {
 
 
     public List<Inventory> findInventory(Map<String, String> criteriaList) {
+        if (criteriaList.containsKey("area_id")) {
+            criteriaList.put("areaID", criteriaList.get("area_id"));
+        }
         return inventoryRepository.findAll(new Specification<Inventory>() {
             @Override
             public Predicate toPredicate(Root<Inventory> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
@@ -287,11 +294,27 @@ public class InventoryService {
     private ItemFootprintUOM getStockUOM(ItemFootprint itemFootprint) {
 
         List<ItemFootprintUOM> itemFootprintUOMList = itemFootprint.getItemFootprintUOMs();
+
+        // return the UOM that has stock flag checked. If we don't have this kind of UOM
+        // return the smallest UOM
         ItemFootprintUOM stockUOM = null;
         for(ItemFootprintUOM uom : itemFootprintUOMList) {
             if (uom.isStockUOM()) {
+                return uom;
+            }
+            if (stockUOM == null) {
                 stockUOM = uom;
             }
+            // return if current UOM is smallest(has less quantity or small size)
+            // than the previous UOM
+            else if (uom.getQuantity() < stockUOM.getQuantity() ||
+                        (uom.getQuantity() == stockUOM.getQuantity() &&
+                         uom.getWeight() < stockUOM.getWeight() &&
+                         uom.getWidth() * uom.getHeight() * uom.getLength() <
+                         stockUOM.getWidth() * stockUOM.getHeight() * stockUOM.getLength())) {
+                stockUOM = uom;
+            }
+
         }
         return stockUOM;
 

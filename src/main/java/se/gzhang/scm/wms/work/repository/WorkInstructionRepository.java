@@ -16,22 +16,19 @@
  * limitations under the License.
  */
 
-package se.gzhang.scm.wms.inbound.repository;
+package se.gzhang.scm.wms.work.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
-import se.gzhang.scm.wms.inbound.model.PutawayPolicy;
-import se.gzhang.scm.wms.inbound.model.Receipt;
+import se.gzhang.scm.wms.work.model.WorkInstruction;
 
 import java.util.List;
 
 @Repository
-public interface PutawayPolicyRepository extends JpaRepository<PutawayPolicy, Integer>, JpaSpecificationExecutor<PutawayPolicy> {
-    List<PutawayPolicy> findAll();
+public interface WorkInstructionRepository extends JpaRepository<WorkInstruction, Integer>, JpaSpecificationExecutor<WorkInstruction> {
+    List<WorkInstruction> findAll();
 
-    List<PutawayPolicy> findAllByOrderBySequenceAsc();
-
-    PutawayPolicy findById(int id);
+    WorkInstruction findById(int id);
 
 }

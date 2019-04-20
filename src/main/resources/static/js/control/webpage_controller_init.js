@@ -124,7 +124,6 @@ var initDataTable = function() {
                 // In some case, the column header doesn't align with the data rows when initializing.
                 // We will need to refresh the table to adjust the alignment
                 if ($(this).data("refresh") == true) {
-                    console.log("adjust columns of table:" + $(this).prop("id"));
                     table.columns.adjust();
                 }
 
@@ -280,7 +279,7 @@ var loadDropdownListContent = function(dropdownListID, variable, parameters, loa
     if (parameters.length > 0) {
         url += "?" + parameters;
     }
-    console.log("start to load content for selection: " + dropdownListID + "\n >> URL: " + url);
+
     $.ajax({
         url:url,
         beforeSend: function() {
@@ -316,10 +315,11 @@ var renderSelection = function(dropdownListID, variable, data) {
             }
 
             $.each(data.dropdownOptions, function(i, option){
+
                 selectionControl.append('<option value="' + option.value + '">' + $.i18nwd("dropdown." + variable + "." + option.value, option.text) + '</option>');
             });
             if (selectedOption != "") {
-                console.log("set control " + selectionControl.prop("id") + " to: " + selectedOption );
+
                 selectionControl.val(selectedOption);
             }
 
@@ -528,7 +528,7 @@ var initLookupController = function() {
                                  "     <button class='btn btn-light btn-sm' type='button' onclick='lookup(\"" + lookupController.prop("id") + "\", \"" + lookupController.data("variable") + "\")'> " +
                                  "     <i class='fa fa-search'></i></button> " +
                                  " </span>";
-            console.log("Add lookupIconHtml to the end of input: " + lookupController.prop("id"));
+
             lookupController.after(lookupIconHtml);
         });
     }
@@ -538,7 +538,7 @@ var lookup = function(id, variable) {
     var url = "/ws/control/lookup/" + variable;
     $.ajax({url:url})
      .done(function(res){
-         console.log(JSON.stringify(res));
+
          if (res.status == 0) {
              if ($("#lookupModal").length > 0) {
                  $("#lookupModal").remove();
@@ -648,6 +648,31 @@ var lookupSelect = function(id, value, parameters) {
     }
     $("#lookupModal").modal("hide");
 }
+
+var initFunctionKeyHandler = function() {
+    shortcut.add("Alt+F3",function() {
+	    // see if current focused control has a F3 key handler defined
+        var focusedElement = $(':focus');
+        // only when current element is a input and has a data-fkey = 'F3'
+        // defined
+        if (focusedElement.is("input:text") && focusedElement.data("fkey") == "F3") {
+            var variable = focusedElement.data("variable");
+            // Get the next number from the server and fill in the value to
+            // current control
+            var url = "/ws/systemtool/universalidentifier/" + variable + "/nextnumber";
+            $.ajax({url:url})
+                .done(function(res){
+                    if (res.status == 0) {
+                        focusedElement.val(res.data);
+                    }
+                    // ignore any error
+                });
+        }
+    });
+
+
+}
+
 $(document).ready( function () {
 
     // Load i18n first so that if any of the controller
@@ -669,4 +694,6 @@ $(document).ready( function () {
     initDatePicker();
 
     initLookupController();
+
+    initFunctionKeyHandler();
 });

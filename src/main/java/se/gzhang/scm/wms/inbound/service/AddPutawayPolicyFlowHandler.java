@@ -25,6 +25,7 @@ import se.gzhang.scm.wms.common.service.SupplierService;
 import se.gzhang.scm.wms.common.service.TrailerService;
 import se.gzhang.scm.wms.inbound.model.AddPutawayPolicyFlowModel;
 import se.gzhang.scm.wms.inbound.model.PutawayPolicy;
+import se.gzhang.scm.wms.inbound.model.PutawayPolicyStrategy;
 import se.gzhang.scm.wms.inventory.model.Inventory;
 import se.gzhang.scm.wms.inventory.service.InventoryService;
 import se.gzhang.scm.wms.inventory.service.ItemFamilyService;
@@ -137,6 +138,9 @@ public class AddPutawayPolicyFlowHandler {
         }
         if (parameters.contains("locationAisle") && !parameters.get("locationAisle").isEmpty()) {
             putawayPolicy.setLocationAisleID(parameters.get("locationAisle"));
+        }
+        if (parameters.contains("strategy") && !parameters.get("strategy").isEmpty()) {
+            putawayPolicy.setPutawayPolicyStrategy(PutawayPolicyStrategy.valueOf(parameters.get("strategy")));
         }
 
     }

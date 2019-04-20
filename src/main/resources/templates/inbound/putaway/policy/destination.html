@@ -121,7 +121,6 @@
                                            data-autocomplete=true data-variable="locationGroup">
                                 </div>
                             </div>
-
                             <div class="row">
                                 <div class="col-md-6">
                                     <label for="locationLevel" class="col-form-label" th:text="#{location.level}">Location Level:</label>
@@ -132,6 +131,13 @@
                                     <input type="text" class="form-control" id="locationAisle" name="locationAisle">
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="strategy" class="col-form-label" th:text="#{putaway.policy.strategy}">strategy:</label>
+                                    <select class="form-control" id="strategy" name="strategy" data-variable="putawayStrategy"></select>
+                                </div>
+                            </div>
+
 
                         </div>
                         <div class="card-footer">

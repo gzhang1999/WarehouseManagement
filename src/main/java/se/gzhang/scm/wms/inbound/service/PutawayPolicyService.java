@@ -35,6 +35,7 @@ import se.gzhang.scm.wms.inventory.service.InventoryService;
 import se.gzhang.scm.wms.inventory.service.InventoryStatusService;
 import se.gzhang.scm.wms.inventory.service.ItemFootprintService;
 import se.gzhang.scm.wms.layout.model.Location;
+import se.gzhang.scm.wms.layout.model.LocationStatus;
 import se.gzhang.scm.wms.layout.service.LocationService;
 
 import javax.persistence.criteria.*;
@@ -53,7 +54,7 @@ public class PutawayPolicyService {
 
     public List<PutawayPolicy> findAll(){
 
-        return putawayPolicyRepository.findAll();
+        return putawayPolicyRepository.findAllByOrderBySequenceAsc();
     }
 
     public PutawayPolicy findByPutawayPolicyId(int id){
@@ -126,6 +127,7 @@ public class PutawayPolicyService {
             return null;
         }
     }
+
     private boolean checkInventoryMatchWithPutawayPolicy(PutawayPolicy putawayPolicy, Inventory inventory) {
         if (putawayPolicy.getItem() != null &&
             !putawayPolicy.getItem().equals(inventory.getItemFootprint().getItem())) {
@@ -192,8 +194,28 @@ public class PutawayPolicyService {
         return true;
     }
 
-    // return the single location from the
-    private Location getSingleDestinationLocation(PutawayPolicy putawayPolicy, Inventory inventory) {
+    public List<PutawayPolicy> getMatchedPutawayPolicy(Inventory inventory) {
+        List<PutawayPolicy> putawayPolicyList = findAll();
+        List<PutawayPolicy> matchedPutawayPolicyList = new ArrayList<>(putawayPolicyList.size());
+        for(PutawayPolicy putawayPolicy : putawayPolicyList) {
+            if (checkInventoryMatchWithPutawayPolicy(putawayPolicy, inventory)) {
+                matchedPutawayPolicyList.add(putawayPolicy);
+            }
+        }
+        return matchedPutawayPolicyList;
+    }
+
+    public PutawayPolicy getMostMatchedPutawayPolicy(Inventory inventory) {
+        List<PutawayPolicy> putawayPolicyList = getMatchedPutawayPolicy(inventory);
+        if (putawayPolicyList.size() == 0) {
+            return null;
+        }
+        else {
+            return putawayPolicyList.get(0);
+        }
+    }
+
+    private List<Location> findLocationsByPutawayPolicy(PutawayPolicy putawayPolicy){
 
         Map<String, String> locationFilter = new HashMap<>();
         // Check if we will need to restrict by area / area group
@@ -215,32 +237,162 @@ public class PutawayPolicyService {
         if (putawayPolicy.getLocationAisleID() != null) {
             locationFilter.put("aisleID", putawayPolicy.getLocationAisleID());
         }
-        List<Location> suitableLocationList = locationService.findLocation(locationFilter);
+        return locationService.findLocation(locationFilter);
+    }
+
+    private List<Location> getValidPutawayLocation(List<Location> locationList, PutawayPolicy putawayPolicy, Inventory inventory) {
+        // valid the locations from passed in list
+        // 1. the location needs to have enough room
+        // 2. match with the mix rule
+        // 3. match with the putaway strategy
+        return validatePutawayLocationByPutawayStrategy(
+                validatePutawayLocationByMixingRule(
+                        validatePutawayLocationBySize(locationList, inventory), inventory),
+                putawayPolicy);
+
+    }
+
+    private List<Location> validatePutawayLocationBySize(List<Location> locationList, Inventory inventory) {
+
+        Iterator<Location> locationIterator = locationList.iterator();
+        while(locationIterator.hasNext()) {
+            Location location = locationIterator.next();
+            if (locationService.getEmptyVolume(location) <
+                    inventoryService.getSize(inventory)) {
+                locationIterator.remove();
+            }
+        }
+        return locationList;
+    }
+    private List<Location> validatePutawayLocationByMixingRule(List<Location> locationList, Inventory inventory) {
+
+        // TO-DO: Validate if the inventory can be put away into the location
+        // based upon the mixing rule
+        return locationList;
+    }
+    private List<Location> validatePutawayLocationByPutawayStrategy(List<Location> locationList, PutawayPolicy putawayPolicy) {
+
+        Iterator<Location> locationIterator = locationList.iterator();
+        while(locationIterator.hasNext()) {
+            Location location = locationIterator.next();
+            switch (putawayPolicy.getPutawayPolicyStrategy()) {
+                case EMPTY_LOCATION_ONLY:
+                    if (location.getUsedVolume() > 0 || location.getPendingVolume() > 0) {
+                        locationIterator.remove();
+                    }
+                    break;
+                case MIXED_LOCATION_ONLY:
+                    if (location.getUsedVolume() == 0d && location.getPendingVolume() == 0d) {
+                        locationIterator.remove();
+                    }
+                    break;
+            }
+        }
+        return locationList;
+    }
+
+    // return the single location from the locations that matches policy
+    private Location getSingleDestinationLocation(PutawayPolicy putawayPolicy, Inventory inventory) {
+
+        List<Location> suitableLocationList = findLocationsByPutawayPolicy(putawayPolicy);
         System.out.println("Get " + suitableLocationList.size() + " location for current inventory");
 
         // validate the locations by weight and size
-        List<Location> validateLocation = new ArrayList<>();
-        for(Location location : suitableLocationList) {
-            if (location.getVolume() - location.getPendingVolumn() >
-                    inventoryService.getSize(inventory)) {
-                validateLocation.add(location);
-            }
-        }
+        List<Location> validateLocation = getValidPutawayLocation(suitableLocationList, putawayPolicy, inventory);
+
+        validateLocation = sortValidPutawayLocation(validateLocation, putawayPolicy);
+
         if (validateLocation.size() > 0) {
-            validateLocation.sort(new Comparator<Location>() {
-                @Override
-                public int compare(Location o1, Location o2) {
-                    if ((o2.getVolume() - o2.getPendingVolumn()) >
-                            (o1.getVolume() - o1.getPendingVolumn())) {
-                        return 1;
-                    }
-                    else {
-                        return -1;
-                    }
-                }
-            });
             return validateLocation.get(0);
         }
         return null;
     }
+
+    private List<Location> sortValidPutawayLocation(List<Location> locationList, PutawayPolicy putawayPolicy) {
+        // If policy is
+        // 1. Mixed location first: then always return mixed location first
+        // 2. Empty location first: always return empty location first
+        // 3. otherwise, return location with less empty volume first
+        //           Location with same volume, return based on putaway travel sequence
+        switch (putawayPolicy.getPutawayPolicyStrategy()) {
+            case MIXED_LOCATION_FIRST:
+                locationList.sort(new Comparator<Location>() {
+                    @Override
+                    public int compare(Location o1, Location o2) {
+                        if (o1.getLocationStatus() == LocationStatus.EMPTY &&
+                                o2.getLocationStatus() != LocationStatus.EMPTY) {
+                            // first location is truly empty while second location is not
+                            // let's return second location first
+                            return -1;
+                        }
+                        else if (o1.getLocationStatus() != LocationStatus.EMPTY &&
+                                o2.getLocationStatus() == LocationStatus.EMPTY) {
+                            // second location is truly empty while first location is not
+                            // let's return first location first
+                            return 1;
+                        }
+                        else {
+                            // both location are equal based up the status, let's return
+                            // based on the volume and travel sequence
+                            int o1_emptyVolume = (int) locationService.getEmptyVolume(o1);
+                            int o2_emptyVolume = (int) locationService.getEmptyVolume(o2);
+                            if (o1_emptyVolume == o2_emptyVolume) {
+                                return o1.getPutawaySequence() - o2.getPutawaySequence();
+                            } else {
+                                return o1_emptyVolume - o2_emptyVolume;
+                            }
+                        }
+                    }
+                });
+                break;
+            case EMPTY_LOCATION_FIRST:
+                locationList.sort(new Comparator<Location>() {
+                    @Override
+                    public int compare(Location o1, Location o2) {
+                        if (o1.getLocationStatus() == LocationStatus.EMPTY &&
+                                o2.getLocationStatus() != LocationStatus.EMPTY) {
+                            // first location is truly empty while second location is not
+                            // let's return FIRST location first
+                            return 1;
+                        }
+                        else if (o1.getLocationStatus() != LocationStatus.EMPTY &&
+                                o2.getLocationStatus() == LocationStatus.EMPTY) {
+                            // second location is truly empty while first location is not
+                            // let's return SECOND location first
+                            return -1;
+                        }
+                        else {
+                            // both location are equal based up the status, let's return
+                            // based on the volume and travel sequence
+                            int o1_emptyVolume = (int) locationService.getEmptyVolume(o1);
+                            int o2_emptyVolume = (int) locationService.getEmptyVolume(o2);
+                            if (o1_emptyVolume == o2_emptyVolume) {
+                                return o1.getPutawaySequence() - o2.getPutawaySequence();
+                            } else {
+                                return o1_emptyVolume - o2_emptyVolume;
+                            }
+                        }
+                    }
+                });
+                break;
+            default:
+                locationList.sort(new Comparator<Location>() {
+                    @Override
+                    public int compare(Location o1, Location o2) {
+                        // both location are equal based up the status, let's return
+                        // based on the volume and travel sequence
+                        int o1_emptyVolume = (int) locationService.getEmptyVolume(o1);
+                        int o2_emptyVolume = (int) locationService.getEmptyVolume(o2);
+                        if (o1_emptyVolume == o2_emptyVolume) {
+                            return o1.getPutawaySequence() - o2.getPutawaySequence();
+                        } else {
+                            return o1_emptyVolume - o2_emptyVolume;
+                        }
+                    }
+                });
+
+        }
+        return locationList;
+    }
+
 }

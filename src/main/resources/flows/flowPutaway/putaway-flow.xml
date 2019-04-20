@@ -11,7 +11,7 @@
                   result="flowScope.putawayFlowModel" />
     </on-start>
 
-    <view-state id="putaway" view="inbound/putaway/putaway" model="flowScope.putawayFlowModel">
+    <view-state id="putaway" view="inbound/putaway/policy/putaway" model="flowScope.putawayFlowModel">
         <on-render>
             <set name="viewScope.applicationID" value="'Inbound'" type="java.lang.String"></set>
             <set name="viewScope.formID" value="'Putaway'" type="java.lang.String"></set>

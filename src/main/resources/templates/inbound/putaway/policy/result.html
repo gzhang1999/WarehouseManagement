@@ -120,6 +120,10 @@
                                 <span th:text="#{location.aisle}">Location Aisle</span>:
                                 <span th:text="${addPutawayPolicyFlowModel.putawayPolicy?.locationAisleID}"></span>
                             </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{putaway.policy.strategy}">Strategy</span>:
+                                <span th:text="#{'putaway.policy.strategy.' + ${addPutawayPolicyFlowModel.putawayPolicy?.putawayPolicyStrategy}}"></span>
+                            </li>
                         </ul>
                     </div>
 

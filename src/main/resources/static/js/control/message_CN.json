@@ -130,5 +130,9 @@
   "inventory.lpn":"LPN",
   "inventory.quantity":"数量",
   "putaway.policy.execute": "执行",
-  "message.receipt.without.trailer": "当前入库单没有车辆关联"
+  "message.receipt.without.trailer": "当前入库单没有车辆关联",
+  "dropdown.putawayStrategy.EMPTY_LOCATION_ONLY": "只允许空库位",
+  "dropdown.putawayStrategy.MIXED_LOCATION_ONLY": "只允许非空库位",
+  "dropdown.putawayStrategy.EMPTY_LOCATION_FIRST": "空库位优先",
+  "dropdown.putawayStrategy.MIXED_LOCATION_FIRST": "非空库位优先"
 }

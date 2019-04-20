@@ -27,6 +27,7 @@ import se.gzhang.scm.wms.common.model.Trailer;
 import se.gzhang.scm.wms.common.model.TrailerState;
 import se.gzhang.scm.wms.common.repository.CarrierRepository;
 import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.inbound.model.PutawayPolicy;
 import se.gzhang.scm.wms.inbound.model.Receipt;
 import se.gzhang.scm.wms.inbound.model.ReceiptLine;
 import se.gzhang.scm.wms.inbound.repository.ReceiptRepository;
@@ -64,6 +65,10 @@ public class ReceiptService {
     ReceiptLineService receiptLineService;
     @Autowired
     ItemFootprintService itemFootprintService;
+    @Autowired
+    PutawayPolicyService putawayPolicyService;
+    @Autowired
+    PutawayService putawayService;
 
     public List<Receipt> findAll(){
 
@@ -216,7 +221,14 @@ public class ReceiptService {
         receiptLine.setReceivedQuantity(receiptLine.getReceivedQuantity() + quantity);
         receiptLineService.save(receiptLine);
 
-        return inventoryService.createInventory(inventory, "Receiving", "Receiving");
+        Inventory newInventory = inventoryService.createInventory(inventory, "Receiving", "Receiving");
+        if (generatePutawayWork) {
+            // Start to generate putaway work
+            // Let's check if we have putawway policy that
+            // matches the inventory
+            putawayService.generatePutawayWork(inventory);
+        }
+        return inventoryService.findByInventoryID(newInventory.getId());
 
     }
     public List<Inventory> getReceivedInventoryByReceiptLine(ReceiptLine receiptLine){

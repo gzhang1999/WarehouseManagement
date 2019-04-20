@@ -75,4 +75,17 @@ public class PutawayPolicyController {
         return new WebServiceResponseWrapper<List<PutawayPolicy>>(0, "", putawayPolicyList);
     }
 
+
+    @ResponseBody
+    @RequestMapping(value="/ws/inbound/putaway/policy/{putawayPolicyID}/delete")
+    public WebServiceResponseWrapper remotePutawayPolicy(@PathVariable("putawayPolicyID") int putawayPolicyID) {
+        PutawayPolicy putawayPolicy = putawayPolicyService.findByPutawayPolicyId(putawayPolicyID);
+        if (putawayPolicy == null) {
+            return WebServiceResponseWrapper.raiseError(10000, "Can't find the putaway policy by id: " + putawayPolicyID);
+        }
+
+        putawayPolicyService.deleteByPutawayPolicyID(putawayPolicyID);
+        return new WebServiceResponseWrapper<PutawayPolicy>(0, "", putawayPolicy);
+
+    }
 }

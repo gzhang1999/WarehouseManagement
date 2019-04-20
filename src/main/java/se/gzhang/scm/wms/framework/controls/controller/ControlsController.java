@@ -27,6 +27,7 @@ import se.gzhang.scm.wms.framework.controls.model.DropdownOption;
 import se.gzhang.scm.wms.framework.controls.model.LookupTextbox;
 import se.gzhang.scm.wms.framework.controls.service.DropdownListService;
 import se.gzhang.scm.wms.framework.controls.service.LookupTextboxService;
+import se.gzhang.scm.wms.framework.controls.service.UniversalIdentifierService;
 import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
 
 import java.util.ArrayList;
@@ -41,6 +42,8 @@ public class ControlsController {
     LookupTextboxService lookupTextboxService;
     @Autowired
     private CacheManager cacheManager;
+    @Autowired
+    UniversalIdentifierService universalIdentifierService;
 
     @ResponseBody
     @RequestMapping(value="/ws/control/dropdown/{variable}", method = RequestMethod.GET)
@@ -118,4 +121,10 @@ public class ControlsController {
         return parameters;
     }
 
+    @ResponseBody
+    @RequestMapping(value="/ws/control/nextnumber/{variable}", method = RequestMethod.GET)
+    public WebServiceResponseWrapper getNextNumber(@PathVariable("variable") String variable) {
+
+        return new WebServiceResponseWrapper<String>(0, "", universalIdentifierService.getNextNumber(variable));
+    }
 }

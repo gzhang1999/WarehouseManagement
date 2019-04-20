@@ -67,7 +67,22 @@ public class Location  implements Serializable {
     @Column(name = "volume")
     private Double volume = 0.0;
     @Column(name = "pending_volume")
-    private Double pendingVolumn = 0.0;
+    private Double pendingVolume = 0.0;
+    @Column(name = "used_volume")
+    private Double usedVolume = 0.0;
+
+
+    @Column(name = "travel_sequence")
+    private Integer travelSequence;
+    @Column(name = "order_allocation_sequence")
+    private Integer orderAllocationSequence;
+    @Column(name = "putaway_sequence")
+    private Integer putawaySequence;
+    @Column(name = "pick_sequence")
+    private Integer pickSequence;
+    @Column(name = "count_sequence")
+    private Integer countSequence;
+
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(name = "location_group_assignment", joinColumns = @JoinColumn(name = "location_id"), inverseJoinColumns = @JoinColumn(name = "location_group_id"))
@@ -148,60 +163,92 @@ public class Location  implements Serializable {
         this.aisleID = aisleID;
     }
 
-    public boolean isPickable() {
+    public Boolean isPickable() {
         return pickable;
     }
 
-    public void setPickable(boolean pickable) {
+    public void setPickable(Boolean pickable) {
         this.pickable = pickable;
     }
 
-    public boolean isStorable() {
+    public Boolean isStorable() {
         return storable;
     }
 
-    public void setStorable(boolean storable) {
+    public void setStorable(Boolean storable) {
         this.storable = storable;
     }
 
-    public boolean isUsable() {
+    public Boolean isUsable() {
         return usable;
     }
 
-    public void setUsable(boolean usable) {
+    public void setUsable(Boolean usable) {
         this.usable = usable;
     }
 
-    public double getLength() {
+    public Double getLength() {
         return length;
     }
 
-    public void setLength(double length) {
+    public void setLength(Double length) {
         this.length = length;
     }
 
-    public double getWidth() {
+    public Double getWidth() {
         return width;
     }
 
-    public void setWidth(double width) {
+    public void setWidth(Double width) {
         this.width = width;
     }
 
-    public double getHeight() {
+    public Double getHeight() {
         return height;
     }
 
-    public void setHeight(double height) {
+    public void setHeight(Double height) {
         this.height = height;
     }
 
-    public double getVolume() {
+    public Double getVolume() {
         return volume;
     }
 
-    public void setVolume(double volume) {
+    public void setVolume(Double volume) {
         this.volume = volume;
+    }
+
+    public Double getPendingVolume() {
+        return pendingVolume;
+    }
+
+    public void setPendingVolume(Double pendingVolume) {
+        this.pendingVolume = pendingVolume;
+    }
+
+    public Double getUsedVolume() {
+        return usedVolume;
+    }
+
+    public void setUsedVolume(Double usedVolume) {
+        this.usedVolume = usedVolume;
+    }
+
+    public Set<LocationGroup> getLocationGroups() {
+        return locationGroups;
+    }
+
+    public void setLocationGroups(Set<LocationGroup> locationGroups) {
+        this.locationGroups = locationGroups;
+    }
+
+    public String getLevel() {
+        return level;
+    }
+
+    public void setLevel(String level) {
+        this.level = level;
     }
 
     public Velocity getVelocity() {
@@ -228,51 +275,101 @@ public class Location  implements Serializable {
         this.inventoryList = inventoryList;
     }
 
-    public double getCoordinateX() {
+    public Double getCoordinateX() {
         return coordinateX;
     }
 
-    public void setCoordinateX(double coordinateX) {
+    public void setCoordinateX(Double coordinateX) {
         this.coordinateX = coordinateX;
     }
 
-    public double getCoordinateY() {
+    public Double getCoordinateY() {
         return coordinateY;
     }
 
-    public void setCoordinateY(double coordinateY) {
+    public void setCoordinateY(Double coordinateY) {
         this.coordinateY = coordinateY;
     }
 
-    public double getCoordinateZ() {
+    public Double getCoordinateZ() {
         return coordinateZ;
     }
 
-    public void setCoordinateZ(double coordinateZ) {
+    public void setCoordinateZ(Double coordinateZ) {
         this.coordinateZ = coordinateZ;
     }
 
-    public Set<LocationGroup> getLocationGroups() {
-        return locationGroups;
+    public Integer getTravelSequence() {
+        return travelSequence;
     }
 
-    public void setLocationGroups(Set<LocationGroup> locationGroups) {
-        this.locationGroups = locationGroups;
+    public void setTravelSequence(Integer travelSequence) {
+        this.travelSequence = travelSequence;
     }
 
-    public String getLevel() {
-        return level;
+    public Integer getOrderAllocationSequence() {
+        return orderAllocationSequence;
     }
 
-    public void setLevel(String level) {
-        this.level = level;
+    public void setOrderAllocationSequence(Integer orderAllocationSequence) {
+        this.orderAllocationSequence = orderAllocationSequence;
     }
 
-    public double getPendingVolumn() {
-        return pendingVolumn;
+    public Integer getPutawaySequence() {
+        return putawaySequence;
     }
 
-    public void setPendingVolumn(double pendingVolumn) {
-        this.pendingVolumn = pendingVolumn;
+    public void setPutawaySequence(Integer putawaySequence) {
+        this.putawaySequence = putawaySequence;
+    }
+
+    public Integer getPickSequence() {
+        return pickSequence;
+    }
+
+    public void setPickSequence(Integer pickSequence) {
+        this.pickSequence = pickSequence;
+    }
+
+    public Integer getCountSequence() {
+        return countSequence;
+    }
+
+    public void setCountSequence(Integer countSequence) {
+        this.countSequence = countSequence;
+    }
+
+    public LocationStatus getLocationStatus() {
+        // it is easy to check whether the location is full.
+        if (getUsedVolume() + getPendingVolume() > getVolume()) {
+            return LocationStatus.FULL;
+        }
+
+        if (getUsedVolume() > 0 && getPendingVolume() > 0){
+            // The location has inventory and pending inventory,
+            // it can be either FILLED_PENDING(When total volume
+            // doesn't exceed the volume of the location) or
+            // FULL(when total volume reaches or exceed the
+            // volume of the location)
+            // since we already return FULL, if we are still here,
+            // it is FILLED_PENDING
+            return LocationStatus.FILLED_PENDING;
+
+        }
+        else if (getUsedVolume() > 0) {
+            // The location has inventory inside, without any pending inventory
+            // and is not full
+            return LocationStatus.FILLED;
+
+        }
+        else if (getPendingVolume() > 0) {
+            // The location is empty, but has pending inventory,
+            // and is not full
+            return LocationStatus.EMPTY_PENDING;
+        }
+        else {
+            // The location is empty and doesn't have any pending inventory
+            return LocationStatus.EMPTY;
+        }
     }
 }

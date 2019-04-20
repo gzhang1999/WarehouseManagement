@@ -218,6 +218,25 @@
         window.open("/flowPutaway?putawaypolicyid=" + putawayPolicyID, "_self");
     }
 
+    var removePutawayPolicy = function(event) {
+        var control = $(event.target);
+        var putawayPolicyID = control.data("putawaypolicyid");
+
+        var url = '/ws/inbound/putaway/policy/' + putawayPolicyID + '/delete';
+
+        $.ajax({url:url})
+            .done(function( res ) {
+                if (res.status == 0)
+                {
+                    refreshMainGrid();
+                }
+            });
+    }
+    var refreshMainGrid = function() {
+        $("#putaway_policy_query").submit();
+
+    }
+
 
 </script>
 </body>

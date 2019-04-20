@@ -283,14 +283,14 @@ public class LocationService {
         inventory.setDestinationLocation(location);
         inventoryService.save(inventory);
         if (location.getArea().getVolumeType().equals(VolumeType.EACH)) {
-            location.setPendingVolumn(location.getPendingVolumn() + inventory.getQuantity());
+            location.setPendingVolume(location.getPendingVolume() + inventory.getQuantity());
             save(location);
         }
         else {
             // By default, we will use size(length * width * height) to calculate
             // the size of the inventory and location
             double size = inventoryService.getSize(inventory);
-            location.setPendingVolumn(location.getPendingVolumn() + size);
+            location.setPendingVolume(location.getPendingVolume() + size);
             save(location);
         }
     }
@@ -300,15 +300,59 @@ public class LocationService {
         inventory.setDestinationLocation(null);
         inventoryService.save(inventory);
         if (location.getArea().getVolumeType().equals(VolumeType.EACH)) {
-            location.setPendingVolumn(location.getPendingVolumn() - inventory.getQuantity());
+            location.setPendingVolume(location.getPendingVolume() - inventory.getQuantity() > 0 ? location.getPendingVolume() - inventory.getQuantity()  : 0);
             save(location);
         }
         else {
             // By default, we will use size(length * width * height) to calculate
             // the size of the inventory and location
             double size = inventoryService.getSize(inventory);
-            location.setPendingVolumn(location.getPendingVolumn() - size);
+            location.setPendingVolume(location.getPendingVolume() - size > 0 ? location.getPendingVolume() - size : 0);
             save(location);
         }
+    }
+
+    public List<Inventory> getInventoryInLocation(Location location) {
+        Map<String, String> critiria = new HashMap<>();
+        critiria.put("locationName", location.getName());
+        return inventoryService.findInventory(critiria);
+    }
+
+    // Return the current userd volume based on the inventory in this location
+    public double getUsedVolumeByInventory(Location location) {
+
+        // Get all the inventory in this location
+        List<Inventory> inventoryList = getInventoryInLocation(location);
+        if (inventoryList.isEmpty()) {
+            return 0.0;
+        }
+
+        double currentVolume = 0;
+        if (location.getArea().getVolumeType().equals(VolumeType.EACH)) {
+            for(Inventory inventory : inventoryList) {
+                currentVolume += inventory.getQuantity();
+            }
+        }
+        else {
+            // By default, we will use size(length * width * height) to calculate
+            // the size of the inventory and location
+            for(Inventory inventory : inventoryList) {
+                double size = inventoryService.getSize(inventory);
+                currentVolume += size;
+            }
+        }
+        return currentVolume;
+    }
+
+    // return empty space so we know how many more inventory can be
+    // fit into this location
+    public double getEmptyVolume(Location location) {
+        return (location.getVolume() - location.getUsedVolume() - location.getPendingVolume() > 0 ?
+                    location.getVolume() - location.getUsedVolume() - location.getPendingVolume() : 0);
+    }
+
+    public void refreshLocationUsedVolume(Location location) {
+        location.setUsedVolume(getUsedVolumeByInventory(location));
+        save(location);
     }
 }

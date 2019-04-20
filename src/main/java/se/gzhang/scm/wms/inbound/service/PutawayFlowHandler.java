@@ -18,6 +18,7 @@
 
 package se.gzhang.scm.wms.inbound.service;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import se.gzhang.scm.wms.inbound.model.*;
@@ -68,6 +69,8 @@ public class PutawayFlowHandler {
         // 2. doesn't have the destination location yet
         PutawayPolicy putawayPolicy = putawayFlowModel.getPutawayPolicy();
         for(Inventory inventory : receivedInventory) {
+            Hibernate.initialize(inventory.getLocation());
+            Hibernate.initialize(inventory.getDestinationLocation());
             if(inventory.getLpn() != "" && inventory.getDestinationLocation() == null) {
                 Location destination = putawayPolicyService.getPutawayDestination(putawayPolicy, inventory);
                 if (destination != null) {

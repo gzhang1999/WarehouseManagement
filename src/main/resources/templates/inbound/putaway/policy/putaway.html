@@ -120,6 +120,10 @@
                                 <span th:text="#{location.aisle}">Location Aisle</span>:
                                 <span th:text="${putawayFlowModel.putawayPolicy?.locationAisleID}"></span>
                             </li>
+                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                <span th:text="#{putaway.policy.strategy}">Strategy</span>:
+                                <span th:text="#{'putaway.policy.strategy.' + ${putawayFlowModel.putawayPolicy?.putawayPolicyStrategy}}"></span>
+                            </li>
                         </ul>
                     </div>
 
@@ -151,19 +155,22 @@
                             </thead>
                             <tbody th:if="${not #lists.isEmpty(putawayFlowModel.inventoryList)}">
 
-                            <tr th:each="inventory : ${putawayFlowModel.inventoryList}">
+                            <tr th:each="inventory : ${putawayFlowModel.inventoryList}" th:id="'inventory_' + ${inventory.lpn} + '_row'">
                                 <td>
                                     <input type="checkbox" th:data-type="inventory_checkbox"
-                                           th:data-lpn="${inventory.lpn}" th:disabled="${inventory.suggestedDestinationLocation?.name == null}"
-                                           th:data-suggestdestination="${inventory.suggestedDestinationLocation?.name}">
+                                           th:data-lpn="${inventory.lpn}"
+                                           th:disabled="${inventory.suggestedDestinationLocation?.name == null && inventory.destinationLocation?.name == null}"
+                                           th:data-suggestdestination="${inventory.suggestedDestinationLocation?.name}"
+                                           th:data-destinationlocation="${inventory.destinationLocation?.name}"
+                                           th:id="'inventory_' + ${inventory.lpn} + '_checkbox'">
                                 </td>
                                 <td th:text="${inventory.lpn}"></td>
                                 <td th:text="${inventory.itemFootprint.item.name}"></td>
                                 <td th:text="${inventory.itemFootprint.item.description}"></td>
                                 <td th:text="${inventory.quantity}"></td>
                                 <td th:text="${inventory.location?.name}"></td>
-                                <td th:text="${inventory.suggestedDestinationLocation?.name}"></td>
-                                <td th:text="${inventory.destinationLocation?.name}"></td>
+                                <td th:id="'inventory_' + ${inventory.lpn} + '_suggestedDestinationLocation'" th:text="${inventory.suggestedDestinationLocation?.name}"></td>
+                                <td th:id="'inventory_' + ${inventory.lpn} + '_destinationLocation'" th:text="${inventory.destinationLocation?.name}"></td>
                             </tr>
 
                             </tbody>
@@ -192,7 +199,7 @@
 <footer th:replace="fragment/footer :: app-footer"></footer>
 <script>
     $("#btnReceiveStagePutaway").click(function(){
-        var url="/ws/inbound/putaway/";
+        var url="/ws/inbound/putaway/immediate";
         // Loop through all lines and putaway the inventory that selected
 
         var checkboxList = $("input[data-type='inventory_checkbox']:checkbox:checked");
@@ -201,21 +208,58 @@
             checkboxList.each(function(){
                 var lpn = $(this).data("lpn")
                 var suggestDestination = $(this).data("suggestdestination");
+                var destinationLocation = $(this).data("destinationlocation");
                 $.ajax({
                     method:"POST",
                     url : url,
                     data:{
                          lpn: lpn,
-                         suggestDestination: suggestDestination
+                         suggestDestination: suggestDestination,
+                         destinationLocation: destinationLocation
                     }
                 }).done(function(res) {
                      console.log("get result:\n" + JSON.stringify(res));
+                     var rowID = "inventory_" + res.data[0].lpn + "_row";
+                     var putawayResultTable = $("#putawayResultTable").DataTable();
+                     putawayResultTable.row("#" +  rowID).remove().draw();
 
                 })
             });
         }
+    })
 
 
+    $("#btnReceiveStagePutawayWork").click(function(){
+        var url="/ws/inbound/putaway/work";
+        // Loop through all lines and putaway the inventory that selected
+
+        var checkboxList = $("input[data-type='inventory_checkbox']:checkbox:checked");
+
+        if(checkboxList.length != 0) {
+            checkboxList.each(function(){
+                var lpn = $(this).data("lpn")
+                var suggestDestination = $(this).data("suggestdestination");
+                var destinationLocation = $(this).data("destinationlocation");
+
+                if (destinationLocation == undefined && suggestDestination != "") {
+                    $.ajax({
+                        method:"POST",
+                        url : url,
+                        data:{
+                             lpn: lpn,
+                             suggestDestination: suggestDestination
+                        }
+                    }).done(function(res) {
+                         if (res.status == 0) {
+                             $('#inventory_' + res.data[0].lpn + '_checkbox').prop("checked", false);
+                             $('#inventory_' + res.data[0].lpn + '_suggestedDestinationLocation').text("");
+                             $('#inventory_' + res.data[0].lpn + '_destinationLocation').text(res.data[0].destinationLocation.name);
+                         }
+
+                    })
+                }
+            });
+        }
     })
 
 </script>

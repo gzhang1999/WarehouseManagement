@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <a class="badge badge-success float-right" data-toggle="modal" href="#editModal"
+                               data-action="new" th:text="#{universalIdentifier.new}" >
+                                New Universal Identifier</a>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="universal_identifier_query" data-display="universalIdentifierTable" th:action="@{/ws/systemtool/universalidentifier/list}">
+                            <div class="form-group my-sm-1">
+                                <label for="queryVariable" class="col-form-label" th:text="#{universalIdentifier.variable}">Variable:</label>
+                                <input type="text" class="form-control  mx-sm-4" id="queryVariable" name="variable" >
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="universal_identifier_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="universal_identifier_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "universalIdentifierTable" class="table table-striped table-bordered display nowrap"
+                                       style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
+                                    <thead>
+                                        <tr>
+                                            <td th:text="#{universalIdentifier.id}">ID</td>
+                                            <td th:text="#{universalIdentifier.variable}">Variable</td>
+                                            <td th:text="#{universalIdentifier.prefix}">Prefix</td>
+                                            <td th:text="#{universalIdentifier.postfix}">Postfix</td>
+                                            <td th:text="#{universalIdentifier.length}">Number Length</td>
+                                            <td th:text="#{universalIdentifier.currentNumber}">Current Number</td>
+                                            <td th:text="#{universalIdentifier.rollover}">Rollover</td>
+                                            <td></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody th:if="${universalIdentifierList != null and not #lists.isEmpty(universalIdentifierList)}">
+                                        <tr  th:each="universalIdentifier : ${universalIdentifierList}" th:id="${'row_' + universalIdentifier.id}">
+                                            <td th:text="${universalIdentifier.id}">ID</td>
+                                            <td th:text="${universalIdentifier.variable}">Variable</td>
+                                            <td th:text="${universalIdentifier.Prefix}">Prefix</td>
+                                            <td th:text="${universalIdentifier.postfix}">Postfix</td>
+                                            <td th:text="${universalIdentifier.length}">Number Length</td>
+                                            <td th:text="${universalIdentifier.currentNumber}">Current Number</td>
+                                            <td th:text="${universalIdentifier.rollover}">Rollover</td>
+                                            <td>
+                                                <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#editModal'
+                                                        th:data-universalidentifierid="${universalIdentifier.id}" th:text="#{edit}" data-action="edit"></button>
+                                                <button class='btn btn-danger' type='button' th:data-universalidentifierid="${universalIdentifier.id}"
+                                                        onclick='removeUniversalIdentifier(event)' th:text="#{delete}"></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal for editing existing record -->
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel" th:text="#{universalIdentifier.editmodel.title}">Edit Universal Identifier</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="editModalErrorMessage"></div>
+                    <form>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editModalUniversalIdentifierID" class="col-form-label" th:text="#{universalIdentifier.id}">Universal Identifier ID:</label>
+                                <input type="text" class="form-control" id="editModalUniversalIdentifierID" disabled>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editModalUniversalIdentifierVariable" class="col-form-label" th:text="#{universalIdentifier.variable}">Universal Identifier Variable:</label>
+                                <input type="text" class="form-control" id="editModalUniversalIdentifierVariable" >
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="editModalUniversalIdentifierPrefix" class="col-form-label" th:text="#{universalIdentifier.prefix}">Universal Identifier Prefix:</label>
+                                <input type="text" class="form-control" id="editModalUniversalIdentifierPrefix" >
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editModalUniversalIdentifierPostfix" class="col-form-label" th:text="#{universalIdentifier.postfix}">Universal Identifier Postfix:</label>
+                                <input type="text" class="form-control" id="editModalUniversalIdentifierPostfix" >
+                            </div>
+                            <div class="col-md-4">
+                                <label for="editModalUniversalIdentifierLength" class="col-form-label" th:text="#{universalIdentifier.length}">Universal Identifier Number Length:</label>
+                                <input type="text" class="form-control" id="editModalUniversalIdentifierLength" >
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editModalUniversalIdentifierCurrentNumber" class="col-form-label" th:text="#{universalIdentifier.currentNumber}">Universal Identifier Current Number:</label>
+                                <input type="text" class="form-control" id="editModalUniversalIdentifierCurrentNumber" >
+                            </div>
+                            <div class="col-md-6 align-middle mt-3" >
+                                <input type="checkbox" id ="editModalUniversalIdentifierRollover" >
+                                <label for="editModalUniversalIdentifierRollover" class="col-form-label" th:text="#{universalIdentifier.rollover}">Universal Identifier Rollover:</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" th:text="#{close}">Close</button>
+                    <button type="button" class="btn btn-primary" id="editSave" th:text="#{save}">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+
+    var renderTable = function(tableID, data, customFields) {
+
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            var htmlData = "";
+            $.each(data, function(index, universalIdentifier){
+                htmlData +=
+                    "<tr  id='row_" + universalIdentifier.id + "'>" +
+                    "   <td> " + universalIdentifier.id + "   </td>" +
+                    "   <td>" + universalIdentifier.variable + "   </td>" +
+                    "   <td>" + universalIdentifier.prefix + "   </td>" +
+                    "   <td>" + universalIdentifier.postfix + "   </td>" +
+                    "   <td>" + universalIdentifier.length + "   </td>" +
+                    "   <td>" + universalIdentifier.currentNumber + "   </td>" +
+                    "   <td>" +
+                    "        <input type='checkbox' disabled checked='" + (universalIdentifier.rollover) + "'>" +
+                    "   </td>" +
+                    "   <td> " +
+                    "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#editModal' " +
+                    "               data-universalidentifierid='" + universalIdentifier.id + "' data-action='edit'>" + $.i18n("edit")+ "</button>"+
+                    "       <button class='btn btn-danger' type='button' data-universalidentifierid='" + universalIdentifier.id + "'" +
+                    "               onclick='removeUniversalIdentifier(event)'>" + $.i18n("delete")+ "</button>"+
+                    "   </td> "
+                     "</tr>";
+            });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
+        }
+    }
+
+    $('#editModal').on('show.bs.modal', function (event) {
+        clearEditModal();
+        var button = $(event.relatedTarget);
+        var action = button.data('action');
+        console.log("action: " + action);
+        console.log("universalidentifierid:" +  button.data('universalidentifierid'));
+        if (action == "edit") {
+            var universalIdentifierID = button.data('universalidentifierid');
+            var url = '/ws/systemtool/universalidentifier/'+universalIdentifierID;
+            $.ajax({url:url})
+                .done(function( res ) {
+                    if (res.status == 0)
+                    {
+                        var universalIdentifier = res.data;
+
+                        $('#editModalUniversalIdentifierID').val(universalIdentifier.id);
+                        $('#editModalUniversalIdentifierVariable').val(universalIdentifier.variable);
+                        $('#editModalUniversalIdentifierRollover').prop('checked', universalIdentifier.rollover);
+
+                        $('#editModalUniversalIdentifierPrefix').val(universalIdentifier.prefix);
+                        $('#editModalUniversalIdentifierPostfix').val(universalIdentifier.postfix);
+                        $('#editModalUniversalIdentifierLength').val(universalIdentifier.length);
+                        $('#editModalUniversalIdentifierCurrentNumber').val(universalIdentifier.currentNumber);
+                    }
+                });
+        }
+    })
+
+
+    var clearEditModal = function() {
+
+        $('#editModalUniversalIdentifierID').prop('readonly', true);
+
+        $('#editModalUniversalIdentifierID').val('');
+        $('#editModalUniversalIdentifierVariable').val('');
+        $('#editModalUniversalIdentifierRollover').prop('checked', false);
+
+        $('#editModalUniversalIdentifierPrefix').val('');
+        $('#editModalUniversalIdentifierPostfix').val('');
+        $('#editModalUniversalIdentifierLength').val('');
+        $('#editModalUniversalIdentifierCurrentNumber').val('');
+
+        $('#editModalErrorMessage').text('');
+    }
+
+    $('#editSave').click(function(){
+        var universalIdentifierID = $('#editModalUniversalIdentifierID').val();
+
+        var url = "/ws/systemtool/universalidentifier/";
+        if ($('#editModalUniversalIdentifierID').val() == "") {
+            url += "new";
+        }
+        else {
+            url += universalIdentifierID + "/edit";
+        }
+
+        $.ajax({
+            method:"POST",
+            url : url,
+            data:{
+                 variable: $('#editModalUniversalIdentifierVariable').val(),
+                 rollover: $('#editModalUniversalIdentifierRollover').val(),
+                 prefix: $('#editModalUniversalIdentifierPrefix').val(),
+                 postfix: $('#editModalUniversalIdentifierPostfix').val(),
+                 length: $('#editModalUniversalIdentifierLength').val(),
+                 currentNumber: $('#editModalUniversalIdentifierCurrentNumber').val()
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+                refreshMainGrid();
+
+                $('#editModalErrorMessage').text('');
+
+                $('#editModal').modal('toggle');
+            }
+            else{
+                $('#editModalErrorMessage').text(res.status + " : " + res.message);
+            }
+        });
+    })
+    var refreshMainGrid = function() {
+        $("#universal_identifier_query").submit();
+
+    }
+
+    var removeUniversalIdentifier = function(event) {
+        var control = $(event.target);
+        var universalIdentifierID = control.data("universalidentifierid");
+        var url = "/ws/systemtool/universalidentifier/" + universalIdentifierID + "/delete";
+        $.ajax({
+                method:"DELETE",
+                url : url
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    refreshMainGrid();
+                }
+                else{
+                    console.log("Error when delete Receipt: " + JSON.stringify(res))
+                }
+            });
+
+    }
+
+
+</script>
+</body>
+</html>

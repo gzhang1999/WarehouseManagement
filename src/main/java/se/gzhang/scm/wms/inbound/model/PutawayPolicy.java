@@ -113,6 +113,12 @@ public class PutawayPolicy  implements Serializable {
     @Column(name = "location_aisle_id")
     private String locationAisleID;
 
+    // Putaway Strategy
+    // whether to find an empty location first,
+    // or find a location with inventory first
+    @Column(name = "strategy")
+    private PutawayPolicyStrategy putawayPolicyStrategy;
+
     public Integer getId() {
         return id;
     }
@@ -247,5 +253,13 @@ public class PutawayPolicy  implements Serializable {
 
     public void setLocationAisleID(String locationAisleID) {
         this.locationAisleID = locationAisleID;
+    }
+
+    public PutawayPolicyStrategy getPutawayPolicyStrategy() {
+        return putawayPolicyStrategy;
+    }
+
+    public void setPutawayPolicyStrategy(PutawayPolicyStrategy putawayPolicyStrategy) {
+        this.putawayPolicyStrategy = putawayPolicyStrategy;
     }
 }

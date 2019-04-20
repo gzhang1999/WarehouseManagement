@@ -464,6 +464,7 @@
                                "                   <th>" + $.i18n("item.number") + "</th> " +
                                "                   <th>" + $.i18n("item.description") + "</th> " +
                                "                   <th>" + $.i18n("receipt.line.expectedQuantity") + "</th> " +
+                               "                   <th>" + $.i18n("receipt.line.receivedQuantity") + "</th> " +
                                "                   <th></th> " +
                                "               </tr> " +
                                "           </thead> " +
@@ -474,7 +475,7 @@
                                 "    <td> "+ receiptLine.externalID + "</td> " +
                                 "    <td> "+ receiptLine.item.name + "</td> " +
                                 "    <td> "+ receiptLine.item.description + "</td> " +
-                                "    <td> "+ receiptLine.expectedQuantity + "</td> " +
+                                "    <td> "+ receiptLine.receivedQuantity + "</td> " +
                                 "    <td>" +
                                 "        <button class='btn btn-primary' type='button' data-toggle='modal' href='#editReceiptLineModal'  data-receiptlineid='" + receiptLine.id + "' data-action='change'>" + $.i18n("receipt.line.edit") + "</button>" +
                                 "        <button class='btn btn-danger' type='button' onclick='removeReceiptLine(event)' data-receiptlineid='" + receiptLine.id + "' data-action='delete'>" + $.i18n("receipt.line.delete") + "</button>" +

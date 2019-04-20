@@ -233,10 +233,11 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <label for="receivingModalLPN" class="col-form-label" th:text="#{lpn}">LPN:</label>
-                                <input type="text" class="form-control" id="receivingModalLPN">
+                                <input type="text" class="form-control" id="receivingModalLPN"
+                                       data-fkey="F3" data-variable="lpn">
                             </div>
-                            <div class="col-md-6 align-middle py-3" >
-                                <input type="checkbox" id ="receivingModalPutawayWork">
+                            <div class="col-md-6 align-middle mt-3" >
+                                <input type="checkbox" id ="receivingModalPutawayWork" >
                                 <label for="receivingModalPutawayWork" class="col-form-label" th:text="#{message.receiving.putawayWork}">Generate Putaway Work:</label>
                             </div>
                         </div>
@@ -376,7 +377,7 @@
 
     var refreshReceivedInventoryDisplay = function(receiptLineID, quantity) {
 
-        displayReceivedInventoryDetail(receiptLineID, true, true);
+        //displayReceivedInventoryDetail(receiptLineID, true, true);
 
         var receivedQuantity = parseInt($("#showReceivedInventory_" + receiptLineID).text());
         receivedQuantity += quantity;
