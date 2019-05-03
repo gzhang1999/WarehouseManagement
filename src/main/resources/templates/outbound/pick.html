@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <div class="card-header">
+
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="pick_query" data-display="pickTable" th:action="@{/ws/outbound/pick/list}">
+                            <div class="form-group my-sm-1">
+                                <label for="queryNumber" class="col-form-label" th:text="#{pick.number}">Pick Number:</label>
+                                <input type="text" class="form-control  mx-sm-4" id="queryNumber" name="number" th:value="${url_query_number}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryPickState" class="col-form-label" th:text="#{pick.state}">Pick State:</label>
+                                <select class="form-control  mx-sm-4" id="queryPickState" name="pickState"
+                                        data-variable="pickState" th:value="${url_query_pickState}"></select>
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="querySalesOrder" class="col-form-label" th:text="#{salesOrder.number}">Sales Order:</label>
+                                <input type="text" class="form-control  mx-sm-4" id="querySalesOrder" name="salesOrderNumber" th:value="${url_query_salesOrderNumber}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="querySourceLocation" class="col-form-label" th:text="#{pick.sourceLocation}">Pick Source Location:</label>
+                                <input type="text" class="form-control  mx-sm-4" id="querySourceLocation" name="sourceLocation"
+                                       data-autocomplete=true data-variable="location"
+                                       data-filter-variable="querySourceArea#area_id"  th:value="${url_query_sourceLocation}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="querySourceArea" class="col-form-label" th:text="#{pick.sourceArea}">Pick Source Area:</label>
+                                <select class="form-control  mx-sm-4" id="querySourceArea" name="sourceArea"
+                                        data-variable="area" th:value="${url_query_sourceArea}" ></select>
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryDestinationLocation" class="col-form-label" th:text="#{pick.destinationLocation}">Pick Destination Location:</label>
+                                <input type="text" class="form-control  mx-sm-4" id="queryDestinationLocation" name="destinationLocation"
+                                       data-autocomplete=true data-variable="location"
+                                       data-filter-variable="queryDestinationArea#area_id"   th:value="${url_query_destinationLocation}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryDestinationArea" class="col-form-label" th:text="#{pick.destinationArea}">Pick Destination Area:</label>
+                                <select  class="form-control  mx-sm-4" id="queryDestinationArea" name="destinationArea"
+                                         data-variable="area" th:value="${url_query_destinationArea}"></select>
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="pick_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="pick_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "pickTable" class="table table-striped table-bordered display nowrap"
+                                       style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
+                                    <thead>
+                                        <tr>
+                                            <td></td>
+                                            <td th:text="#{pick.id}">Pick ID</td>
+                                            <td th:text="#{pick.number}">Pick Number</td>
+                                            <td th:text="#{pick.quantity}">Pick Number</td>
+                                            <td th:text="#{pick.pickedQuantity}">Pick Number</td>
+                                            <td th:text="#{pick.confirmQuantity}">Confirmed Pick Number</td>
+                                            <td th:text="#{pick.state}">Pick State</td>
+                                            <td th:text="#{pick.sourceLocation}">Source Location</td>
+                                            <td th:text="#{pick.sourceArea}">Source Area</td>
+                                            <td th:text="#{pick.destinationLocation}">Destination Location</td>
+                                            <td th:text="#{pick.destinationArea}">Source Area</td>
+                                            <td th:text="#{salesOrder.number}">Sales Order Number</td>
+                                            <td th:text="#{salesOrder.externalID}">Sales Order External ID</td>
+                                            <td th:text="#{salesOrder.line.number}">Sales Order Line Number</td>
+                                            <td th:text="#{shipment.number}">Shipment Number</td>
+                                            <td th:text="#{shipment.line.number}">Shipment Line Number</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody th:if="${pickList != null and not #lists.isEmpty(pickList)}">
+                                        <tr  th:each="pick : ${pickList}" th:id="${'row_' + pick.id}">
+                                            <td>
+                                                <input type="checkbox"
+                                                       data-type="pickSelector" th:data-pickid="${pick.id}" >
+                                            </td>
+                                            <td th:text="${pick.id}"></td>
+                                            <td th:text="${pick.number}"></td>
+                                            <td th:text="${pick.quantity}"></td>
+                                            <td th:text="${pick.pickedQuantity}"></td>
+                                            <td>
+                                                <input type="text" th:id="${'pickQuantity_' + pick.id}" th:value="${pick.quantity - pick.pickedQuantity}">
+                                            </td>
+                                            <td th:text="${pick.state}"></td>
+                                            <td th:text="${pick.sourceLocation?.name}"></td>
+                                            <td th:text="${pick.sourceLocation?.area.name}"></td>
+                                            <td th:text="${pick.destinationLocation?.name}"></td>
+                                            <td th:text="${pick.destinationLocation?.area.name}"></td>
+                                            <td th:text="${pick.shipmentLine?.salesOrderLine.salesOrder.number}"></td>
+                                            <td th:text="${pick.shipmentLine?.salesOrderLine.salesOrder.externalID}"></td>
+                                            <td th:text="${pick.shipmentLine?.salesOrderLine.number}"></td>
+                                            <td th:text="${pick.shipmentLine?.shipment.number}"></td>
+                                            <td th:text="${pick.shipmentLine?.number}"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+
+                        <button class='btn btn-success' type='button'
+                                onclick='confirmPicks()' th:text="#{pick.confirm}"></button>
+                        <button class='btn btn-danger' type='button'
+                                onclick='cancelPicks()' th:text="#{pick.cancel}"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+
+    var renderTable = function(tableID, data, customFields) {
+
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            var htmlData = "";
+            $.each(data, function(index, pick){
+                htmlData +=
+                    "<tr  id='row_" + pick.id + "'>" +
+                    "    <td><input type='checkbox' data-type='pickSelector' data-pickid='" + pick.id  + "' ></td>" +
+                    "    <td> " + pick.id + "   </td>" +
+                    "    <td> " + pick.number + "</td> " +
+                    "    <td> " + pick.quantity + "</td> " +
+                    "    <td> " + pick.pickedQuantity + "</td> " +
+                    "    <td> <input type='text' id='pickQuantity_" + pick.id + "' value='" + (pick.quantity - pick.pickedQuantity) + "'></td> " +
+                    "    <td> " + pick.pickState + "</td> " +
+                    "    <td> " + (pick.sourceLocation.name == undefined ? "" : pick.sourceLocation.name) + "</td> " +
+                    "    <td> " + (pick.sourceLocation.area == undefined ? "" : pick.sourceLocation.area.name) + "</td> " +
+                    "    <td> " + (pick.destinationLocation.name == undefined ? "" : pick.destinationLocation.name) + "</td> " +
+                    "    <td> " + (pick.destinationLocation.area == undefined ? "" : pick.destinationLocation.area.name) + "</td> " +
+                    "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.salesOrder.number) + "</td> " +
+                    "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.salesOrder.externalID) + "</td> " +
+                    "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.number) + "</td> " +
+                    "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.shipment.number) + "</td> " +
+                    "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.number) + "</td> " +
+                     "</tr>";
+            });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
+        }
+    }
+
+    var refreshMainGrid = function() {
+        $("#pick_query").submit();
+    }
+
+    var cancelPicks = function() {
+        var selectedPicks = $("input[data-type='pickSelector']:checked");
+
+        $.each(selectedPicks, function(index, control) {
+            var pickID = control.data("pickid");
+            var url = "/ws/outbound/pick/" + pickID + "/cancel";
+            $.ajax({
+                    method:"DELETE",
+                    url : url
+                }).done(function( res ) {
+                    if (res.status == 0) {
+                        displayStateMessage("pick " + res.data.number + " cancelled!");
+                        promptSuccessMessage("pick " + res.data.number + " cancelled!");
+                        refreshMainGrid();
+                    }
+                    else{
+
+                    }
+                });
+        });
+    }
+
+    var confirmPicks = function() {
+        var selectedPicks = $("input[data-type='pickSelector']:checked");
+
+        selectedPicks.each(function(){
+            var control = $(this);
+            var pickID = control.data("pickid");
+            var url = "/ws/outbound/pick/" + pickID + "/confirm";
+            $.ajax({
+                    method:"POST",
+                    url : url,
+                    data : {
+                        confirmedQuantity : $("#pickQuantity_" + pickID).val()
+                    }
+                }).done(function( res ) {
+                    if (res.status == 0) {
+                        displayStateMessage("pick " + res.data.number + " confirmed!");
+                        promptSuccessMessage("pick " + res.data.number + " confirmed!");
+                        refreshMainGrid();
+                    }
+                    else{
+
+                    }
+                });
+        });
+    }
+
+
+</script>
+</body>
+</html>

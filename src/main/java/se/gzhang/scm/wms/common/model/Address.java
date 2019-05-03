@@ -36,8 +36,8 @@ public class Address implements Serializable {
     // A universal ID that can be used
     // all across any host system.
     // Need to be unique
-    @Column(name = "universal_id", unique = true)
-    private String universalID;
+    @Column(name = "external_id", unique = true)
+    private String externalID;
 
     // U.S / Chinese type of address
 
@@ -102,12 +102,12 @@ public class Address implements Serializable {
         this.name = name;
     }
 
-    public String getUniversalID() {
-        return universalID;
+    public String getExternalID() {
+        return externalID;
     }
 
-    public void setUniversalID(String universalID) {
-        this.universalID = universalID;
+    public void setExternalID(String externalID) {
+        this.externalID = externalID;
     }
 
     public String getState() {

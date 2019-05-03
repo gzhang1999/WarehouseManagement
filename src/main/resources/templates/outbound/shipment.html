@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <div class="card-header">
+
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="shipment_query" data-display="shipmentTable" th:action="@{/ws/outbound/shipment/list}">
+                            <div class="form-group my-sm-1">
+                                <label for="querySalesOrder" class="col-form-label" th:text="#{salesOrder.number}">Sales Order:</label>
+                                <input type="text" class="form-control  mx-sm-4" id="querySalesOrder" name="number" th:value="${url_query_number}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="querySalesOrderExternalID" class="col-form-label" th:text="#{salesOrder.externalID}">Sales Order External ID:</label>
+                                <input type="text" class="form-control  mx-sm-4" id="querySalesOrderExternalID" name="externalID"  th:value="${url_query_externalID}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryShipToCustomerFirstName" class="col-form-label" th:text="#{salesOrder.shipToCustomer.firstname}">Ship To Customer - First Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryShipToCustomerFirstName" name="shipToCustomerFirstName"
+                                       th:value="${url_query_shipToCustomerFirstName}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryShipToCustomerLastName" class="col-form-label" th:text="#{salesOrder.shipToCustomer.lastname}">Ship To Customer - Last Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryShipToCustomerLastName" name="shipToCustomerLastName"
+                                       th:value="${url_query_shipToCustomerLastName}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryBillToCustomerFirstName" class="col-form-label" th:text="#{salesOrder.billToCustomer.firstname}">Bill To Customer - First Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryBillToCustomerFirstName" name="billToCustomerFirstName"
+                                       th:value="${url_query_billToCustomerFirstName}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryBillToCustomerLastName" class="col-form-label" th:text="#{salesOrder.billToCustomer.lastname}">Bill To Customer - Last Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryBillToCustomerLastName" name="billToCustomerLastName"
+                                       th:value="${url_query_billToCustomerLastName}">
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="shipment_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="shipment_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "shipmentTable" class="table table-striped table-bordered display nowrap"
+                                       style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
+                                    <thead>
+                                        <tr>
+                                            <td th:text="#{shipment.id}">Shipment ID</td>
+                                            <td th:text="#{shipment.number}">Shipment Number</td>
+                                            <td th:text="#{shipment.state}">Shipment State</td>
+                                            <td></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody th:if="${shipmentList != null and not #lists.isEmpty(shipmentList)}">
+                                        <tr  th:each="shipment : ${shipmentList}" th:id="${'row_' + shipment.id}">
+                                            <td >
+                                                <a href='#' th:data-salesorderid="${shipment.id}" onclick='showShipmentDetial(event)' th:text="${shipment.id}"></a>
+                                            </td>
+                                            <td th:text="${shipment.number}"></td>
+                                            <td th:text="${shipment.shipmentState}"></td>
+                                            <td>
+                                                <button class='btn btn-success' type='button' th:data-shipmentid="${shipment.id}"
+                                                        onclick='allocateShipment(event)' th:text="#{shipment.allocate}"></button>
+                                                <button class='btn btn-danger' type='button' th:data-shipmentid="${shipment.id}"
+                                                        onclick='cancelShipment(event)' th:text="#{cancel}"></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+
+    var renderTable = function(tableID, data, customFields) {
+
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            var htmlData = "";
+            $.each(data, function(index, shipment){
+                htmlData +=
+                    "<tr  id='row_" + shipment.id + "'>" +
+                    "   <td> " +
+                    "       <a href='#' data-shipmentid='" + shipment.id + "' onclick='showShipmentDetial(event)'>" + shipment.id + "</a>" +
+                    "   </td>" +
+                    "   <td>" + shipment.number + "   </td>" +
+                    "   <td>" + shipment.shipmentState + "   </td>" +
+                    "   <td> " +
+                    "       <button class='btn btn-success' type='button' data-shipmentid='" + shipment.id + "' onclick='allocateShipment(event)'>" + $.i18n("shipment.allocate")+ "</button>"+
+                    "       <button class='btn btn-danger' type='button' data-shipmentid='" + shipment.id + "' onclick='cancelShipment(event)'>" + $.i18n("cancel")+ "</button>"+
+                    "   </td> "
+                     "</tr>";
+            });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
+        }
+    }
+
+    var allocateShipment = function(event) {
+        var control = $(event.target);
+        var shipmentID = control.data("shipmentid");
+        var url = "/ws/outbound/shipment/" + shipmentID + "/allocate";
+        $.ajax({
+                method:"PUT",
+                url : url
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    refreshMainGrid();
+
+                    displayStateMessage("shipment " + res.data.number + " allocated!");
+                    promptSuccessMessage("shipment " + res.data.number + " allocated!");
+                }
+                else{
+                    console.log("Error when allocate and reserve inventory for Shipment: " + JSON.stringify(res))
+                }
+            });
+    }
+
+    var showShipmentDetial = function(event) {
+        var control = $(event.target);
+        var shipmentID = control.data("shipmentid");
+        displayShipmentDetail(shipmentID);
+    }
+
+    var displayShipmentDetail = function(shipmentID) {
+
+        var table = $("#shipmentTable").DataTable();
+
+        var tr = $("#row_" + shipmentID);
+        var row = table.row(tr);
+
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+            table.columns.adjust();
+        }
+        else {
+            // Close all other rows
+            table.rows().every(function(rowIdx, tableLoop, rowLoop) {
+                if (this.child.isShown()) {
+                    this.child.hide();
+                    var trNode = this.node();
+                    $(trNode).removeClass('shown');
+                }
+            });
+
+            var url = "/ws/outbound/shipment/query/" + shipmentID;
+            $.ajax({
+                url:url
+            }).done(function( res ) {
+                console.log(JSON.stringify(res.data));
+                row.child(formatShipmentInformation(res.data)).show();
+                tr.addClass('shown');
+
+                table.columns.adjust();
+            });
+
+        }
+    }
+
+    var refreshMainGrid = function() {
+        $("#shipment_query").submit();
+
+    }
+
+    var formatShipmentInformation = function(shipment) {
+
+        var shipmentLineHtml = getFormatShipmentLineDisplay(shipment);
+        var pickHtml = getFormatPickDisplay(shipment);
+        var shortAllocationHtml = getFormatShortAllocationDisplay(shipment);
+
+        var html = "<ul class='nav nav-tabs' role='tablist'> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link active' data-toggle='tab' href='#shipmentLine' role='tab' aria-controls='shipmentLine'>" + $.i18n("shipment.line") + "</a> " +
+                   "    </li> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link' data-toggle='tab' href='#pick' role='tab' aria-controls='pick'>" + $.i18n("pick") + "</a> " +
+                   "    </li> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link' data-toggle='tab' href='#shortAllocation' role='tab' aria-controls='shortAllocation'>" + $.i18n("shortAllocation") + "</a> " +
+                   "    </li> " +
+                   "</ul> " +
+                   "<div class='tab-content'> " +
+                   "    <div class='tab-pane active' id='shipmentLine' role='tabpanel'> " +
+                        shipmentLineHtml +
+                   "    </div> " +
+                   "    <div class='tab-pane' id='pick' role='tabpanel'> " +
+                        pickHtml +
+                   "    </div> " +
+                   "    <div class='tab-pane' id='shortAllocation' role='tabpanel'> " +
+                        shortAllocationHtml +
+                   "    </div> " +
+                   "</div> ";
+        return html;
+    }
+
+    var getFormatShipmentLineDisplay = function(shipment) {
+        var shipmentLineHtml = "<div class='card card-accent-success'> " +
+                            "    <div class='card-header'> " +
+                            "    </div> " +
+                            "    <div class='card-body'> " +
+                            "      <div class='row'> " +
+                            "      <div class='col-md-12'> " +
+                            "        <table id='shipmentLineDisplay-" + shipment.id + "' class='table table-striped table-bordered display nowrap' style='width:100%' role='grid' data-tabletype='datatable' data-init='true'> " +
+                            "            <thead> " +
+                            "                <tr> " +
+                            "                   <th>" + $.i18n("shipment.line.id") + "</th> " +
+                            "                   <th>" + $.i18n("shipment.line.number") + "</th> " +
+                            "                   <th>" + $.i18n("shipment.line.state") + "</th> " +
+                            "                   <th>" + $.i18n("shipment.line.orderQuantity") + "</th> " +
+                            "                   <th>" + $.i18n("shipment.line.inprocessQuantity") + "</th> " +
+                            "                   <th>" + $.i18n("shipment.line.shippedQuantity") + "</th> " +
+                            "                   <th>" + $.i18n("salesOrder.number") + "</th> " +
+                            "                   <th>" + $.i18n("salesOrder.line.number") + "</th> " +
+                            "                   <th>" + $.i18n("salesOrder.line.quantity") + "</th> " +
+                            "               </tr> " +
+                            "           </thead> " +
+                            "           <tbody>";
+
+
+        $.each(shipment.shipmentLines, function(index, shipmentLine){
+            shipmentLineHtml    += "  <tr class='odd' role='row'>" +
+                                   "    <td> " + shipmentLine.id + "</td> " +
+                                   "    <td> " + shipmentLine.number + "</td> " +
+                                   "    <td> " + shipmentLine.state + "</td> " +
+                                   "    <td> " + shipmentLine.orderQuantity + "</td> " +
+                                   "    <td> " + shipmentLine.inprocessQuantity + "</td> " +
+                                   "    <td> " + shipmentLine.shippedQuantity + "</td> " +
+                                   "    <td> " + shipmentLine.salesOrderLine.salesOrder.number + "</td> " +
+                                   "    <td> " + shipmentLine.salesOrderLine.number + "</td> " +
+                                   "    <td> " + shipmentLine.salesOrderLine.quantity + "</td> " +
+                                   "</tr> ";
+        });
+        shipmentLineHtml    += "          </tbody> " +
+                            "        </table> " +
+                            "    </div>  " +
+                            "    </div>  " +
+                            "  </div>  " +
+                            "</div>";
+                            "    </div>  " +
+                            "</div>";
+
+
+        return shipmentLineHtml;
+    }
+    var getFormatPickDisplay = function(shipment) {
+        var pickHtml = "<div class='card card-accent-success'> " +
+                       "    <div class='card-header'> " +
+                       "    </div> " +
+                       "    <div class='card-body'> " +
+                       "      <div class='row'> " +
+                       "      <div class='col-md-12'> " +
+                       "        <table id='pickDisplay-" + shipment.id + "' class='table table-striped table-bordered display nowrap' style='width:100%' role='grid' data-tabletype='datatable' data-init='true'> " +
+                       "            <thead> " +
+                       "                <tr> " +
+                        "                   <th>" + $.i18n("pick.id") + "</th> " +
+                        "                   <th>" + $.i18n("pick.number") + "</th> " +
+                        "                   <th>" + $.i18n("pick.quantity") + "</th> " +
+                        "                   <th>" + $.i18n("pick.state") + "</th> " +
+                        "                   <th>" + $.i18n("pick.sourceLocation") + "</th> " +
+                        "                   <th>" + $.i18n("pick.sourceArea") + "</th> " +
+                        "                   <th>" + $.i18n("pick.destinationLocation") + "</th> " +
+                        "                   <th>" + $.i18n("pick.destinationArea") + "</th> " +
+                        "                   <th></th> " +
+                       "               </tr> " +
+                       "           </thead> " +
+                       "           <tbody>";
+
+        $.each(shipment.shipmentLines, function(index, shipmentLine){
+            $.each(shipmentLine.picks, function(index, pick) {
+                pickHtml    += "  <tr class='odd' role='row'>" +
+                                    "    <td> " + pick.id + "</td> " +
+                                    "    <td> " + pick.number + "</td> " +
+                                    "    <td> " + pick.quantity + "</td> " +
+                                    "    <td> " + pick.pickState + "</td> " +
+                                    "    <td> " + (pick.sourceLocation.name == undefined ? "" : pick.sourceLocation.name) + "</td> " +
+                                    "    <td> " + (pick.sourceLocation.area == undefined ? "" : pick.sourceLocation.area.name) + "</td> " +
+                                    "    <td> " + (pick.destinationLocation.name == undefined ? "" : pick.destinationLocation.name) + "</td> " +
+                                    "    <td> " + (pick.destinationLocation.area == undefined ? "" : pick.destinationLocation.area.name) + "</td> " +
+                                    "    <td> " +
+                                    "       <button class='btn btn-danger' type='button' data-pickid='" + pick.id + "' onclick='cancelPick(event)'>" + $.i18n("cancel")+ "</button>"+
+                                    "    </td> " +
+                               "</tr> ";
+            });
+        });
+        pickHtml    += "          </tbody> " +
+                       "        </table> " +
+                       "    </div>  " +
+                       "    </div>  " +
+                       "  </div>  " +
+                       "</div>";
+                       "    </div>  " +
+                       "</div>";
+
+        return pickHtml;
+    }
+
+    var getFormatShortAllocationDisplay = function(shipment) {
+        var shortAllocationHtml = "<div class='card card-accent-success'> " +
+                                  "    <div class='card-header'> " +
+                                  "    </div> " +
+                                  "    <div class='card-body'> " +
+                                  "      <div class='row'> " +
+                                  "      <div class='col-md-12'> " +
+                                  "        <table id='shortAllocationDisplay-" + shipment.id + "' class='table table-striped table-bordered display nowrap' style='width:100%' role='grid' data-tabletype='datatable' data-init='true'> " +
+                                  "            <thead> " +
+                                  "                <tr> " +
+                                  "                   <th>" + $.i18n("shipment.line.number") + "</th> " +
+                                  "                   <th>" + $.i18n("shortAllocation.id") + "</th> " +
+                                  "                   <th>" + $.i18n("shortAllocation.quantity") + "</th> " +
+                                  "               </tr> " +
+                                  "           </thead> " +
+                                  "           <tbody>";
+
+        $.each(shipment.shipmentLines, function(index, shipmentLine){
+            $.each(shipmentLine.shortAllocation, function(index, shortAllocation) {
+                shortAllocationHtml    += "  <tr class='odd' role='row'>" +
+                                          "    <td> " + shipmentLine.number + "</td> " +
+                                          "    <td> " + shortAllocation.id + "</td> " +
+                                          "    <td> " + shortAllocation.quantity + "</td> " +
+                                          "</tr> ";
+            });
+        });
+        shortAllocationHtml     += "          </tbody> " +
+                                   "        </table> " +
+                                   "    </div>  " +
+                                   "    </div>  " +
+                                   "  </div>  " +
+                                   "</div>";
+                                   "    </div>  " +
+                                   "</div>";
+
+        return shortAllocationHtml;
+    }
+
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+       $($.fn.dataTable.tables(true)).DataTable()
+          .scroller.measure();
+    });
+
+    var cancelPick = function(event) {
+        var control = $(event.target);
+        var pickID = control.data("pickid");
+        var url = "/ws/outbound/pick/" + pickID + "/cancel";
+        $.ajax({
+                method:"DELETE",
+                url : url
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    console.log(JSON.stringify(res.data));
+                    displayStateMessage("pick " + res.data.number + " cancelled!");
+                    promptSuccessMessage("pick " + res.data.number + " cancelled!");
+                    refreshPickInformation(res.data.shipmentLine.shipment.id);
+                }
+                else{
+
+                }
+            });
+    }
+
+    var refreshPickInformation = function(shipmentID) {
+        var url = "/ws/outbound/shipment/query/" + shipmentID;
+        $.ajax({
+                url:url
+        }).done(function( res ) {
+            var shipment = res.data;
+            $("#pick").html(getFormatPickDisplay(shipment));
+            $("#shipmentLine").html(getFormatShipmentLineDisplay(shipment));
+
+        });
+    }
+
+
+
+</script>
+</body>
+</html>

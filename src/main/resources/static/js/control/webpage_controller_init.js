@@ -434,11 +434,24 @@ var loadAutoComplete = function(inputControl, registerEventOnFilterVariable) {
             url = url + "?";
 
             $.each(filterVariableArray, function(index, value) {
+                // the filter variable name can be in 2 format
+                // 1. field name
+                // 2. field name#alias
                 var filterVariableName = value;
+                var filterVariableParameterName;
+                if (value.indexOf("#") >= 0) {
+                    var filterVariableNameArray = value.split("#");
+                    if (filterVariableNameArray.length == 2) {
+                        filterVariableName = filterVariableNameArray[0];
+                        filterVariableParameterName = filterVariableNameArray[1];
+                    }
+                }
+                else {
+                    filterVariableParameterName = $("#" + filterVariableName).prop("name") ?
+                               $("#" + filterVariableName).prop("name") : $("#" + filterVariableName).prop("id");
+                }
                 if($("#" + filterVariableName).val()) {
                     var filterVariableValue = $("#" + filterVariableName).val();
-                    var filterVariableParameterName = $("#" + filterVariableName).prop("name") ?
-                                           $("#" + filterVariableName).prop("name") : $("#" + filterVariableName).prop("id");
                     cacheKey = cacheKey + filterVariableParameterName + "=" + filterVariableValue + "&";
                     url = url + filterVariableParameterName + "=" + filterVariableValue + "&";
                 }
@@ -525,7 +538,7 @@ var initLookupController = function() {
         lookupControllers.each(function(){
             var lookupController = $(this);
             var lookupIconHtml = " <span class='input-group-prepend mr-sm-4'> " +
-                                 "     <button class='btn btn-light btn-sm' type='button' onclick='lookup(\"" + lookupController.prop("id") + "\", \"" + lookupController.data("variable") + "\")'> " +
+                                 "     <button class='btn btn-light btn-sm' type='button' onclick='lookup(\"" + lookupController.prop("id") + "\", \""  + lookupController.data("variable") + "\")'> " +
                                  "     <i class='fa fa-search'></i></button> " +
                                  " </span>";
 
@@ -538,6 +551,7 @@ var lookup = function(id, variable) {
     var url = "/ws/control/lookup/" + variable;
     $.ajax({url:url})
      .done(function(res){
+
 
          if (res.status == 0) {
              if ($("#lookupModal").length > 0) {
@@ -564,7 +578,7 @@ var lookup = function(id, variable) {
 }
 
 
-var getLookupModalHtml = function(id, data) {
+var getLookupModalHtml = function(id,  data) {
     lookupModalHtml = "<div class='modal fade' id='lookupModal' tabindex='-1' role='dialog' aria-labelledby='lookupModalLabel' aria-hidden='true'> " +
                       "    <div class='modal-dialog modal-lg' role='document'> " +
                       "        <div class='modal-content'> " +
@@ -587,17 +601,17 @@ var getLookupModalHtml = function(id, data) {
                        "                       <tbody> ";
 
     // check if we need to return any value other than the lookup variable
-    var lookupRelatedControl = $('[data-lookup="' + id + '"]');
+    var lookupRelatedControlList = $('[data-lookup="' + id + '"]');
 
     $.each(data.resultSet.data, function(index, row){
-        lookupModalHtml += " <tr> ";
 
 
         var param = "";
-        if(lookupRelatedControl.length != 0) {
-            lookupRelatedControl.each(function(){
-                var relatedControlID = lookupRelatedControl.prop("id");
-                var relatedControlVariableName = lookupRelatedControl.data("variable");
+        if(lookupRelatedControlList.length != 0) {
+            lookupRelatedControlList.each(function(){
+
+                var relatedControlID = $(this).prop("id");
+                var relatedControlVariableName = $(this).data("variable");
                 $.each(data.resultSet.columns, function(index, column){
                     if (column.columnName == relatedControlVariableName) {
                         param += relatedControlID + "=" + row[column.columnName] + ";";
@@ -606,14 +620,18 @@ var getLookupModalHtml = function(id, data) {
             });
         }
 
+        var selectedValue = "";
+        var rowData = "";
         $.each(data.resultSet.columns, function(index, column){
             if (column.columnName == data.returnColumn) {
-                lookupModalHtml += "<td><a href='#' onclick='lookupSelect(\"" + id + "\", \"" + row[column.columnName] + "\", \"" + param + "\")'>" + row[column.columnName] + "</a></td>";
+                selectedValue = row[column.columnName];
             }
-            else {
-                lookupModalHtml += "<td>" + row[column.columnName] + "</td>";
-            }
+            rowData += "<td >" + row[column.columnName] + "</td>";
         });
+
+        lookupModalHtml += " <tr style='cursor: pointer' onclick='lookupSelect(\"" + id + "\", \"" + selectedValue + "\", \"" + param + "\")'> " +
+                           rowData ;
+
         lookupModalHtml += " </tr> ";
     });
     lookupModalHtml += "                   </table>"+
@@ -624,6 +642,7 @@ var getLookupModalHtml = function(id, data) {
                       "        </div> " +
                       "    </div> " +
                       "</div>";
+    console.log("lookupModalHtml\n" + lookupModalHtml);
     return lookupModalHtml
 }
 var lookupSelect = function(id, value, parameters) {
@@ -638,7 +657,7 @@ var lookupSelect = function(id, value, parameters) {
                 // only continue when it is key=value
                 // key is the id of the control and
                 // value is the value we would like to fill into the control
-                if (keyValuePair.size == 2) {
+                if (keyValuePair.length == 2) {
                     var key = keyValuePair[0];
                     var value = keyValuePair[1];
                     $("#" + key).val(value);

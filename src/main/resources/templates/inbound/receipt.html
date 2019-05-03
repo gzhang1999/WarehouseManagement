@@ -120,8 +120,8 @@
                                             <td >
                                                 <a href='#' th:data-receiptid="${receipt.id}" onclick='showReceiptDetial(event)' th:text="${receipt.id}"></a>
                                             </td>
-                                            <td th:text="#{receipt.externalID}"></td>
-                                            <td th:text="#{receipt.purchaseOrderNumber}"></td>
+                                            <td th:text="${receipt.externalID}"></td>
+                                            <td th:text="${receipt.purchaseOrderNumber}"></td>
                                             <td>
                                                 <span th:if="${receipt.trailer != null}" th:text="${receipt.trailer.trailerNumber}"></span>
                                             </td>

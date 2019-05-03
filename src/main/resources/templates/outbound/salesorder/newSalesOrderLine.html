@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+
+                    <form method="post" enctype="multipart/form-data"  >
+
+                        <div class="card-header" >
+                            <h5>
+                                <span th:text="#{salesOrder.line}"></span>
+                                <a class="badge badge-success float-right" th:href="@{'~' + ${flowExecutionUrl} + '&_eventId_home'}"
+                                   th:text="#{flow.return.home}" >Return Hom</a>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Display the sales order information  -->
+                            <div class="card">
+                                <!-- Display current Sales Order information -->
+                                <div class="card-header" id="salesOrderHeader" role="tab">
+                                    <h5 class="mb-0">
+                                        <a data-toggle="collapse" href="#salesOrderInfo" aria-expanded="true"
+                                           aria-controls="salesOrderInfo" th:text="#{salesOrder.info}">Sales Order Info</a>
+                                    </h5>
+                                </div>
+                                <div class="collapse" id="salesOrderInfo" role="tabpanel" aria-labelledby="salesOrderHeader">
+                                    <div class="card-body">
+                                        <ul class="row">
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{salesOrder.number}">Sales Order Number</span>:
+                                                <span th:text="${addSalesOrderFlowModel.salesOrder.number}"></span>
+                                            </li>
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{salesOrder.externalID}">Sales Order External ID</span>:
+                                                <span th:text="${addSalesOrderFlowModel.salesOrder.externalID}"></span>
+                                            </li>
+                                        </ul>
+                                        <hr />
+                                        <!-- Display the ship to customer information -->
+                                        <h4 th:text="#{salesOrder.shipToCustomer}"></h4>
+                                        <ul class="row">
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{salesOrder.shipToCustomer.firstname}">Ship to Customer - First Name</span>:
+                                                <span th:text="${addSalesOrderFlowModel.salesOrder.shipToCustomer.firstName}"></span>
+                                            </li>
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{salesOrder.shipToCustomer.lastname}">Ship to Customer - Last Name</span>:
+                                                <span th:text="${addSalesOrderFlowModel.salesOrder.shipToCustomer.lastName}"></span>
+                                            </li>
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{address.state}">Ship to Customer - State</span>:
+                                                <span th:text="${addSalesOrderFlowModel.salesOrder.shipToCustomer.address.state}"></span>
+                                            </li>
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{address.county}">Ship to Customer - County</span>:
+                                                <span th:text="${addSalesOrderFlowModel.salesOrder.shipToCustomer.address.county}"></span>
+                                            </li>
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{address.addressLine1}">Ship to Customer - Line 1</span>:
+                                                <span th:text="${addSalesOrderFlowModel.salesOrder.shipToCustomer.address.addressLine1}"></span>
+                                            </li>
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{address.postcode}">Ship to Customer - Post Code</span>:
+                                                <span th:text="${addSalesOrderFlowModel.salesOrder.shipToCustomer.address.postcode}"></span>
+                                            </li>
+                                        </ul>
+                                        <hr />
+                                        <!-- Display the bill to customer information -->
+                                        <h4 th:text="#{salesOrder.billToCustomer}"></h4>
+                                        <ul class="row">
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{salesOrder.billToCustomer.firstname}">Bill to Customer - First Name</span>:
+                                                <span th:text="${addSalesOrderFlowModel.salesOrder.billToCustomer.firstName}"></span>
+                                            </li>
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{salesOrder.billToCustomer.lastname}">Bill to Customer - Last Name</span>:
+                                                <span th:text="${addSalesOrderFlowModel.salesOrder.billToCustomer.lastName}"></span>
+                                            </li>
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{address.state}">Bill to Customer - State</span>:
+                                                <span th:text="${addSalesOrderFlowModel.salesOrder.billToCustomer.address.state}"></span>
+                                            </li>
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{address.county}">Bill to Customer - County</span>:
+                                                <span th:text="${addSalesOrderFlowModel.salesOrder.billToCustomer.address.county}"></span>
+                                            </li>
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{address.addressLine1}">Bill to Customer - Line 1</span>:
+                                                <span th:text="${addSalesOrderFlowModel.salesOrder.billToCustomer.address.addressLine1}"></span>
+                                            </li>
+                                            <li class="col-xs-6 col-sm-4 col-md-3">
+                                                <span th:text="#{address.postcode}">Bill to Customer - Post Code</span>:
+                                                <span th:text="${addSalesOrderFlowModel.salesOrder.billToCustomer.address.postcode}"></span>
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <a class="collapsed" th:text="#{salesOrder.line.info}">Sales Order Info</a>
+                                        <button  id="btnClearSalesOrderLineInfo" type="button" class="btn btn-sm btn-primary float-right" th:text="#{clear}">
+                                            Clear</button>
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-inline">
+                                        <div class="form-group mx-4 my-2">
+                                            <label for="lineNumber" class="col-form-label mx-4" th:text="#{salesOrder.line.number}">Sales Order Line Number:</label>
+                                            <input type="text" class="form-control" id="lineNumber" name="lineNumber" >
+                                        </div>
+                                        <div class="form-group mx-4 my-2">
+                                            <label for="externalID" class="col-form-label mx-4" th:text="#{salesOrder.line.externalID}">Sales Order External ID:</label>
+                                            <input type="text" class="form-control" id="externalID" name="externalID" >
+                                        </div>
+                                        <div class="form-group mx-4 my-2">
+                                            <label for="item" class="col-form-label mx-4" th:text="#{salesOrder.line.item}">item:</label>
+                                            <input type="text" class="form-control"  id="item" name="item"  data-controltype="lookup" data-variable="item">
+                                        </div>
+                                        <div class="form-group mx-4 my-2">
+                                            <label for="orderQuantity" class="col-form-label mx-4" th:text="#{salesOrder.line.orderQuantity}">Order Quantity:</label>
+                                            <input type="text" class="form-control"   id="orderQuantity" name="quantity" >
+                                        </div>
+                                        <div class="form-group mx-4 my-2">
+                                            <label for="inventoryStatus" class="col-form-label mx-4" th:text="#{salesOrder.line.inventoryStatus}">Inventory Status:</label>
+                                            <select class="form-control" id="inventoryStatus" name="inventoryStatus" data-variable="inventoryStatus"></select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Display all the lines that already created for this sales order -->
+                            <div class="card my-4">
+                                <div class="card-header" id="salesOrderLineHeader" role="tab">
+                                    <h5 class="mb-0">
+                                        <a data-toggle="collapse" href="#salesOrderLineInfo" aria-expanded="true"
+                                           aria-controls="salesOrderLineInfo" th:text="#{salesOrder.line}">Sales Order Info</a>
+                                        <a class="badge badge-success float-right">Totally
+                                            <span class="mx-1"
+                                                  th:text="${#lists.size(addSalesOrderFlowModel.salesOrder.salesOrderLines)}"></span>
+                                            Lines
+                                        </a>
+                                    </h5>
+                                </div>
+                                <div class="collapse show" id="salesOrderLineInfo" role="tabpanel" aria-labelledby="salesOrderLineHeader">
+                                    <div class="card-body">
+                                        <table class="table table-striped table-bordered display nowrap table-selectable" style="width:100%"
+                                               data-tabletype="datatable" data-init="true" data-scrollx="true" data-refresh="true"
+                                               id="salesOrderLinesTable">
+                                            <thead>
+                                                <tr>
+                                                    <td th:text="#{salesOrder.number}"></td>
+                                                    <td th:text="#{salesOrder.line.number}"></td>
+                                                    <td th:text="#{salesOrder.line.externalID}"></td>
+                                                    <td th:text="#{item.number}"></td>
+                                                    <td th:text="#{item.description}"></td>
+                                                    <td th:text="#{salesOrder.line.orderQuantity}"></td>
+                                                    <td th:text="#{salesOrder.line.inventoryStatus}"></td>
+                                                    <td></td>
+                                                </tr>
+                                            </thead>
+                                            <tbody th:if="${#lists.size(addSalesOrderFlowModel.salesOrder.salesOrderLines) > 0}">
+                                                <tr th:each="salesOrderLine : ${addSalesOrderFlowModel.salesOrder.salesOrderLines}">
+                                                    <td th:text="${salesOrderLine.salesOrder.number}"></td>
+                                                    <td th:text="${salesOrderLine.lineNumber}" data-fieldname="lineNumber"></td>
+                                                    <td th:text="${salesOrderLine.externalID}" data-fieldname="externalID"></td>
+                                                    <td th:text="${salesOrderLine.item.name}" data-fieldname="item"></td>
+                                                    <td th:text="${salesOrderLine.item.description}"></td>
+                                                    <td th:text="${salesOrderLine.quantity}" data-fieldname="orderQuantity"></td>
+                                                    <td th:text="${salesOrderLine.inventoryStatus.name}" data-fieldname="inventoryStatus"></td>
+                                                    <td>
+                                                        <button type="submit" class="btn btn-sm btn-danger btn-remove-row"  name="_eventId_removeSalesOrderLine"
+                                                                th:data-salesorderlinenumber="${salesOrderLine.lineNumber}" th:text="#{remove}">
+                                                            Remove</button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_previous" th:text="#{step.previous}">
+                                <i class="fa fa-dot-circle-o"></i> Previous</button>
+                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_saveSalesOrderLine"
+                                    th:text="#{step.flow.salesOrder.saveAndMoreSalesOrderLine}">
+                                <i class="fa fa-dot-circle-o"></i> Next</button>
+                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_confirmSalesOrder"
+                                    th:text="#{step.flow.salesOrder.saveAndConfirmSalesOrder}" >
+                                <i class="fa fa-dot-circle-o"></i> Next</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+
+<script>
+
+    $(document).ready(function() {
+        // Allow the user to select a row from the Receipt display table and
+        // then fill the receipt content into the text box
+        var table = $('#salesOrderLinesTable').DataTable();
+
+        $('#salesOrderLinesTable tbody').on( 'click', 'tr', function () {
+            if ( !$(this).hasClass('selected') ) {
+                table.$('tr.selected').removeClass('selected');
+                $(this).addClass('selected');
+
+                // Fill the selected row into the input box
+                $(this).children("td").each(function(){
+                    var key = $(this).data("fieldname");
+                    var text = $(this).html();
+                    console.log("select: " + key + " with value: " + text);
+                    if (key != '') {
+                        $("#" + key).val(text);
+                    }
+                });
+            }
+        });
+    })
+
+    $(".btn-remove-row").click(function(event){
+        // When remove a sales order line, we will call webserver to remove it from current modal
+        // and then remove it from display
+        var button = $(this);
+        $("#lineNumber").val(button.data("salesorderlinenumber"));
+    })
+</script>
+</body>
+</html>

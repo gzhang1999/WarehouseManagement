@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+                          http://www.springframework.org/schema/webflow/spring-webflow.xsd">
+
+    <!-- returning and adding inside flow addLocationFlowModel instance -->
+    <on-start>
+        <evaluate expression="addSalesOrderFlowHandler.init()"
+                  result="flowScope.addSalesOrderFlowModel" />
+    </on-start>
+
+    <view-state id="addSalesOrder" view="outbound/salesorder/new" model="flowScope.addSalesOrderFlowModel">
+        <on-render>
+            <set name="viewScope.applicationID" value="'Outbound'" type="java.lang.String"></set>
+            <set name="viewScope.formID" value="'SalesOrder'" type="java.lang.String"></set>
+            <set name="viewScope.flowID" value="'SalesOrder.new'" type="java.lang.String"></set>
+        </on-render>
+        <transition on="saveSalesOrder" to="saveSalesOrder" />
+        <transition on="previous"  to="home" />
+    </view-state>
+
+    <!-- Step 1.1: save the trailer information  -->
+    <action-state id="saveSalesOrder">
+        <evaluate expression="addSalesOrderFlowHandler.saveSalesOrder(flowScope.addSalesOrderFlowModel, requestParameters, externalContext.nativeRequest.session)" />
+        <transition to="setupSalesOrderLine" />
+    </action-state>
+
+    <view-state id="setupSalesOrderLine" view="outbound/salesorder/newSalesOrderLine"  model="flowScope.addSalesOrderFlowModel">
+        <on-render>
+            <set name="viewScope.applicationID" value="'Outbound'" type="java.lang.String"></set>
+            <set name="viewScope.formID" value="'SalesOrder'" type="java.lang.String"></set>
+            <set name="viewScope.flowID" value="'SalesOrder.new'" type="java.lang.String"></set>
+        </on-render>
+        <transition on="saveSalesOrderLine"  to="saveSalesOrderLine" />
+        <transition on="confirmSalesOrder"  to="saveSalesOrderLineAndConfirmSalesOrder" />
+        <transition on="previous"  to="setupSalesOrder" />
+        <transition on="removeSalesOrderLine"  to="removeSalesOrderLine" />
+    </view-state>
+
+    <action-state id="saveSalesOrderLineAndConfirmSalesOrder">
+        <evaluate expression="addSalesOrderFlowHandler.saveSalesOrderLine(flowScope.addSalesOrderFlowModel, requestParameters)" />
+        <transition to="confirmSalesOrder" />
+    </action-state>
+
+    <action-state id="removeSalesOrderLine">
+        <evaluate expression="addSalesOrderFlowHandler.removeSalesOrderLine(flowScope.addSalesOrderFlowModel, requestParameters)" />
+        <transition to="setupSalesOrderLine" />
+    </action-state>
+
+    <action-state id="saveSalesOrderLine">
+        <evaluate expression="addSalesOrderFlowHandler.saveSalesOrderLine(flowScope.addSalesOrderFlowModel, requestParameters)" />
+        <transition to="setupSalesOrderLine" />
+    </action-state>
+
+    <view-state id="confirmSalesOrder" view="outbound/salesorder/confirm"  model="flowScope.addSalesOrderFlowModel">
+        <on-render>
+            <set name="viewScope.applicationID" value="'Outbound'" type="java.lang.String"></set>
+            <set name="viewScope.formID" value="'SalesOrder'" type="java.lang.String"></set>
+            <set name="viewScope.flowID" value="'SalesOrder.new'" type="java.lang.String"></set>
+        </on-render>
+        <transition on="serializeSalesOrder"  to="serializeSalesOrder" />
+        <transition on="previous"  to="setupSalesOrderLine" />
+    </view-state>
+    <action-state id="serializeSalesOrder">
+        <evaluate expression="addSalesOrderFlowHandler.serializeSalesOrder(flowScope.addSalesOrderFlowModel)" />
+        <transition to="success" />
+    </action-state>
+
+    <!-- end state -->
+    <end-state id="success" view="externalRedirect:contextRelative:/outbound/salesorder?id=#{flowScope.addSalesOrderFlowModel.salesOrder.id}" />
+    <end-state id="home" view="externalRedirect:contextRelative:/outbound/salesorder" />
+
+    <!-- Global Transition -->
+    <global-transitions>
+        <transition on="home" to="home" validate="false" />
+    </global-transitions>
+
+
+
+</flow>

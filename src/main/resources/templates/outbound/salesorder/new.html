@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+
+                    <form method="post" enctype="multipart/form-data"  id="salesOrderForm">
+
+                        <div class="card-header" >
+                            <h5>
+                                <span th:text="#{salesOrder.new}"></span>
+                                <a class="badge badge-success float-right" th:href="@{'~' + ${flowExecutionUrl} + '&_eventId_home'}" th:text="#{flow.return.home}" >Return Hom</a>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Order Info -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <a class="collapsed" th:text="#{salesOrder.info}">Sales Order Info</a>
+                                        <button  id="btnClearSalesOrderInfo" type="button" class="btn btn-sm btn-primary float-right" th:text="#{clear}">
+                                            Clear</button>
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-inline">
+                                        <div class="form-group mx-4">
+                                            <label for="salesOrderNumber" class="col-form-label mx-4" th:text="#{salesOrder.number}">Sales Order Number:</label>
+                                            <input type="text" class="form-control" id="salesOrderNumber" name="number"
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.number != null ? addSalesOrderFlowModel.salesOrder.number : ''}"
+                                                   data-fkey="F3" data-variable="orderNumber"
+                                                   th:disable="${addSalesOrderFlowModel.salesOrder.id != null ? true : false}">
+                                        </div>
+                                        <div class="form-group mx-4">
+                                            <label for="salesOrderExternalID" class="col-form-label mx-4" th:text="#{salesOrder.externalID}">Sales Order External ID:</label>
+                                            <input type="text" class="form-control" id="salesOrderExternalID" name="externalID"
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.externalID != null ? addSalesOrderFlowModel.salesOrder.externalID : ''}"
+                                                   th:disable="${addSalesOrderFlowModel.salesOrder.id != null ? true : false}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ship To Customer Info -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <a class="collapsed" th:text="#{salesOrder.shipToCustomer}">Sales Order Ship To Customer</a>
+                                        <button  id="btnClearSalesOrderShipToCustomerInfo" type="button" class="btn btn-sm btn-primary float-right" th:text="#{clear}">
+                                            Clear</button>
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-inline">
+                                        <div class="form-group mx-4">
+                                            <label for="shipToCustomerID" class="col-form-label mx-4" th:text="#{salesOrder.shipToCustomer}">Sales Order Ship To Customer:</label>
+                                            <input type="text" class="form-control" id="shipToCustomerID" name="shipToCustomer"
+                                                   data-controltype="lookup" data-variable="customerID"
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.shipToCustomer != null ? addSalesOrderFlowModel.salesOrder.shipToCustomer.id : ''}">
+                                        </div>
+                                        <div class="form-group mx-4">
+                                            <label for="shipToCustomerFirstName" class="col-form-label mx-4" th:text="#{salesOrder.shipToCustomer.firstname}">
+                                                Sales Order Ship To Customer's First Name:</label>
+                                            <input type="text" class="form-control" id="shipToCustomerFirstName"
+                                                   data-lookup="shipToCustomerID" data-variable="firstname" readonly
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.shipToCustomer != null ? addSalesOrderFlowModel.salesOrder.shipToCustomer.firstName : ''}">
+                                        </div>
+                                        <div class="form-group mx-4">
+                                            <label for="shipToCustomerLastName" class="col-form-label mx-4" th:text="#{salesOrder.shipToCustomer.lastname}">
+                                                Sales Order Ship To Customer's Last Name:</label>
+                                            <input type="text" class="form-control" id="shipToCustomerLastName"
+                                                   data-lookup="shipToCustomerID" data-variable="lastname" readonly
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.shipToCustomer != null ? addSalesOrderFlowModel.salesOrder.shipToCustomer.lastName : ''}">
+                                        </div>
+                                        <div class="form-group mx-4">
+                                            <label for="shipToCustomerAddressState" class="col-form-label mx-4" th:text="#{address.state}">
+                                                Sales Order Ship To Customer's Address - State</label>
+                                            <input type="text" class="form-control" id="shipToCustomerAddressState"
+                                                   data-lookup="shipToCustomerID" data-variable="address_state" readonly
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.shipToCustomer != null ? addSalesOrderFlowModel.salesOrder.shipToCustomer.address.state : ''}">
+                                        </div>
+                                        <div class="form-group mx-4">
+                                            <label for="shipToCustomerAddressCounty" class="col-form-label mx-4" th:text="#{address.county}">
+                                                Sales Order Ship To Customer's Address - County</label>
+                                            <input type="text" class="form-control" id="shipToCustomerAddressCounty"
+                                                   data-lookup="shipToCustomerID" data-variable="address_county" readonly
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.shipToCustomer != null ? addSalesOrderFlowModel.salesOrder.shipToCustomer.address.county : ''}">
+                                        </div>
+                                        <div class="form-group mx-4">
+                                            <label for="shipToCustomerAddressLine1" class="col-form-label mx-4" th:text="#{address.addressLine1}">
+                                                Sales Order Ship To Customer's Address - Line 1</label>
+                                            <input type="text" class="form-control" id="shipToCustomerAddressLine1"
+                                                   data-lookup="shipToCustomerID" data-variable="address_line1" readonly
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.shipToCustomer != null ? addSalesOrderFlowModel.salesOrder.shipToCustomer.address.addressLine1 : ''}">
+                                        </div>
+                                        <div class="form-group mx-4">
+                                            <label for="shipToCustomerAddressPostcode" class="col-form-label mx-4" th:text="#{address.postcode}">
+                                                Sales Order Ship To Customer's Address - Postcode</label>
+                                            <input type="text" class="form-control" id="shipToCustomerAddressPostcode"
+                                                   data-lookup="shipToCustomerID" data-variable="address_postcode" readonly
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.shipToCustomer != null ? addSalesOrderFlowModel.salesOrder.shipToCustomer.address.postcode : ''}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Bill To Customer Info -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <a class="collapsed" th:text="#{salesOrder.billToCustomer}">Sales Order Bill To Customer</a>
+                                        <button  id="btnClearSalesOrderBillToCustomerInfo" type="button" class="btn btn-sm btn-primary float-right" th:text="#{clear}">
+                                            Clear</button>
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-inline">
+                                        <div class="form-group mx-4">
+                                            <label for="billToCustomerID" class="col-form-label mx-4" th:text="#{salesOrder.billToCustomer}">Sales Order Bill To Customer:</label>
+                                            <input type="text" class="form-control" id="billToCustomerID" name="billToCustomer"
+                                                   data-controltype="lookup" data-variable="customerID"
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.billToCustomer != null ? addSalesOrderFlowModel.salesOrder.billToCustomer.id : ''}">
+                                        </div>
+                                        <div class="form-group mx-4">
+                                            <label for="billToCustomerFirstName" class="col-form-label mx-4" th:text="#{salesOrder.billToCustomer.firstname}">
+                                                Sales Order Bill To Customer's First Name:</label>
+                                            <input type="text" class="form-control" id="billToCustomerFirstName"
+                                                   data-lookup="billToCustomerID" data-variable="firstname" readonly
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.billToCustomer != null ? addSalesOrderFlowModel.salesOrder.billToCustomer.firstName : ''}">
+                                        </div>
+                                        <div class="form-group mx-4">
+                                            <label for="billToCustomerLastName" class="col-form-label mx-4" th:text="#{salesOrder.billToCustomer.lastname}">
+                                                Sales Order Bill To Customer's Last Name:</label>
+                                            <input type="text" class="form-control" id="billToCustomerLastName"
+                                                   data-lookup="billToCustomerID" data-variable="lastname" readonly
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.billToCustomer != null ? addSalesOrderFlowModel.salesOrder.billToCustomer.lastName : ''}">
+                                        </div>
+                                        <div class="form-group mx-4">
+                                            <label for="billToCustomerAddressState" class="col-form-label mx-4" th:text="#{address.state}">
+                                                Sales Order Bill To Customer's Address - State</label>
+                                            <input type="text" class="form-control" id="billToCustomerAddressState"
+                                                   data-lookup="billToCustomerID" data-variable="address_state" readonly
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.billToCustomer != null ? addSalesOrderFlowModel.salesOrder.billToCustomer.address.state : ''}">
+                                        </div>
+                                        <div class="form-group mx-4">
+                                            <label for="billToCustomerAddressCounty" class="col-form-label mx-4" th:text="#{address.county}">
+                                                Sales Order Bill To Customer's Address - County</label>
+                                            <input type="text" class="form-control" id="billToCustomerAddressCounty"
+                                                   data-lookup="billToCustomerID" data-variable="address_county" readonly
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.billToCustomer != null ? addSalesOrderFlowModel.salesOrder.billToCustomer.address.county : ''}">
+                                        </div>
+                                        <div class="form-group mx-4">
+                                            <label for="billToCustomerAddressLine1" class="col-form-label mx-4" th:text="#{address.addressLine1}">
+                                                Sales Order Bill To Customer's Address - Line 1</label>
+                                            <input type="text" class="form-control" id="billToCustomerAddressLine1"
+                                                   data-lookup="billToCustomerID" data-variable="address_line1" readonly
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.billToCustomer != null ? addSalesOrderFlowModel.salesOrder.billToCustomer.address.addressLine1 : ''}">
+                                        </div>
+                                        <div class="form-group mx-4">
+                                            <label for="billToCustomerAddressPostcode" class="col-form-label mx-4" th:text="#{address.postcode}">
+                                                Sales Order Bill To Customer's Address - Postcode</label>
+                                            <input type="text" class="form-control" id="billToCustomerAddressPostcode"
+                                                   data-lookup="billToCustomerID" data-variable="address_postcode" readonly
+                                                   th:value="${addSalesOrderFlowModel.salesOrder.billToCustomer != null ? addSalesOrderFlowModel.salesOrder.billToCustomer.address.postcode : ''}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_previous" th:text="#{step.previous}">
+                                Previous</button>
+                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_saveSalesOrder" th:text="#{step.flow.salesOrder.saveAndAddSalesOrderLine}">
+                                Next</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+
+
+    $("#btnClearSalesOrderShipToCustomerInfo").click(function(event){
+        $("#shipToCustomerID").val("");
+        $("#shipToCustomerFirstName").val("");
+        $("#shipToCustomerLastName").val("");
+        $("#shipToCustomerAddressState").val("");
+        $("#shipToCustomerAddressCounty").val("");
+        $("#shipToCustomerAddressLine1").val("");
+        $("#shipToCustomerAddressPostcode").val("");
+    })
+
+    $("#btnClearSalesOrderBillToCustomerInfo").click(function(event){
+        $("#billToCustomerID").val("");
+        $("#billToCustomerFirstName").val("");
+        $("#billToCustomerLastName").val("");
+        $("#billToCustomerAddressState").val("");
+        $("#billToCustomerAddressCounty").val("");
+        $("#billToCustomerAddressLine1").val("");
+        $("#billToCustomerAddressPostcode").val("");
+    })
+
+</script>
+</body>
+</html>

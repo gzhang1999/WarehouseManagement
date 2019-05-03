@@ -21,8 +21,14 @@
         <span>&copy; 2018 creativeLabs.</span>
       </div>
       <div class="ml-auto">
+        <!--
         <span>Powered by</span>
         <a href="https://coreui.io">CoreUI</a>
+        -->
+        <!--
+            display the state of last action
+        -->
+        <span id="stateMessage"></span>
       </div>
 
         <script th:src="@{/js/node_modules/jquery/dist/jquery.min.js}"></script>
@@ -39,6 +45,7 @@
       -->
         <script th:src="@{/js/node_modules/@coreui/coreui-plugin-chartjs-custom-tooltips/dist/js/custom-tooltips.min.js}"></script>
         <script th:src="@{/js/main.js}"></script>
+        <script th:src="@{/js/miscellaneous.js}"></script>
         <script th:src="@{/js/shortcut.js}"></script>
         <script th:src="@{/js/src/jquery-validation/jquery.validate.js}"></script>
         <script type="text/javascript" th:src="@{/js/node_modules/bootstrap-datepicker-1.6.4-dist/js/bootstrap-datepicker.js}" charset="UTF-8"></script>

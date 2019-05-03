@@ -36,7 +36,7 @@ public class LookupTextbox {
     @Column(name = "variable")
     private String variable;
 
-    @Column(name = "command")
+    @Column(name = "command", length = 2000)
     private String command;
 
     @Column(name = "enumClass")

@@ -83,7 +83,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
         resolver.setReportDataKey(REPORT_DATA_KEY);
         resolver.setViewNames("*" + VIEW_KEY + "*"); //视图名称，模板名称需要符合 *你定义的key* 如*Report*
         resolver.setViewClass(JasperReportsMultiFormatView.class); //视图类
-        resolver.setOrder(0); //顺序为第一位
+        resolver.setSalesOrder(0); //顺序为第一位
         return resolver;
     }
 ****/

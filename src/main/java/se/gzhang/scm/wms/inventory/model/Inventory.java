@@ -24,6 +24,7 @@ import se.gzhang.scm.wms.layout.model.Location;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 
 @Entity
 @Table(name = "inventory")
@@ -71,11 +72,16 @@ public class Inventory implements Serializable {
     @JoinColumn(name = "destination_location_id", referencedColumnName="location_id")
     private Location destinationLocation;
 
+    @Column(name = "fifo_date")
+    private Date FIFODate;
+
     // Temporary location used when running mock putaway
     // The value is calculated on a fly and will be moved to
     // the destinationLocaiton field after user's confirm
     @Transient
     private Location suggestedDestinationLocation;
+
+
 
     @Override
     public boolean equals(Object anObject) {
@@ -171,5 +177,13 @@ public class Inventory implements Serializable {
 
     public void setSuggestedDestinationLocation(Location suggestedDestinationLocation) {
         this.suggestedDestinationLocation = suggestedDestinationLocation;
+    }
+
+    public Date getFIFODate() {
+        return FIFODate;
+    }
+
+    public void setFIFODate(Date FIFODate) {
+        this.FIFODate = FIFODate;
     }
 }

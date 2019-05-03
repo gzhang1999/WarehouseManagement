@@ -21,26 +21,22 @@ package se.gzhang.scm.wms.inventory.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.authorization.service.UserService;
 import se.gzhang.scm.wms.configuration.service.PolicyService;
 import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.inbound.model.ReceiptLine;
-import se.gzhang.scm.wms.inventory.model.Inventory;
-import se.gzhang.scm.wms.inventory.model.Item;
-import se.gzhang.scm.wms.inventory.model.ItemFootprint;
-import se.gzhang.scm.wms.inventory.model.ItemFootprintUOM;
+import se.gzhang.scm.wms.inventory.model.*;
 import se.gzhang.scm.wms.inventory.repository.InventoryRepository;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.AreaType;
 import se.gzhang.scm.wms.layout.model.Building;
 import se.gzhang.scm.wms.layout.model.Location;
 import se.gzhang.scm.wms.layout.service.LocationService;
+import se.gzhang.scm.wms.outbound.order.model.SalesOrderLine;
 
 import javax.persistence.criteria.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class InventoryService {
@@ -65,6 +61,9 @@ public class InventoryService {
     @Autowired
     UserService userService;
 
+    @Autowired
+    InventoryStatusService inventoryStatusService;
+
     public List<Inventory> findAll() {
         return inventoryRepository.findAll();
     }
@@ -76,13 +75,36 @@ public class InventoryService {
     public Inventory adjustInventory(Inventory inventory, int newQuantity, String reasonCode, String reason) {
         // Save the record for adjusting inventory
         inventoryActivityService.logInventoryAdjustActivity(inventory,newQuantity, userService.getCurrentLoginUser(), reasonCode, reason);
-
         inventory.setQuantity(newQuantity);
-
         return save(inventory);
-
     }
 
+    @Transactional
+    public Inventory addInventory(Location location, ItemFootprint itemFootprint,
+                                  int quantity, String itemFootprintUOM, String lpn,
+                                  String reasonCode, String reason){
+
+        int unitQuantity = quantity;
+        for(ItemFootprintUOM itemFootprintUOMIterator : itemFootprint.getItemFootprintUOMs()) {
+            if (itemFootprintUOMIterator.getUnitOfMeasure().getName().equals(itemFootprintUOM)) {
+                unitQuantity = quantity * itemFootprintUOMIterator.getQuantity();
+            }
+        }
+
+        Inventory inventory = new Inventory();
+        inventory.setItemFootprint(itemFootprint);
+        inventory.setLocation(location);
+        inventory.setQuantity(unitQuantity);
+        inventory.setLpn(lpn);
+        inventory.setFIFODate(new Date());
+        // TO-DO: Setup the inventory with default inventory status
+        inventory.setInventoryStatus(inventoryStatusService.getDefaultInventoryStatus());
+
+        Inventory newInventory = createInventory(inventory, reasonCode, reason);
+        return newInventory;
+    }
+
+    @Transactional
     public Inventory createInventory(Inventory inventory, String reasonCode, String reason) {
         // Save the record for adjusting inventory
         System.out.println("inventory == null?: " + (inventory == null));
@@ -93,6 +115,7 @@ public class InventoryService {
 
     }
 
+    @Transactional
     public Inventory save(Inventory inventory) {
 
         Inventory newInventory = inventoryRepository.save(inventory);
@@ -236,6 +259,12 @@ public class InventoryService {
                 if(criteriaList.containsKey("lpn") && !criteriaList.get("lpn").isEmpty()) {
                     predicates.add(criteriaBuilder.equal(root.get("lpn"), criteriaList.get("lpn")));
                 }
+
+                if(criteriaList.containsKey("inventoryStatus") && !criteriaList.get("inventoryStatus").isEmpty()) {
+                    Join<Inventory, InventoryStatus> joinInventoryStatus = root.join("inventoryStatus",JoinType.INNER);
+                    predicates.add(criteriaBuilder.equal(joinInventoryStatus.get("name"), criteriaList.get("inventoryStatus")));
+                }
+
                 if(criteriaList.containsKey("receiptLineID") && !criteriaList.get("receiptLineID").isEmpty()) {
                     Join<Inventory, ReceiptLine> joinReceiptLine = root.join("receiptLine",JoinType.INNER);
                     predicates.add(criteriaBuilder.equal(joinReceiptLine.get("id"), criteriaList.get("receiptLineID")));
@@ -318,6 +347,16 @@ public class InventoryService {
         }
         return stockUOM;
 
+    }
+
+    // Find available inventory for sales order line allocation process
+    public List<Inventory> getAvailableInventoryForSalesOrderLine(SalesOrderLine salesOrderLine) {
+        Map<String, String> inventoryCriteria = new HashMap<>();
+        inventoryCriteria.put("itemName", salesOrderLine.getItem().getName());
+        inventoryCriteria.put("inventoryStatus", salesOrderLine.getInventoryStatus().getName());
+        List<Inventory> availableInventory = findInventory(inventoryCriteria);
+
+        return availableInventory;
     }
 
 }

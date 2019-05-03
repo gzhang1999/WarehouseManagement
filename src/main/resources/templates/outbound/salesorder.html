@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                                <a class="badge badge-success float-right" th:href="@{/flowAddSalesOrder}" data-action="new" th:text="#{salesOrder.new}" >New Sales Order</a>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="sales_order_query" data-display="salesOrderTable" th:action="@{/ws/outbound/salesorder/list}">
+                            <div class="form-group my-sm-1">
+                                <label for="querySalesOrder" class="col-form-label" th:text="#{salesOrder.number}">Sales Order:</label>
+                                <input type="text" class="form-control  mx-sm-4" id="querySalesOrder" name="number" th:value="${url_query_number}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="querySalesOrderExternalID" class="col-form-label" th:text="#{salesOrder.externalID}">Sales Order External ID:</label>
+                                <input type="text" class="form-control  mx-sm-4" id="querySalesOrderExternalID" name="externalID"  th:value="${url_query_externalID}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryShipToCustomerFirstName" class="col-form-label" th:text="#{salesOrder.shipToCustomer.firstname}">Ship To Customer - First Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryShipToCustomerFirstName" name="shipToCustomerFirstName"
+                                       th:value="${url_query_shipToCustomerFirstName}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryShipToCustomerLastName" class="col-form-label" th:text="#{salesOrder.shipToCustomer.lastname}">Ship To Customer - Last Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryShipToCustomerLastName" name="shipToCustomerLastName"
+                                       th:value="${url_query_shipToCustomerLastName}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryBillToCustomerFirstName" class="col-form-label" th:text="#{salesOrder.billToCustomer.firstname}">Bill To Customer - First Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryBillToCustomerFirstName" name="billToCustomerFirstName"
+                                       th:value="${url_query_billToCustomerFirstName}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryBillToCustomerLastName" class="col-form-label" th:text="#{salesOrder.billToCustomer.lastname}">Bill To Customer - Last Name:</label>
+                                <input type="text" class="form-control mx-sm-4" id="queryBillToCustomerLastName" name="billToCustomerLastName"
+                                       th:value="${url_query_billToCustomerLastName}">
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="sales_order_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="sales_order_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "salesOrderTable" class="table table-striped table-bordered display nowrap"
+                                       style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
+                                    <thead>
+                                        <tr>
+                                            <td th:text="#{salesOrder.id}">Sales Order ID</td>
+                                            <td th:text="#{salesOrder.number}">Sales Order Number</td>
+                                            <td th:text="#{salesOrder.externalID}">Sales Order External ID</td>
+                                            <td th:text="#{salesOrder.shipToCustomer}">Sales Order Ship To Customer ID</td>
+                                            <td th:text="#{salesOrder.shipToCustomer.address.state}">Sales Order Ship To Address - State</td>
+                                            <td th:text="#{salesOrder.shipToCustomer.address.county}">Sales Order Ship To Address - County</td>
+                                            <td th:text="#{salesOrder.shipToCustomer.address.line1}">Sales Order Ship To Address - Line 1</td>
+                                            <td th:text="#{salesOrder.shipToCustomer.address.postcode}">Sales Order Ship To Address - Postcode</td>
+                                            <td></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody th:if="${salesOrderList != null and not #lists.isEmpty(salesOrderList)}">
+                                        <tr  th:each="salesOrder : ${salesOrderList}" th:id="${'row_' + salesOrder.id}">
+                                            <td >
+                                                <a href='#' th:data-salesorderid="${salesOrder.id}" onclick='showSalesOrderDetial(event)' th:text="${salesOrder.id}"></a>
+                                            </td>
+                                            <td th:text="${salesOrder.number}"></td>
+                                            <td th:text="${salesOrder.externalID}"></td>
+                                            <td th:text="${salesOrder.shipToCustomer.name}"></td>
+                                            <td th:text="${salesOrder.shipToCustomer.address.state}"></td>
+                                            <td th:text="${salesOrder.shipToCustomer.address.county}"></td>
+                                            <td th:text="${salesOrder.shipToCustomer.address.addressLine1}"></td>
+                                            <td th:text="${salesOrder.shipToCustomer.address.postcode}"></td>
+                                            <td>
+                                                <!--
+                                                <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#editSalesOrderModal'
+                                                        th:data-salesorderid="${salesOrder.id}" th:text="#{edit}"></button>
+                                                        -->
+                                                <a class="btn btn-primary" th:href="@{/flowChangeSalesOrder(salesOrderID=${salesOrder.id})}"
+                                                   role="button" th:text="#{modify}"></a>
+                                                <button class='btn btn-success' type='button' th:data-salesorderid="${salesOrder.id}"
+                                                        onclick='allocateSalesOrder(event)' th:text="#{salesOrder.allocate.reserve}"></button>
+                                                <button class='btn btn-danger' type='button' th:data-salesorderid="${salesOrder.id}"
+                                                        onclick='removeSalesOrder(event)' th:text="#{delete}"></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+
+    var renderTable = function(tableID, data, customFields) {
+
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            var htmlData = "";
+            $.each(data, function(index, salesOrder){
+                htmlData +=
+                    "<tr  id='row_" + salesOrder.id + "'>" +
+                    "   <td> " +
+                    "       <a href='#' data-salesorderid='" + salesOrder.id + "' onclick='showSalesOrderDetial(event)'>" + salesOrder.id + "</a>" +
+                    "   </td>" +
+                    "   <td>" + salesOrder.number + "   </td>" +
+                    "   <td>" + salesOrder.externalID + "   </td>" +
+                    "   <td>" + salesOrder.shipToCustomer.name + "   </td>" +
+                    "   <td>" + salesOrder.shipToCustomer.address.state + "   </td>" +
+                    "   <td>" + salesOrder.shipToCustomer.address.county + "   </td>" +
+                    "   <td>" + salesOrder.shipToCustomer.address.addressLine1 + "   </td>" +
+                    "   <td>" + salesOrder.shipToCustomer.address.postcode + "   </td>" +
+                    "   <td> " +
+                    // "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#editSalesOrderModal' data-salesorderid='" + salesOrder.id + "' >" + $.i18n("edit")+ "</button>"+
+                    "       <a class='btn btn-primary' href='/flowChangeSalesOrder?salesOrderID=" + salesOrder.id + "' role='button'>" + $.i18n("modify") + "</a>" +
+                    "       <button class='btn btn-success' type='button' data-salesorderid='" + salesOrder.id + "' onclick='allocateSalesOrder(event)'>" + $.i18n("salesOrder.allocate.reserve")+ "</button>"+
+                    "       <button class='btn btn-danger' type='button' data-salesorderid='" + salesOrder.id + "' onclick='removeSalesOrder(event)'>" + $.i18n("delete")+ "</button>"+
+                    "   </td> "
+                     "</tr>";
+            });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
+        }
+    }
+
+    var showSalesOrderDetial = function(event) {
+        var control = $(event.target);
+        var salesOrderID = control.data("salesorderid");
+        displaySalesOrderDetail(salesOrderID);
+    }
+    var displaySalesOrderDetail = function(salesOrderID) {
+
+        var table = $("#salesOrderTable").DataTable();
+
+        var tr = $("#row_" + salesOrderID);
+        var row = table.row(tr);
+
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+            table.columns.adjust();
+        }
+        else {
+            // Close all other rows
+            table.rows().every(function(rowIdx, tableLoop, rowLoop) {
+                if (this.child.isShown()) {
+                    this.child.hide();
+                    var trNode = this.node();
+                    $(trNode).removeClass('shown');
+                }
+            });
+
+            var url = "/ws/outbound/salesorder/query/" + salesOrderID;
+            $.ajax({
+                url:url
+            }).done(function( res ) {
+                console.log(JSON.stringify(res.data))
+                var salesOrder = res.data;
+                row.child(formatSalesOrderInformation(salesOrder)).show();
+                tr.addClass('shown');
+
+                table.columns.adjust();
+
+            });
+
+        }
+    }
+
+
+    var formatSalesOrderInformation = function(salesOrder) {
+
+
+        var salesOrderLineHtml = getFormatSalesOrderLineDisplay(salesOrder);
+        var shipmentLineHtml = getFormatShipmentLineDisplay(salesOrder);
+        var picksHtml = getFormatPickDisplay(salesOrder);
+        var shortAllocationHtml = getFormatShortAllocationDisplay(salesOrder);
+
+        var html = "<ul class='nav nav-tabs' role='tablist'> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link active' data-toggle='tab' href='#salesOrderLine' role='tab' aria-controls='salesOrderLine'>" + $.i18n("salesOrder.line") + "</a> " +
+                   "    </li> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link' data-toggle='tab' href='#shipmentLine' role='tab' aria-controls='shipmentLine'>" + $.i18n("shipment.line") + "</a> " +
+                   "    </li> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link' data-toggle='tab' href='#pick' role='tab' aria-controls='pick'>" + $.i18n("pick") + "</a> " +
+                   "    </li> " +
+                   "    <li class='nav-item'> " +
+                   "        <a class='nav-link' data-toggle='tab' href='#shortAllocation' role='tab' aria-controls='shortAllocation'>" + $.i18n("shortAllocation") + "</a> " +
+                   "    </li> " +
+                   "</ul> " +
+                   "<div class='tab-content'> " +
+                   "    <div class='tab-pane active' id='salesOrderLine' role='tabpanel'> " +
+                        salesOrderLineHtml +
+                   "    </div> " +
+                   "    <div class='tab-pane' id='shipmentLine' role='tabpanel'> " +
+                        shipmentLineHtml +
+                   "    </div> " +
+                   "    <div class='tab-pane' id='pick' role='tabpanel'> " +
+                        picksHtml +
+                   "    </div> " +
+                   "    <div class='tab-pane' id='shortAllocation' role='tabpanel'> " +
+                        shortAllocationHtml +
+                   "    </div> " +
+                   "</div> ";
+        return html;
+    }
+
+    var getFormatSalesOrderLineDisplay = function(salesOrder) {
+        var salesOrderLineHtml = "<div class='card card-accent-success'> " +
+                                 "    <div class='card-header'> " +
+                                 "    </div> " +
+                                 "    <div class='card-body'> " +
+                                 "      <div class='row'> " +
+                                 "      <div class='col-md-12'> " +
+                                 "        <table id='salesOrderLineDisplay-" + salesOrder.id + "' class='table table-striped table-bordered display nowrap dataTable no-footer' style='width:100%' role='grid' data-tabletype='datatable'> " +
+                                 "            <thead> " +
+                                 "                <tr> " +
+                                 "                   <th>" + $.i18n("salesOrder.line.id") + "</th> " +
+                                 "                   <th>" + $.i18n("salesOrder.line.number") + "</th> " +
+                                 "                   <th>" + $.i18n("salesOrder.line.externalID") + "</th> " +
+                                 "                   <th>" + $.i18n("salesOrder.line.quantity") + "</th> " +
+                                 "                   <th>" + $.i18n("salesOrder.line.item") + "</th> " +
+                                 "                   <th>" + $.i18n("salesOrder.line.inventoryStatus") + "</th> " +
+                                 "               </tr> " +
+                                 "           </thead> " +
+                                 "           <tbody>";
+
+
+        $.each(salesOrder.salesOrderLines, function(index, salesOrderLine){
+            salesOrderLineHtml    += "  <tr class='odd' role='row'>" +
+                                   "    <td> " + salesOrderLine.id + "</td> " +
+                                   "    <td> " + salesOrderLine.lineNumber + "</td> " +
+                                   "    <td> " + salesOrderLine.externalID + "</td> " +
+                                   "    <td> " + salesOrderLine.quantity + "</td> " +
+                                   "    <td> " + salesOrderLine.item.name + "</td> " +
+                                   "    <td> " + salesOrderLine.inventoryStatus.name + "</td> " +
+                                   "</tr> ";
+        });
+        salesOrderLineHtml    += "          </tbody> " +
+                            "        </table> " +
+                            "    </div>  " +
+                            "    </div>  " +
+                            "  </div>  " +
+                            "</div>";
+
+
+        return salesOrderLineHtml;
+    }
+
+    var getFormatShipmentLineDisplay = function(salesOrder) {
+        var shipmentLineHtml = "<div class='card card-accent-success'> " +
+                            "    <div class='card-header'> " +
+                            "    </div> " +
+                            "    <div class='card-body'> " +
+                            "      <div class='row'> " +
+                            "      <div class='col-md-12'> " +
+                            "        <table id='shipmentLineDisplay-" + salesOrder.id + "' class='table table-striped table-bordered display nowrap' style='width:100%' role='grid' data-tabletype='datatable' data-init='true'> " +
+                            "            <thead> " +
+                            "                <tr> " +
+                            "                   <th>" + $.i18n("shipment.line.id") + "</th> " +
+                            "                   <th>" + $.i18n("shipment.line.number") + "</th> " +
+                            "                   <th>" + $.i18n("shipment.line.orderQuantity") + "</th> " +
+                            "                   <th>" + $.i18n("shipment.line.inprocessQuantity") + "</th> " +
+                            "                   <th>" + $.i18n("shipment.line.shippedQuantity") + "</th> " +
+                            "                   <th>" + $.i18n("shipment.line.state") + "</th> " +
+                            "               </tr> " +
+                            "           </thead> " +
+                            "           <tbody>";
+
+        $.each(salesOrder.salesOrderLines, function(index, salesOrderLine){
+            $.each(salesOrderLine.shipmentLines, function(index, shipmentLine){
+                shipmentLineHtml    += "  <tr class='odd' role='row'>" +
+                                       "    <td> " + shipmentLine.id + "</td> " +
+                                       "    <td> " + shipmentLine.number + "</td> " +
+                                       "    <td> " + shipmentLine.orderQuantity + "</td> " +
+                                       "    <td> " + shipmentLine.inprocessQuantity + "</td> " +
+                                       "    <td> " + shipmentLine.shippedQuantity + "</td> " +
+                                       "    <td> " + shipmentLine.state + "</td> " +
+                                       "</tr> ";
+            });
+        });
+        shipmentLineHtml    += "          </tbody> " +
+                            "        </table> " +
+                            "    </div>  " +
+                            "    </div>  " +
+                            "  </div>  " +
+                            "</div>";
+
+        return shipmentLineHtml;
+    }
+
+    var getFormatPickDisplay = function(salesOrder) {
+        var picksHtml = "<div class='card card-accent-success'> " +
+                        "    <div class='card-header'> " +
+                        "    </div> " +
+                        "    <div class='card-body'> " +
+                        "      <div class='row'> " +
+                        "      <div class='col-md-12'> " +
+                        "        <table id='pickDisplay-" + salesOrder.id + "' class='table table-striped table-bordered display nowrap' style='width:100%' role='grid' data-tabletype='datatable' data-init='true'> " +
+                        "            <thead> " +
+                        "                <tr> " +
+                        "                   <th>" + $.i18n("pick.id") + "</th> " +
+                        "                   <th>" + $.i18n("pick.number") + "</th> " +
+                        "                   <th>" + $.i18n("pick.quantity") + "</th> " +
+                        "                   <th>" + $.i18n("pick.state") + "</th> " +
+                        "                   <th>" + $.i18n("pick.sourceLocation") + "</th> " +
+                        "                   <th>" + $.i18n("pick.sourceArea") + "</th> " +
+                        "                   <th>" + $.i18n("pick.destinationLocation") + "</th> " +
+                        "                   <th>" + $.i18n("pick.destinationArea") + "</th> " +
+                        "                   <th></th> " +
+                        "               </tr> " +
+                        "           </thead> " +
+                        "           <tbody>";
+
+        $.each(salesOrder.salesOrderLines, function(index, salesOrderLine){
+            $.each(salesOrderLine.shipmentLines, function(index, shipmentLine){
+                $.each(shipmentLine.picks, function(index, pick){
+                    picksHtml    += "  <tr class='odd' role='row'>" +
+                                    "    <td> " + pick.id + "</td> " +
+                                    "    <td> " + pick.number + "</td> " +
+                                    "    <td> " + pick.quantity + "</td> " +
+                                    "    <td> " + pick.pickState + "</td> " +
+                                    "    <td> " + (pick.sourceLocation.name == undefined ? "" : pick.sourceLocation.name) + "</td> " +
+                                    "    <td> " + (pick.sourceLocation.area == undefined ? "" : pick.sourceLocation.area.name) + "</td> " +
+                                    "    <td> " + (pick.destinationLocation.name == undefined ? "" : pick.destinationLocation.name) + "</td> " +
+                                    "    <td> " + (pick.destinationLocation.area == undefined ? "" : pick.destinationLocation.area.name) + "</td> " +
+                                    "    <td> " +
+                                    "       <button class='btn btn-danger' type='button' data-pickid='" + pick.id + "' onclick='cancelPick(event)'>" + $.i18n("cancel")+ "</button>"+
+                                    "    </td> " +
+                                    "</tr> ";
+                });
+            });
+        });
+        picksHtml    += "          </tbody> " +
+                            "        </table> " +
+                            "    </div>  " +
+                            "    </div>  " +
+                            "  </div>  " +
+                            "</div>";
+
+        return picksHtml;
+    }
+    var getFormatShortAllocationDisplay = function(salesOrder) {
+        var shortAllocationHtml = "<div class='card card-accent-success'> " +
+                                  "    <div class='card-header'> " +
+                                  "    </div> " +
+                                  "    <div class='card-body'> " +
+                                  "      <div class='row'> " +
+                                  "      <div class='col-md-12'> " +
+                                  "        <table id='shortAllocationDisplay-" + salesOrder.id + "' class='table table-striped table-bordered display nowrap' style='width:100%' role='grid' data-tabletype='datatable' data-init='true'> " +
+                                  "            <thead> " +
+                                  "                <tr> " +
+                                  "                   <th>" + $.i18n("shortAllocation.id") + "</th> " +
+                                  "                   <th>" + $.i18n("shortAllocation.number") + "</th> " +
+                                  "                   <th>" + $.i18n("shortAllocation.quantity") + "</th> " +
+                                  "               </tr> " +
+                                  "           </thead> " +
+                                  "           <tbody>";
+
+        $.each(salesOrder.salesOrderLines, function(index, salesOrderLine){
+            $.each(salesOrderLine.shipmentLines, function(index, shipmentLine){
+                $.each(shipmentLine.shortAllocation, function(index, shortAllocation){
+                    shortAllocationHtml    += "  <tr class='odd' role='row'>" +
+                                              "    <td> " + shortAllocation.id + "</td> " +
+                                              "    <td> " + shortAllocation.number + "</td> " +
+                                              "    <td> " + shortAllocation.quantity + "</td> " +
+                                              "</tr> ";
+                });
+            });
+        });
+        shortAllocationHtml    += "          </tbody> " +
+                                  "        </table> " +
+                                  "    </div>  " +
+                                  "    </div>  " +
+                                  "  </div>  " +
+                                  "</div>";
+
+        return shortAllocationHtml;
+    }
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+       $($.fn.dataTable.tables(true)).DataTable()
+          .scroller.measure();
+    });
+
+
+    var removeSalesOrder = function(event) {
+        var control = $(event.target);
+        var salesOrderID = control.data("salesorderid");
+        var url = "/ws/outbound/salesorder/" + salesOrderID + "/delete";
+        $.ajax({
+                method:"DELETE",
+                url : url
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    refreshMainGrid();
+                }
+                else{
+                    console.log("Error when delete Sales Order: " + JSON.stringify(res))
+                }
+            });
+    }
+
+    var allocateSalesOrder = function(event) {
+        var control = $(event.target);
+        var salesOrderID = control.data("salesorderid");
+        var url = "/ws/outbound/salesorder/" + salesOrderID + "/reserve";
+        $.ajax({
+                method:"PUT",
+                url : url
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    refreshMainGrid();
+
+                    displayStateMessage("order " + res.data.number + " allocated!");
+                    promptSuccessMessage("order " + res.data.number + " allocated!");
+                }
+                else{
+                    console.log("Error when allocate and reserve inventory for Sales Order: " + JSON.stringify(res))
+                }
+            });
+    }
+
+    var refreshMainGrid = function() {
+        $("#sales_order_query").submit();
+
+    }
+
+    var cancelPick = function(event) {
+        var control = $(event.target);
+        var pickID = control.data("pickid");
+        var url = "/ws/outbound/pick/" + pickID + "/cancel";
+        $.ajax({
+                method:"DELETE",
+                url : url
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    displayStateMessage("pick " + res.data.number + " cancelled!");
+                    promptSuccessMessage("pick " + res.data.number + " cancelled!");
+                    refreshPickInformation(res.data.shipmentLine.salesOrderLine.salesOrder.id);
+                }
+                else{
+
+                }
+            });
+    }
+
+    var refreshPickInformation = function(salesOrderID) {
+        var url = "/ws/outbound/salesorder/query/" + salesOrderID;
+        $.ajax({
+                url:url
+        }).done(function( res ) {
+            var salesOrder = res.data;
+            $("#pick").html(getFormatPickDisplay(salesOrder));
+            $("#shipmentLine").html(getFormatShipmentLineDisplay(salesOrder));
+
+        });
+    }
+
+</script>
+</body>
+</html>

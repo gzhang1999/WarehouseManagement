@@ -99,24 +99,11 @@ public class InventoryController {
         if (location == null) {
             return WebServiceResponseWrapper.raiseError(10000, "Can't find the location by id: " + locationID);
         }
-        int unitQuantity = quantity;
-        for(ItemFootprintUOM itemFootprintUOMIterator : itemFootprint.getItemFootprintUOMs()) {
-            if (itemFootprintUOMIterator.getUnitOfMeasure().getName().equals(itemFootprintUOM)) {
-                unitQuantity = quantity * itemFootprintUOMIterator.getQuantity();
-            }
-        }
 
-        Inventory inventory = new Inventory();
-        inventory.setItemFootprint(itemFootprint);
-        inventory.setLocation(location);
-        inventory.setQuantity(unitQuantity);
-        inventory.setLpn(lpn);
-        // TO-DO: Setup the inventory with default inventory status
-        inventory.setInventoryStatus(inventoryStatusService.getDefaultInventoryStatus());
-
-        Inventory newInventory = inventoryService.createInventory(inventory, reasonCode, reason);
-
-        return new WebServiceResponseWrapper<Inventory>(0, "", newInventory);
+        Inventory inventory = inventoryService.addInventory(location, itemFootprint,
+                                              quantity, itemFootprintUOM, lpn,
+                                              reasonCode, reason);
+        return new WebServiceResponseWrapper<Inventory>(0, "", inventory);
     }
 
     @ResponseBody

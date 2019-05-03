@@ -45,10 +45,7 @@ import se.gzhang.scm.wms.layout.service.LocationService;
 
 import javax.persistence.criteria.*;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class ReceiptService {
@@ -214,6 +211,7 @@ public class ReceiptService {
         inventory.setLpn(lpn);
         inventory.setQuantity(quantity);
         inventory.setItemFootprint(itemFootprint);
+        inventory.setFIFODate(new Date());
 
         inventory.setReceiptLine(receiptLine);
 
