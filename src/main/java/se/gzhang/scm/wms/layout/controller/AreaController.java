@@ -22,10 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-import se.gzhang.scm.wms.layout.model.Area;
-import se.gzhang.scm.wms.layout.model.AreaType;
-import se.gzhang.scm.wms.layout.model.Location;
-import se.gzhang.scm.wms.layout.model.VolumeType;
+import se.gzhang.scm.wms.layout.model.*;
 import se.gzhang.scm.wms.layout.service.AreaService;
 import se.gzhang.scm.wms.layout.service.BuildingService;
 import se.gzhang.scm.wms.webservice.model.WebServiceResponseWrapper;
@@ -73,7 +70,7 @@ public class AreaController {
 
         Area area = areaService.findByAreaId(areaID);
         if (area == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the area by id: " + areaID);
+            return WebServiceResponseWrapper.raiseError("AreaException.CannotFindArea", "Can't find the area by id: " + areaID);
         }
         return new WebServiceResponseWrapper<Area>(0, "", area);
     }
@@ -84,7 +81,7 @@ public class AreaController {
 
         Area area = areaService.findByAreaId(areaID);
         if (area == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the area by id: " + areaID);
+            return WebServiceResponseWrapper.raiseError("AreaException.CannotFindArea", "Can't find the area by id: " + areaID);
         }
         areaService.deleteAreaByAreaId(areaID);
         return new WebServiceResponseWrapper<Area>(0, "", area);
@@ -96,13 +93,17 @@ public class AreaController {
     public WebServiceResponseWrapper createArea(@RequestParam("name") String name,
                                                 @RequestParam("buildingID") int buildingID,
                                                 @RequestParam("areaType") String areaType,
-                                                @RequestParam("volumeType") String volumeType) {
+                                                @RequestParam("volumeType") String volumeType,
+                                                @RequestParam(required = false, name = "locationReserveStrategyType", defaultValue = "") String locationReserveStrategyType) {
 
         Area area = new Area();
         area.setName(name);
         area.setBuilding(buildingService.findByBuildingID(buildingID));
         area.setAreaType(AreaType.valueOf(areaType));
         area.setVolumeType(VolumeType.valueOf(volumeType));
+        if (!locationReserveStrategyType.isEmpty()) {
+            area.setLocationReserveStrategyType(LocationReserveStrategyType.valueOf(locationReserveStrategyType));
+        }
 
         Area newArea = areaService.save(area);
 
@@ -115,15 +116,19 @@ public class AreaController {
                                                 @RequestParam("name") String name,
                                                 @RequestParam("buildingID") int buildingID,
                                                 @RequestParam("areaType") String areaType,
-                                                @RequestParam("volumeType") String volumeType) {
+                                                @RequestParam("volumeType") String volumeType,
+                                                @RequestParam(required = false, name = "locationReserveStrategyType", defaultValue = "") String locationReserveStrategyType) {
         Area area = areaService.findByAreaId(areaID);
         if (area == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the area by id: " + areaID);
+            return WebServiceResponseWrapper.raiseError("AreaException.CannotFindArea", "Can't find the area by id: " + areaID);
         }
         area.setName(name);
         area.setBuilding(buildingService.findByBuildingID(buildingID));
         area.setAreaType(AreaType.valueOf(areaType));
         area.setVolumeType(VolumeType.valueOf(volumeType));
+        if (!locationReserveStrategyType.isEmpty()) {
+            area.setLocationReserveStrategyType(LocationReserveStrategyType.valueOf(locationReserveStrategyType));
+        }
         areaService.save(area);
 
         return new WebServiceResponseWrapper<Area>(0, "", areaService.findByAreaId(areaID));

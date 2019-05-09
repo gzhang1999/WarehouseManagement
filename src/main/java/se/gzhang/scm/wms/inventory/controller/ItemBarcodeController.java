@@ -72,7 +72,7 @@ public class ItemBarcodeController {
 
         ItemBarcode itemBarcode = itemBarcodeService.findByItemBarcodeId(itemBarcodeID);
         if (itemBarcode == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item barcode by id: " + itemBarcodeID);
+            return WebServiceResponseWrapper.raiseError("ItemBarcodeException.CannotFindItemBarcode", "Can't find the item barcode by id: " + itemBarcodeID);
         }
         return new WebServiceResponseWrapper<ItemBarcode>(0, "", itemBarcode);
     }
@@ -83,7 +83,7 @@ public class ItemBarcodeController {
 
         ItemBarcode itemBarcode = itemBarcodeService.findByItemBarcodeId(itemBarcodeID);
         if (itemBarcode == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item barcode by id: " + itemBarcodeID);
+            return WebServiceResponseWrapper.raiseError("ItemBarcodeException.CannotFindItemBarcode", "Can't find the item barcode by id: " + itemBarcodeID);
         }
         itemBarcodeService.deleteByItemBarcodeId(itemBarcodeID);
         return new WebServiceResponseWrapper<ItemBarcode>(0, "", itemBarcode);
@@ -97,12 +97,12 @@ public class ItemBarcodeController {
 
         ItemBarcode itemBarcode = itemBarcodeService.findByItemBarcodeId(itemBarcodeID);
         if (itemBarcode == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item barcode by id: " + itemBarcodeID);
+            return WebServiceResponseWrapper.raiseError("ItemBarcodeException.CannotFindItemBarcode", "Can't find the item barcode by id: " + itemBarcodeID);
         }
 
         ItemBarcodeType itemBarcodeType = itemBarcodeTypeService.findByItemBarcodeTypeName(barcodeType);
         if (itemBarcodeType == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item barcode type by name: " + barcodeType);
+            return WebServiceResponseWrapper.raiseError("ItemBarcodeException.CannotFindItemBarcode", "Can't find the item barcode type by name: " + barcodeType);
         }
         itemBarcode.setBarcode(barcode);
         itemBarcode.setItemBarcodeType(itemBarcodeType);
@@ -118,12 +118,12 @@ public class ItemBarcodeController {
                                                        @RequestParam("barcodeType") String barcodeType) {
         Item item = itemService.findByItemName(itemName);
         if (item == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item by name: " + itemName);
+            return WebServiceResponseWrapper.raiseError("ItemBarcodeException.CannotFindItemBarcode", "Can't find the item by name: " + itemName);
         }
 
         ItemBarcodeType itemBarcodeType = itemBarcodeTypeService.findByItemBarcodeTypeName(barcodeType);
         if (itemBarcodeType == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item barcode type by name: " + barcodeType);
+            return WebServiceResponseWrapper.raiseError("ItemBarcodeTypeException.CannotFindItemBarcodeType", "Can't find the item barcode type by name: " + barcodeType);
         }
 
         ItemBarcode itemBarcode = new ItemBarcode();

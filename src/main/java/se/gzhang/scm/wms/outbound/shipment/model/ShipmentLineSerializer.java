@@ -72,6 +72,17 @@ public class ShipmentLineSerializer extends StdSerializer<ShipmentLine> {
                 jgen.writeStringField("name", shipmentLine.getSalesOrderLine().getItem().getName());
             }
             jgen.writeEndObject();
+
+            jgen.writeFieldName("salesOrder");
+            jgen.writeStartObject();
+            if (shipmentLine.getSalesOrderLine().getSalesOrder() != null) {
+                jgen.writeNumberField("id", shipmentLine.getSalesOrderLine().getSalesOrder().getId());
+                jgen.writeStringField("number", shipmentLine.getSalesOrderLine().getSalesOrder().getNumber());
+                jgen.writeStringField("externalID", shipmentLine.getSalesOrderLine().getSalesOrder().getExternalID());
+            }
+            jgen.writeEndObject();
+
+
         }
         jgen.writeEndObject();
 
@@ -80,6 +91,7 @@ public class ShipmentLineSerializer extends StdSerializer<ShipmentLine> {
         for(Pick pick : shipmentLine.getPicks()) {
             if (pick.getPickState() != PickState.CANCELLED) {
                 jgen.writeStartObject();
+
                 jgen.writeNumberField("id", pick.getId());
                 jgen.writeStringField("number", pick.getNumber());
                 jgen.writeStringField("pickState", pick.getPickState().name());
@@ -106,6 +118,7 @@ public class ShipmentLineSerializer extends StdSerializer<ShipmentLine> {
                 if (pick.getDestinationLocation() != null) {
                     jgen.writeNumberField("id", pick.getDestinationLocation().getId());
                     jgen.writeStringField("name", pick.getDestinationLocation().getName());
+
                     jgen.writeFieldName("area");
                     jgen.writeStartObject();
                     if (pick.getDestinationLocation().getArea() != null) {
@@ -124,12 +137,16 @@ public class ShipmentLineSerializer extends StdSerializer<ShipmentLine> {
         jgen.writeFieldName("shortAllocation");
         jgen.writeStartArray();
         for(ShortAllocation shortAllocation : shipmentLine.getShortAllocation()) {
-            jgen.writeStartObject();
-            jgen.writeNumberField("id", shortAllocation.getId());
-            jgen.writeStringField("number", shortAllocation.getNumber());
-            jgen.writeNumberField("quantity", shortAllocation.getQuantity());
+            // only add short allocation that is not cancelled
+            if (shortAllocation.getShortAllocationState() != ShortAllocationState.CANCELLED) {
+                jgen.writeStartObject();
+                jgen.writeNumberField("id", shortAllocation.getId());
+                jgen.writeStringField("number", shortAllocation.getNumber());
+                jgen.writeNumberField("quantity", shortAllocation.getQuantity());
+                jgen.writeStringField("state", shortAllocation.getShortAllocationState().name());
 
-            jgen.writeEndObject();
+                jgen.writeEndObject();
+            }
         }
         jgen.writeEndArray();
 
@@ -182,6 +199,7 @@ public class ShipmentLineSerializer extends StdSerializer<ShipmentLine> {
             }
             jgen.writeEndObject();
         }
+        jgen.writeEndObject();
 
 
         jgen.writeEndObject();

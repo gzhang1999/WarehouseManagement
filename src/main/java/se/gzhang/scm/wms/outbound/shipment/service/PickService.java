@@ -24,8 +24,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Customer;
+import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.exception.Outbound.PickException;
+import se.gzhang.scm.wms.exception.StandProductException;
 import se.gzhang.scm.wms.framework.controls.service.UniversalIdentifierService;
 import se.gzhang.scm.wms.inventory.model.Inventory;
+import se.gzhang.scm.wms.inventory.service.InventoryService;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.Location;
 import se.gzhang.scm.wms.outbound.order.model.SalesOrder;
@@ -47,6 +51,8 @@ public class PickService {
     ShipmentLineService shipmentLineService;
     @Autowired
     AllocationResultService allocationResultService;
+    @Autowired
+    InventoryService inventoryService;
 
     public List<Pick> findAll(){
 
@@ -144,11 +150,18 @@ public class PickService {
         pick.setQuantity(quantity);
         pick.setPickedQuantity(0);
         pick.setPickState(PickState.NEW);
+        pick.setDestinationLocation(shipmentLine.getSalesOrderLine().getShippingStageLocation());
         return  save(pick);
     }
 
     @Transactional
     public void cancelPick(Pick pick) {
+        if (pick.getPickState().equals(PickState.CANCELLED) ||
+                pick.getPickState().equals(PickState.COMPLETED) ||
+                pick.getPickState().equals(PickState.PICKED) ||
+                pick.getPickState().equals(PickState.PICKING)) {
+            throw PickException.NOT_VALID_STATE_FOR_CANCELLATION;
+        }
         // Mark the pick as cancelled
         pick.setPickState(PickState.CANCELLED);
         pick.setCancelledDate(new Date());
@@ -169,8 +182,7 @@ public class PickService {
         // We should only find one result and deduct the quantity from it
         if (allocationResultList.size() > 0) {
             AllocationResult allocationResult = allocationResultList.get(0);
-            allocationResult.setAllocatedQuantity(allocationResult.getAllocatedQuantity() - pick.getQuantity());
-            allocationResultService.save(allocationResult);
+            allocationResultService.deallocateInventoryFromLocation(allocationResult, pick.getQuantity());
         }
 
     }
@@ -179,9 +191,18 @@ public class PickService {
     public void confirmPick(Pick pick, int confirmedQuantity) {
         // make sure the pick is not cancelled nor completed
         if (pick.getPickState() != PickState.CANCELLED &&
-                pick.getPickState() != PickState.Completed) {
+                pick.getPickState() != PickState.COMPLETED) {
             pick.setPickedQuantity(pick.getPickedQuantity() + confirmedQuantity);
+            if (pick.getPickedQuantity() == pick.getQuantity()) {
+                pick.setPickState(PickState.PICKED);
+            }
+            else {
+                pick.setPickState(PickState.PICKING);
+            }
             save(pick);
+
+            // move inventory to the pick's destination
+
         }
     }
 }

@@ -90,6 +90,9 @@ var initQueryForm = function(formID) {
                // The page that use this function
                // should have the renderTable implemented
                renderTable(this.displayTable, res.data, res.customFields);
+               // After we render the table with content, let's escape the
+               // display
+               escapeDisplay(this.displayTable);
 
            });
        });
@@ -126,6 +129,19 @@ var initDataTable = function() {
                 if ($(this).data("refresh") == true) {
                     table.columns.adjust();
                 }
+
+                // register page change event to this data table so
+                // every time we switch between pages, we will escape the display
+                table.on( 'draw', function () {
+                    console.log("draw");
+                    if ($(this).prop("id") === undefined ||
+                         $(this).prop("id") === "") {
+                        escapeDisplays();
+                    }
+                    else {
+                        escapeDisplays($(this).prop("id"));
+                    }
+                });
 
             }
         });
@@ -688,9 +704,9 @@ var initFunctionKeyHandler = function() {
                 });
         }
     });
-
-
 }
+
+
 
 $(document).ready( function () {
 
@@ -715,4 +731,6 @@ $(document).ready( function () {
     initLookupController();
 
     initFunctionKeyHandler();
+
+
 });

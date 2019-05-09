@@ -18,6 +18,8 @@
 
 package se.gzhang.scm.wms.layout.model;
 
+import se.gzhang.scm.wms.common.model.EnumWithDescription;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -167,4 +169,5 @@ public class LocationNameTemplateItem  implements Serializable {
     public void setLocationNameTemplateItemRangeType(LocationNameTemplateItemRangeType locationNameTemplateItemRangeType) {
         this.locationNameTemplateItemRangeType = locationNameTemplateItemRangeType;
     }
+
 }

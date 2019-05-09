@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import se.gzhang.scm.wms.common.model.UnitOfMeasure;
 import se.gzhang.scm.wms.common.service.UnitOfMeasureService;
 import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.exception.StandProductException;
 import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.inventory.model.ItemFootprint;
 import se.gzhang.scm.wms.inventory.model.ItemFootprintUOM;
@@ -69,7 +70,7 @@ public class ItemFootprintUOMService {
         for(ItemFootprintUOM existItemFootprintUOM : existItemFootprintUOMList) {
             if (existItemFootprintUOM.getUnitOfMeasure().getName().equals(itemFootprintUOM.getUnitOfMeasure().getName()) &&
                     (itemFootprintUOM.getId() == null || existItemFootprintUOM.getId() !=  itemFootprintUOM.getId())) {
-                throw new GenericException(10000,"The same UOM " + itemFootprintUOM.getUnitOfMeasure().getName() + " already exists in the footprint: " + itemFootprintUOM.getItemFootprint().getName());
+                throw new StandProductException("ItemFootprintUOMException.UOMExists","The same UOM " + itemFootprintUOM.getUnitOfMeasure().getName() + " already exists in the footprint: " + itemFootprintUOM.getItemFootprint().getName());
             }
         }
         // If the item footprint UOM to be change is a case UOM, mark this UOM as case
@@ -230,7 +231,7 @@ public class ItemFootprintUOMService {
 
         Item item = itemService.findByItemName(itemName);
         if (item == null) {
-            throw new GenericException(10000,"Can't find item by name " + itemName);
+            throw new StandProductException("ItemException.CannotFindItem","Can't find item by name " + itemName);
         }
 
         Map<String, String> criteriaList = new HashMap<>();
@@ -238,13 +239,13 @@ public class ItemFootprintUOMService {
         criteriaList.put("name", itemFootprintName);
         List<ItemFootprint> itemFootprintList = itemFootprintService.findItemFootprints(criteriaList);
         if (itemFootprintList == null || itemFootprintList.size() != 1) {
-            throw new GenericException(10000,"Can't find item footprint by name " + itemFootprintName);
+            throw new StandProductException("ItemFootprintException.CannotFindItemFootprint","Can't find item footprint by name " + itemFootprintName);
         }
         ItemFootprint itemFootprint = itemFootprintList.get(0);
 
         UnitOfMeasure unitOfMeasure = unitOfMeasureService.findByUOMName(uom);
         if (unitOfMeasure == null) {
-            throw new GenericException(10000,"Can't find unit of measure by name " + uom);
+            throw new StandProductException("UnitOfMessageException.CannotFindUnitOfMessage","Can't find unit of measure by name " + uom);
         }
 
         ItemFootprintUOM itemFootprintUOM =  null;

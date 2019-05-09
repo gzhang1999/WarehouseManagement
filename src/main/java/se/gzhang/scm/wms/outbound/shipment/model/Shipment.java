@@ -25,6 +25,7 @@ import se.gzhang.scm.wms.layout.model.Warehouse;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 /*
  * Shipment is a object standards for each shipping activities
@@ -64,6 +65,9 @@ public class Shipment implements Serializable {
 
     @Column(name = "shipment_state")
     private ShipmentState shipmentState;
+
+    @Column(name = "cancelled_date")
+    private Date cancelledDate;
 
     @Override
     public boolean equals(Object obj) {
@@ -137,5 +141,13 @@ public class Shipment implements Serializable {
 
     public void setShipmentState(ShipmentState shipmentState) {
         this.shipmentState = shipmentState;
+    }
+
+    public Date getCancelledDate() {
+        return cancelledDate;
+    }
+
+    public void setCancelledDate(Date cancelledDate) {
+        this.cancelledDate = cancelledDate;
     }
 }

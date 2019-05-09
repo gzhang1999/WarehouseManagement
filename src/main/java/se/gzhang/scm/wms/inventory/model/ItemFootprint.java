@@ -128,4 +128,19 @@ public class ItemFootprint implements Serializable {
     public void setDefaultFootprint(boolean defaultFootprint) {
         this.defaultFootprint = defaultFootprint;
     }
+
+    public ItemFootprintUOM getStockItemFootprintUOM() {
+        ItemFootprintUOM smallestItemFootprintUOM = getItemFootprintUOMs().get(0);
+        for(ItemFootprintUOM itemFootprintUOM : getItemFootprintUOMs()) {
+            if (itemFootprintUOM.isStockUOM()) {
+                return itemFootprintUOM;
+            }
+            if(smallestItemFootprintUOM.getQuantity() > itemFootprintUOM.getQuantity()) {
+                smallestItemFootprintUOM = itemFootprintUOM;
+            }
+        }
+
+        // no UOM is marked as stock uom, we will return the smallest UOM
+        return smallestItemFootprintUOM;
+    }
 }

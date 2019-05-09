@@ -19,6 +19,7 @@
 package se.gzhang.scm.wms.layout.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.stereotype.Component;
 import se.gzhang.scm.wms.common.model.VehicleType;
 import se.gzhang.scm.wms.common.model.Velocity;
 import se.gzhang.scm.wms.inventory.model.Inventory;
@@ -57,6 +58,8 @@ public class Location  implements Serializable {
     @Column(name = "usable")
     private Boolean usable = false;
 
+    @Column(name = "reserve_code")
+    private String reserveCode;
 
     @Column(name = "length")
     private Double length = 0.0;
@@ -337,6 +340,14 @@ public class Location  implements Serializable {
 
     public void setCountSequence(Integer countSequence) {
         this.countSequence = countSequence;
+    }
+
+    public String getReserveCode() {
+        return reserveCode;
+    }
+
+    public void setReserveCode(String reserveCode) {
+        this.reserveCode = reserveCode;
     }
 
     public LocationStatus getLocationStatus() {

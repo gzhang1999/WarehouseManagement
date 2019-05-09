@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.exception.StandProductException;
 import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.inventory.model.ItemBarcode;
 import se.gzhang.scm.wms.inventory.model.ItemBarcodeType;
@@ -161,11 +162,11 @@ public class ItemBarcodeService {
 
         Item item = itemService.findByItemName(itemName);
         if (item == null) {
-            throw new GenericException(10000,"Can't find item by name " + itemName);
+            throw new StandProductException("ItemException.CannotFindItem","Can't find item by name " + itemName);
         }
         ItemBarcodeType itemBarcodeType = itemBarcodeTypeService.findByItemBarcodeTypeName(barcodeType);
         if (itemBarcodeType == null) {
-            throw new GenericException(10000,"Can't find item barcode by type " + barcodeType);
+            throw new StandProductException("ItemBarcodeTypeException.CannotFindItemBarcodeType","Can't find item barcode by type " + barcodeType);
         }
 
         Map<String, String> criteriaList = new HashMap<>();

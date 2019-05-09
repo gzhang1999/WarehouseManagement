@@ -81,7 +81,7 @@ public class PutawayPolicyController {
     public WebServiceResponseWrapper remotePutawayPolicy(@PathVariable("putawayPolicyID") int putawayPolicyID) {
         PutawayPolicy putawayPolicy = putawayPolicyService.findByPutawayPolicyId(putawayPolicyID);
         if (putawayPolicy == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the putaway policy by id: " + putawayPolicyID);
+            return WebServiceResponseWrapper.raiseError("PutawayPolicyException.CannotFindPutawayPolicy", "Can't find the putaway policy by id: " + putawayPolicyID);
         }
 
         putawayPolicyService.deleteByPutawayPolicyID(putawayPolicyID);

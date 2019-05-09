@@ -23,7 +23,9 @@ import se.gzhang.scm.wms.common.model.EnumWithDescription;
 public enum PickState implements EnumWithDescription<String> {
     NEW("New"),
     CANCELLED("Cancelled"),
-    Completed("Completed");
+    COMPLETED("Completed"),
+    PICKING("Picking"),
+    PICKED("Picked");
 
     private String description;
 

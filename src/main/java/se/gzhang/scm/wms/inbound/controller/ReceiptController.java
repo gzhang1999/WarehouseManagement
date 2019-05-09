@@ -94,7 +94,7 @@ public class ReceiptController {
 
         Receipt receipt = receiptService.findByReceiptId(receiptID);
         if (receipt == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the receipt by id: " + receiptID);
+            return WebServiceResponseWrapper.raiseError("ReceiptException.CannotFindReceipt", "Can't find the receipt by id: " + receiptID);
         }
 
         // add received inventory to the customized field
@@ -117,7 +117,7 @@ public class ReceiptController {
 
         Receipt receipt = receiptService.findByReceiptId(receiptID);
         if (receipt == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the receipt by id: " + receiptID);
+            return WebServiceResponseWrapper.raiseError("ReceiptException.CannotFindReceipt", "Can't find the receipt by id: " + receiptID);
         }
         receiptService.deleteByReceiptID(receiptID);
         return new WebServiceResponseWrapper<Receipt>(0, "", receipt);
@@ -133,11 +133,11 @@ public class ReceiptController {
 
         Supplier supplier = supplierService.findBySupplierId(supplierID);
         if (supplier == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the supplier by id: " + supplierID);
+            return WebServiceResponseWrapper.raiseError("SupplierException.CannotFindSupplier", "Can't find the supplier by id: " + supplierID);
         }
         Trailer trailer = trailerService.findByTrailerId(trailerID);
         if (trailer == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the trailer by id: " + trailerID);
+            return WebServiceResponseWrapper.raiseError("TrailerException.CannotFindTrailer", "Can't find the trailer by id: " + trailerID);
         }
         Receipt receipt = receiptService.createReceipt(externalID, number, purchaseOrderNumber, supplier, trailer);
 
@@ -154,12 +154,12 @@ public class ReceiptController {
 
         Receipt receipt = receiptService.findByReceiptId(receiptID);
         if (receipt == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the receipt by id: " + receiptID);
+            return WebServiceResponseWrapper.raiseError("ReceiptException.CannotFindReceipt", "Can't find the receipt by id: " + receiptID);
         }
 
         Supplier supplier = supplierService.findBySupplierId(supplierID);
         if (supplier == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the supplier by id: " + supplierID);
+            return WebServiceResponseWrapper.raiseError("SupplierException.CannotFindSupplier", "Can't find the supplier by id: " + supplierID);
         }
 
         try {
@@ -179,7 +179,7 @@ public class ReceiptController {
 
         ReceiptLine receiptLine = receiptLineService.findByReceiptLineId(receiptLineID);
         if (receiptLine == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the receipt line by id: " + receiptLineID);
+            return WebServiceResponseWrapper.raiseError("ReceiptLineException.CannotFindReceiptLine", "Can't find the receipt line by id: " + receiptLineID);
         }
         return new WebServiceResponseWrapper<ReceiptLine>(0, "", receiptLine);
     }
@@ -197,7 +197,7 @@ public class ReceiptController {
 
         ReceiptLine receiptLine = receiptLineService.findByReceiptLineId(receiptLineID);
         if (receiptLine == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the receipt line by id: " + receiptLineID);
+            return WebServiceResponseWrapper.raiseError("ReceiptLineException.CannotFindReceiptLine", "Can't find the receipt line by id: " + receiptLineID);
         }
 
         Inventory inventory = receiptService.receiving(receiptLine,location,quantity,itemFootprintID,
@@ -213,7 +213,7 @@ public class ReceiptController {
 
         ReceiptLine receiptLine = receiptLineService.findByReceiptLineId(receiptLineID);
         if (receiptLine == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the receipt line by id: " + receiptLineID);
+            return WebServiceResponseWrapper.raiseError("ReceiptLineException.CannotFindReceiptLine", "Can't find the receipt line by id: " + receiptLineID);
         }
 
         List<Inventory> receivedInventory = receiptService.getReceivedInventoryByReceiptLine(receiptLineID);

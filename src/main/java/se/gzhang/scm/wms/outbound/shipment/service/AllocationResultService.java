@@ -105,5 +105,22 @@ public class AllocationResultService {
         return save(allocationResult);
     }
 
+    @Transactional
+    public void removeAllocationResult(AllocationResult allocationResult) {
+        allocationResultRepository.delete(allocationResult);
+
+    }
+
+    @Transactional
+    public void deallocateInventoryFromLocation(AllocationResult allocationResult, int deallocatedQuantity) {
+        if (allocationResult.getAllocatedQuantity() > deallocatedQuantity) {
+            allocationResult.setAllocatedQuantity(allocationResult.getAllocatedQuantity() - deallocatedQuantity);
+            save(allocationResult);
+        }
+        else {
+            removeAllocationResult(allocationResult);
+        }
+    }
+
 
 }

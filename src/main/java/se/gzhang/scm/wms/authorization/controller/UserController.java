@@ -79,7 +79,7 @@ public class UserController {
         if (currentLoginUser.isUserManager()) {
             User user = userService.findUserById(userID);
             if(user == null) {
-                return WebServiceResponseWrapper.raiseError(10001, "Can not find the user by ID: " + userID);
+                return WebServiceResponseWrapper.raiseError("UserException.CannotFindUser", "Can not find the user by ID: " + userID);
             }
             else {
                 return new WebServiceResponseWrapper<User>(0, "", user);
@@ -87,7 +87,7 @@ public class UserController {
         }
         else {
             // The user doesn't have the access to the menu
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to manager other users");
+            return WebServiceResponseWrapper.raiseError("UserException.NoRightForManageUser", "The user doesn't have right to manager other users");
 
         }
 
@@ -114,7 +114,7 @@ public class UserController {
         if (currentLoginUser.isUserManager()) {
             User user = userService.findUserById(userID);
             if(user == null) {
-                return WebServiceResponseWrapper.raiseError(10001, "Can not find the user by ID: " + userID);
+                return WebServiceResponseWrapper.raiseError("UserException.CannotFindUser", "Can not find the user by ID: " + userID);
             }
             else {
                 user.setPassword(passwordEncoder.encode(password));
@@ -132,7 +132,7 @@ public class UserController {
         }
         else {
             // The user doesn't have the access to the menu
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to manager other users");
+            return WebServiceResponseWrapper.raiseError("UserException.NoRightForManageUser", "The user doesn't have right to manager other users");
 
         }
     }
@@ -182,7 +182,7 @@ public class UserController {
         }
         else {
             // The user doesn't have the access to the menu
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to manager other users");
+            return WebServiceResponseWrapper.raiseError("UserException.NoRightForManageUser", "The user doesn't have right to manager other users");
 
         }
     }
@@ -198,7 +198,7 @@ public class UserController {
 
             User user = userService.findUserById(userID);
             if(user == null) {
-                return WebServiceResponseWrapper.raiseError(10001, "Can not find the user by ID: " + userID);
+                return WebServiceResponseWrapper.raiseError("UserException.CannotFindUser", "Can not find the user by ID: " + userID);
             }
             else {
                 // load role & menu item, ignore cache as we will need to get the newly
@@ -209,7 +209,7 @@ public class UserController {
         }
         else {
 
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to assign menu");
+            return WebServiceResponseWrapper.raiseError("UserException.NoRightForAssignMenu", "The user doesn't have right to assign menu");
         }
 
     }
@@ -229,7 +229,7 @@ public class UserController {
 
             User user = userService.findUserById(userID);
             if(user == null) {
-                return WebServiceResponseWrapper.raiseError(10001, "Can not find the user by ID: " + userID);
+                return WebServiceResponseWrapper.raiseError("UserException.CannotFindUser", "Can not find the user by ID: " + userID);
             }
             else {
                 if (assigned) {
@@ -247,7 +247,7 @@ public class UserController {
         }
         else {
 
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to assign menu");
+            return WebServiceResponseWrapper.raiseError("UserException.NoRightForAssignMenu", "The user doesn't have right to assign menu");
         }
 
     }

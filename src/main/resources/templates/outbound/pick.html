@@ -172,26 +172,55 @@
         else {
             table.clear();
             var htmlData = "";
+
             $.each(data, function(index, pick){
-                htmlData +=
-                    "<tr  id='row_" + pick.id + "'>" +
-                    "    <td><input type='checkbox' data-type='pickSelector' data-pickid='" + pick.id  + "' ></td>" +
-                    "    <td> " + pick.id + "   </td>" +
-                    "    <td> " + pick.number + "</td> " +
-                    "    <td> " + pick.quantity + "</td> " +
-                    "    <td> " + pick.pickedQuantity + "</td> " +
-                    "    <td> <input type='text' id='pickQuantity_" + pick.id + "' value='" + (pick.quantity - pick.pickedQuantity) + "'></td> " +
-                    "    <td> " + pick.pickState + "</td> " +
-                    "    <td> " + (pick.sourceLocation.name == undefined ? "" : pick.sourceLocation.name) + "</td> " +
-                    "    <td> " + (pick.sourceLocation.area == undefined ? "" : pick.sourceLocation.area.name) + "</td> " +
-                    "    <td> " + (pick.destinationLocation.name == undefined ? "" : pick.destinationLocation.name) + "</td> " +
-                    "    <td> " + (pick.destinationLocation.area == undefined ? "" : pick.destinationLocation.area.name) + "</td> " +
-                    "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.salesOrder.number) + "</td> " +
-                    "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.salesOrder.externalID) + "</td> " +
-                    "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.number) + "</td> " +
-                    "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.shipment.number) + "</td> " +
-                    "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.number) + "</td> " +
-                     "</tr>";
+
+                if (pick.pickState == "CANCELLED" ||
+                        pick.pickState == "COMPLETED" ||
+                        pick.quantity <= pick.pickedQuantity) {
+                    // The pick is not pickable now, we will disable this line
+                    htmlData +=
+                        "<tr  id='row_" + pick.id + "'>" +
+                        "    <td><input type='checkbox' data-type='pickSelector' data-pickid='" + pick.id  + "' disabled></td>" +
+                        "    <td> " + pick.id + "   </td>" +
+                        "    <td> " + pick.number + "</td> " +
+                        "    <td> " + pick.quantity + "</td> " +
+                        "    <td> " + pick.pickedQuantity + "</td> " +
+                        "    <td> <input type='text' id='pickQuantity_" + pick.id + "' value='" + (pick.quantity - pick.pickedQuantity) + "' disabled></td> " +
+                        "    <td> " + pick.pickState + "</td> " +
+                        "    <td> " + (pick.sourceLocation.name == undefined ? "" : pick.sourceLocation.name) + "</td> " +
+                        "    <td> " + (pick.sourceLocation.area == undefined ? "" : pick.sourceLocation.area.name) + "</td> " +
+                        "    <td> " + (pick.destinationLocation.name == undefined ? "" : pick.destinationLocation.name) + "</td> " +
+                        "    <td> " + (pick.destinationLocation.area == undefined ? "" : pick.destinationLocation.area.name) + "</td> " +
+                        "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.salesOrder.number) + "</td> " +
+                        "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.salesOrder.externalID) + "</td> " +
+                        "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.number) + "</td> " +
+                        "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.shipment.number) + "</td> " +
+                        "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.number) + "</td> " +
+                         "</tr>";
+                }
+                else {
+                    htmlData +=
+                        "<tr  id='row_" + pick.id + "'>" +
+                        "    <td><input type='checkbox' data-type='pickSelector' data-pickid='" + pick.id  + "' ></td>" +
+                        "    <td> " + pick.id + "   </td>" +
+                        "    <td> " + pick.number + "</td> " +
+                        "    <td> " + pick.quantity + "</td> " +
+                        "    <td> " + pick.pickedQuantity + "</td> " +
+                        "    <td> <input type='text' id='pickQuantity_" + pick.id + "' value='" + (pick.quantity - pick.pickedQuantity) + "' ></td> " +
+                        "    <td> " + pick.pickState + "</td> " +
+                        "    <td> " + (pick.sourceLocation.name == undefined ? "" : pick.sourceLocation.name) + "</td> " +
+                        "    <td> " + (pick.sourceLocation.area == undefined ? "" : pick.sourceLocation.area.name) + "</td> " +
+                        "    <td> " + (pick.destinationLocation.name == undefined ? "" : pick.destinationLocation.name) + "</td> " +
+                        "    <td> " + (pick.destinationLocation.area == undefined ? "" : pick.destinationLocation.area.name) + "</td> " +
+                        "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.salesOrder.number) + "</td> " +
+                        "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.salesOrder.externalID) + "</td> " +
+                        "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.number) + "</td> " +
+                        "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.shipment.number) + "</td> " +
+                        "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.number) + "</td> " +
+                         "</tr>";
+
+                }
             });
             var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
             table.rows.add(html).draw();
@@ -218,6 +247,7 @@
                         refreshMainGrid();
                     }
                     else{
+                        displayFailMessage(res.data, res.message);
 
                     }
                 });
@@ -244,6 +274,7 @@
                         refreshMainGrid();
                     }
                     else{
+                        displayFailMessage(res.data, res.message);
 
                     }
                 });

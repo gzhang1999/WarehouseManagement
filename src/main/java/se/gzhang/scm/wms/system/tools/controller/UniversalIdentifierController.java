@@ -81,7 +81,7 @@ public class UniversalIdentifierController {
 
         UniversalIdentifier universalidentifier = universalIdentifierService.findById(id);
         if (universalidentifier == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the universal identify by id: " + universalidentifier);
+            return WebServiceResponseWrapper.raiseError("UniversalIDException.CannotFindUniversalID", "Can't find the universal identify by id: " + universalidentifier);
         }
 
         return new WebServiceResponseWrapper<UniversalIdentifier>(0, "", universalidentifier);
@@ -114,7 +114,7 @@ public class UniversalIdentifierController {
 
         UniversalIdentifier universalidentifier = universalIdentifierService.findById(id);
         if (universalidentifier == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the universal identify by id: " + universalidentifier);
+            return WebServiceResponseWrapper.raiseError("UniversalIDException.CannotFindUniversalID", "Can't find the universal identify by id: " + universalidentifier);
         }
 
         return new WebServiceResponseWrapper<UniversalIdentifier>(0, "",
@@ -127,7 +127,7 @@ public class UniversalIdentifierController {
 
         UniversalIdentifier universalidentifier = universalIdentifierService.findById(id);
         if (universalidentifier == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the universal identify by id: " + universalidentifier);
+            return WebServiceResponseWrapper.raiseError("UniversalIDException.CannotFindUniversalID", "Can't find the universal identify by id: " + universalidentifier);
         }
 
         return new WebServiceResponseWrapper<UniversalIdentifier>(0, "",

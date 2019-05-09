@@ -22,11 +22,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.framework.controls.service.UniversalIdentifierService;
-import se.gzhang.scm.wms.outbound.shipment.model.Pick;
-import se.gzhang.scm.wms.outbound.shipment.model.ShipmentLine;
-import se.gzhang.scm.wms.outbound.shipment.model.ShortAllocation;
+import se.gzhang.scm.wms.outbound.shipment.model.*;
 import se.gzhang.scm.wms.outbound.shipment.repository.PickRepository;
 import se.gzhang.scm.wms.outbound.shipment.repository.ShortAllocationRepository;
+
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class ShortAllocationService {
@@ -34,6 +35,21 @@ public class ShortAllocationService {
     ShortAllocationRepository shortAllocationRepository;
     @Autowired
     UniversalIdentifierService universalIdentifierService;
+    @Autowired
+    ShipmentLineService shipmentLineService;
+
+    public List<ShortAllocation> findAll(){
+
+        return shortAllocationRepository.findAll();
+    }
+
+    public ShortAllocation findByShortAllocationId(int id){
+        return shortAllocationRepository.findById(id);
+    }
+
+    public ShortAllocation findByShortAllocationNumber(String number) {
+        return shortAllocationRepository.findByNumber(number);
+    }
 
     @Transactional
     public ShortAllocation save(ShortAllocation shortAllocation) {
@@ -48,7 +64,25 @@ public class ShortAllocationService {
         shortAllocation.setQuantity(shortQuantity);
         shortAllocation.setShipmentLine(shipmentLine);
         shortAllocation.setNumber(universalIdentifierService.getNextNumber("short_allocation_number"));
+        shortAllocation.setShortAllocationState(ShortAllocationState.NEW);
 
         return save(shortAllocation);
+    }
+
+    @Transactional
+    public void cancelShortAllocation(ShortAllocation shortAllocation) {
+        if (shortAllocation.getShortAllocationState().equals(ShortAllocationState.CANCELLED)) {
+            return;
+        }
+        // Mark the pick as cancelled
+        shortAllocation.setShortAllocationState(ShortAllocationState.CANCELLED);
+        shortAllocation.setCancelledDate(new Date());
+        save(shortAllocation);
+
+        // Return the quantity back to shipment
+        ShipmentLine shipmentLine = shortAllocation.getShipmentLine();
+        shipmentLine.setInprocessQuantity(Math.max(0, shipmentLine.getInprocessQuantity() - shortAllocation.getQuantity()));
+        shipmentLineService.save(shipmentLine);
+
     }
 }

@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.exception.Outbound.ShipmentException;
 import se.gzhang.scm.wms.outbound.order.model.SalesOrder;
 import se.gzhang.scm.wms.outbound.shipment.model.Shipment;
 import se.gzhang.scm.wms.outbound.shipment.service.ShipmentService;
@@ -76,7 +78,7 @@ public class ShipmentController {
 
         Shipment shipment = shipmentService.findByShipmentId(shipmentID);
         if (shipment == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the shipment by id: " + shipmentID);
+            return WebServiceResponseWrapper.raiseError(ShipmentException.NO_SUCH_SHIPMENT_EXCEPTION);
         }
         return new WebServiceResponseWrapper<Shipment>(0, "", shipment);
     }
@@ -88,9 +90,26 @@ public class ShipmentController {
 
         Shipment shipment = shipmentService.findByShipmentId(shipmentID);
         if (shipment == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the shipment by id: " + shipmentID);
+            return WebServiceResponseWrapper.raiseError(ShipmentException.NO_SUCH_SHIPMENT_EXCEPTION);
         }
         shipmentService.allocateShipment(shipment);
         return new WebServiceResponseWrapper<Shipment>(0, "", shipment);
+    }
+
+    @ResponseBody
+    @RequestMapping(value="/ws/outbound/shipment/{id}/cancel")
+    public WebServiceResponseWrapper cancelShipment(@PathVariable("id") int shipmentID) {
+
+        Shipment shipment = shipmentService.findByShipmentId(shipmentID);
+        if (shipment == null) {
+            return WebServiceResponseWrapper.raiseError(ShipmentException.NO_SUCH_SHIPMENT_EXCEPTION);
+        }
+        try {
+            shipmentService.cancelShipment(shipment);
+            return new WebServiceResponseWrapper<Shipment>(0, "", shipment);
+        }
+        catch (GenericException ex) {
+            return WebServiceResponseWrapper.raiseError(ex.getCode(), ex.getMessage());
+        }
     }
 }

@@ -90,6 +90,9 @@ public class ShipmentSerializer extends StdSerializer<Shipment> {
         jgen.writeStartArray();
         if (shipment.getShipmentLines() != null) {
             for (ShipmentLine shipmentLine : shipment.getShipmentLines()) {
+                if (shipmentLine.getShipmentLineState().equals(ShipmentLineState.CANCELLED)) {
+                    continue;
+                }
                 jgen.writeStartObject();
                 jgen.writeNumberField("id", shipmentLine.getId());
                 jgen.writeStringField("number", shipmentLine.getNumber());
@@ -183,12 +186,16 @@ public class ShipmentSerializer extends StdSerializer<Shipment> {
                 jgen.writeFieldName("shortAllocation");
                 jgen.writeStartArray();
                 for(ShortAllocation shortAllocation : shipmentLine.getShortAllocation()) {
-                    jgen.writeStartObject();
-                    jgen.writeNumberField("id", shortAllocation.getId());
-                    jgen.writeStringField("number", shortAllocation.getNumber());
-                    jgen.writeNumberField("quantity", shortAllocation.getQuantity());
+                    // only add short allocation that is not cancelled
+                    if (shortAllocation.getShortAllocationState() != ShortAllocationState.CANCELLED) {
+                        jgen.writeStartObject();
+                        jgen.writeNumberField("id", shortAllocation.getId());
+                        jgen.writeStringField("number", shortAllocation.getNumber());
+                        jgen.writeNumberField("quantity", shortAllocation.getQuantity());
+                        jgen.writeStringField("state", shortAllocation.getShortAllocationState().name());
 
-                    jgen.writeEndObject();
+                        jgen.writeEndObject();
+                    }
                 }
                 jgen.writeEndArray();
 

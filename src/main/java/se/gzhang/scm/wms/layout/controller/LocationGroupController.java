@@ -69,7 +69,7 @@ public class LocationGroupController {
 
         LocationGroup locationGroup = locationGroupService.findByLocationGroupId(locationGroupID);
         if (locationGroup == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the location group by id: " + locationGroupID);
+            return WebServiceResponseWrapper.raiseError("LocationGroupException.CannotFindLocationGroup", "Can't find the location group by id: " + locationGroupID);
         }
         return new WebServiceResponseWrapper<LocationGroup>(0, "", locationGroup);
     }
@@ -80,7 +80,7 @@ public class LocationGroupController {
 
         LocationGroup locationGroup = locationGroupService.findByLocationGroupId(locationGroupID);
         if (locationGroup == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the location group by id: " + locationGroupID);
+            return WebServiceResponseWrapper.raiseError("LocationGroupException.CannotFindLocationGroup", "Can't find the location group by id: " + locationGroupID);
         }
         locationGroupService.deleteLocationGroupByLocationGroupId(locationGroupID);
         return new WebServiceResponseWrapper<LocationGroup>(0, "", locationGroup);
@@ -108,7 +108,7 @@ public class LocationGroupController {
                                                 @RequestParam("description") String description) {
         LocationGroup locationGroup = locationGroupService.findByLocationGroupId(locationGroupID);
         if (locationGroup == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the location group by id: " + locationGroupID);
+            return WebServiceResponseWrapper.raiseError("LocationGroupException.CannotFindLocationGroup", "Can't find the location group by id: " + locationGroupID);
         }
         locationGroup.setName(name);
         locationGroup.setDescription(description);

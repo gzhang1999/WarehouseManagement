@@ -25,7 +25,7 @@ public enum ShipmentState implements EnumWithDescription<String> {
     ALLOCATED("Allocated"),
     STAGED("Staged"),
     CANCELLED("Cancelled"),
-    Completed("Completed");
+    COMPLETED("Completed");
 
     private String description;
 

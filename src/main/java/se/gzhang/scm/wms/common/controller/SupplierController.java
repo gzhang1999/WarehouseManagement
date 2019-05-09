@@ -67,7 +67,7 @@ public class SupplierController {
 
         Supplier supplier = supplierService.findBySupplierId(supplierID);
         if (supplier == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the supplier by id: " + supplierID);
+            return WebServiceResponseWrapper.raiseError("SupplierException.CannotFindSupplier", "Can't find the supplier by id: " + supplierID);
         }
         return new WebServiceResponseWrapper<Supplier>(0, "", supplier);
     }
@@ -78,7 +78,7 @@ public class SupplierController {
 
         Supplier supplier = supplierService.findBySupplierId(supplierID);
         if (supplier == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the supplier by id: " + supplierID);
+            return WebServiceResponseWrapper.raiseError("SupplierException.CannotFindSupplier", "Can't find the supplier by id: " + supplierID);
         }
         supplierService.deleteBySupplierID(supplierID);
         return new WebServiceResponseWrapper<Supplier>(0, "", supplier);
@@ -111,7 +111,7 @@ public class SupplierController {
 
         Supplier supplier = supplierService.findBySupplierId(supplierID);
         if (supplier == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the supplier by id: " + supplierID);
+            return WebServiceResponseWrapper.raiseError("SupplierException.CannotFindSupplier", "Can't find the supplier by id: " + supplierID);
         }
         supplier.setDescription(description);
         supplier.setContactPerson(contactPerson);

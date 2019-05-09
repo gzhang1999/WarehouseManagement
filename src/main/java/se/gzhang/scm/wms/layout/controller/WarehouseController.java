@@ -95,10 +95,10 @@ public class WarehouseController {
             Warehouse warehouse = warehouseService.findByWarehouseId(warehouseID);
 
             if (user == null) {
-                return WebServiceResponseWrapper.raiseError(10001, "Can not find the user by ID: " + userID);
+                return WebServiceResponseWrapper.raiseError("UserException.CannotFindUser", "Can not find the user by ID: " + userID);
             }
             else if (warehouse == null){
-                return WebServiceResponseWrapper.raiseError(10001, "Can not find the warehouse by ID: " + warehouseID);
+                return WebServiceResponseWrapper.raiseError("WarehouseException.CannotFindWarehouse", "Can not find the warehouse by ID: " + warehouseID);
             }
             else {
                 if (assigned) {
@@ -107,13 +107,13 @@ public class WarehouseController {
                     userService.removeWarehouseAccess(user, warehouse);
                 }
                 String message = "User: " + user.getUsername() + ", Warehouse: " + warehouse.getName() + ", Accessible? " + userService.hasWarehouseAccess(user,warehouse);
-                return WebServiceResponseWrapper.raiseError(0, message);
+                return WebServiceResponseWrapper.raiseError("0", message);
             }
 
         }
         else {
 
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to manager other users");
+            return WebServiceResponseWrapper.raiseError("WarehouseException.CannotFindWarehouse", "The user doesn't have right to manager other users");
         }
 
     }

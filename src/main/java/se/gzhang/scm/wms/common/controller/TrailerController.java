@@ -89,7 +89,7 @@ public class TrailerController {
 
         Trailer trailer = trailerService.findByTrailerId(trailerID);
         if (trailer == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the trailer by id: " + trailerID);
+            return WebServiceResponseWrapper.raiseError("TrailerException.CannotFindTrailer", "Can't find the trailer by id: " + trailerID);
         }
         return new WebServiceResponseWrapper<Trailer>(0, "", trailer);
     }
@@ -100,7 +100,7 @@ public class TrailerController {
 
         Trailer trailer = trailerService.findByTrailerId(trailerID);
         if (trailer == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the trailer by id: " + trailerID);
+            return WebServiceResponseWrapper.raiseError("TrailerException.CannotFindTrailer", "Can't find the trailer by id: " + trailerID);
         }
         try {
             trailerService.deleteByTrailerID(trailerID);
@@ -117,7 +117,7 @@ public class TrailerController {
 
         Trailer trailer = trailerService.findByTrailerId(trailerID);
         if (trailer == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the trailer by id: " + trailerID);
+            return WebServiceResponseWrapper.raiseError("TrailerException.CannotFindTrailer", "Can't find the trailer by id: " + trailerID);
         }
         try {
             Trailer newTrailer = trailerService.voidByTrailerID(trailerID);
@@ -143,7 +143,7 @@ public class TrailerController {
             // if carrierID is passed in, make sure it is a valid carrier id
             Carrier carrier = carrierService.findByCarrierId(carrierID);
             if (carrier == null) {
-                return WebServiceResponseWrapper.raiseError(10000, "Can't find the carrier by id: " + carrierID);
+                return WebServiceResponseWrapper.raiseError("CarrierException.CannotFindCarrier", "Can't find the carrier by id: " + carrierID);
             }
             newTrailer = trailerService.createTrailer(trailerType,trailerNumber,driver,driverTelephone,licensePlate,carrier);
         }
@@ -165,7 +165,7 @@ public class TrailerController {
 
         Trailer trailer = trailerService.findByTrailerId(trailerID);
         if (trailer == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the trailer by id: " + trailerID);
+            return WebServiceResponseWrapper.raiseError("TrailerException.CannotFindTrailer", "Can't find the trailer by id: " + trailerID);
         }
 
         Trailer newTrailer = null;
@@ -173,7 +173,7 @@ public class TrailerController {
             // if carrierID is passed in, make sure it is a valid carrier id
             Carrier carrier = carrierService.findByCarrierId(carrierID);
             if (carrier == null) {
-                return WebServiceResponseWrapper.raiseError(10000, "Can't find the carrier by id: " + carrierID);
+                return WebServiceResponseWrapper.raiseError("CarrierException.CannotFindCarrier", "Can't find the carrier by id: " + carrierID);
             }
             newTrailer = trailerService.changeTrailer(trailer, trailerType,driver,driverTelephone,licensePlate,carrier);
         }
@@ -191,7 +191,7 @@ public class TrailerController {
 
         Trailer trailer = trailerService.findByTrailerId(trailerID);
         if (trailer == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the trailer by id: " + trailerID);
+            return WebServiceResponseWrapper.raiseError("TrailerException.CannotFindTrailer", "Can't find the trailer by id: " + trailerID);
         }
 
         return new WebServiceResponseWrapper<Trailer>(0, "", trailerService.checkInTrailer(trailer));
@@ -203,26 +203,26 @@ public class TrailerController {
 
         Trailer trailer = trailerService.findByTrailerId(trailerID);
         if (trailer == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the trailer by id: " + trailerID);
+            return WebServiceResponseWrapper.raiseError("TrailerException.CannotFindTrailer", "Can't find the trailer by id: " + trailerID);
         }
         try {
             List<ReportArchive> reportArchiveList = trailerService.printReport(trailer);
             return new WebServiceResponseWrapper<List<ReportArchive>>(0, "", reportArchiveList);
         }
         catch(IOException ioException) {
-            return WebServiceResponseWrapper.raiseError(10000, "IOException while print report for : " +
+            return WebServiceResponseWrapper.raiseError("IOException.PrintReport", "IOException while print report for : " +
                     "id: " + trailerID + " / number: " + trailer.getTrailerNumber() +
                     ", IOException: " + ioException.getMessage());
 
         }
         catch(SQLException sqlException) {
-            return WebServiceResponseWrapper.raiseError(10000, "IOException while print report for : " +
+            return WebServiceResponseWrapper.raiseError("IOException.PrintReport", "IOException while print report for : " +
                     "id: " + trailerID + " / number: " + trailer.getTrailerNumber() +
                     ", SQLException: " + sqlException.getMessage());
 
         }
         catch(JRException jrException){
-            return WebServiceResponseWrapper.raiseError(10000, "IOException while print report for : " +
+            return WebServiceResponseWrapper.raiseError("IOException.PrintReport", "IOException while print report for : " +
                     "id: " + trailerID + " / number: " + trailer.getTrailerNumber() +
                     ", JRException: " + jrException.getMessage());
 

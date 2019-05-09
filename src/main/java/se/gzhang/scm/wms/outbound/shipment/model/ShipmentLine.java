@@ -24,6 +24,7 @@ import se.gzhang.scm.wms.outbound.order.model.SalesOrderLine;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -82,6 +83,8 @@ public class ShipmentLine implements Serializable {
     )
     private List<ShortAllocation> shortAllocation = new ArrayList<>();
 
+    @Column(name = "cancelled_date")
+    private Date cancelledDate;
 
     @Override
     public boolean equals(Object obj) {
@@ -182,5 +185,13 @@ public class ShipmentLine implements Serializable {
 
     public void setInprocessQuantity(Integer inprocessQuantity) {
         this.inprocessQuantity = inprocessQuantity;
+    }
+
+    public Date getCancelledDate() {
+        return cancelledDate;
+    }
+
+    public void setCancelledDate(Date cancelledDate) {
+        this.cancelledDate = cancelledDate;
     }
 }

@@ -74,7 +74,7 @@ public class LocationController {
 
         Location location = locationService.findByLocationId(locationID);
         if (location == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the location by id: " + locationID);
+            return WebServiceResponseWrapper.raiseError("LocationException.CannotFindLocation", "Can't find the location by id: " + locationID);
         }
         return new WebServiceResponseWrapper<Location>(0, "", location);
     }
@@ -85,11 +85,11 @@ public class LocationController {
 
         Location location = locationService.findByLocationId(locationID);
         if (location == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the location by id: " + locationID);
+            return WebServiceResponseWrapper.raiseError("LocationException.CannotFindLocation", "Can't find the location by id: " + locationID);
         }
 
         if (location.getInventoryList() != null && location.getInventoryList().size() > 0) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't remove the location: " + location.getName() + " as there's inventory insde");
+            return WebServiceResponseWrapper.raiseError("LocationException.CannotRemoveLocation", "Can't remove the location: " + location.getName() + " as there's inventory insde");
         }
         locationService.deleteByLocationId(locationID);
         return new WebServiceResponseWrapper<Location>(0, "", location);
@@ -116,24 +116,24 @@ public class LocationController {
 
         Location location = locationService.findByLocationId(locationID);
         if (location == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the location by id: " + locationID);
+            return WebServiceResponseWrapper.raiseError("LocationException.CannotFindLocation", "Can't find the location by id: " + locationID);
         }
         Building buidling = buildingService.findByBuildingID(buildingID);
         if (buidling == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the buidling by id: " + buildingID);
+            return WebServiceResponseWrapper.raiseError("BuildingException.CannotFindBuilding", "Can't find the building by id: " + buildingID);
         }
         Area area = areaService.findByAreaId(areaID);
         if (area == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the area by id: " + areaID);
+            return WebServiceResponseWrapper.raiseError("AreaException.CannotFindArea", "Can't find the area by id: " + areaID);
         }
         if (area.getBuilding() != buidling) {
-            return WebServiceResponseWrapper.raiseError(10001, "Area " + area.getName() + " is not in Building " + buidling.getName());
+            return WebServiceResponseWrapper.raiseError("AreaException.CannotFindArea", "Area " + area.getName() + " is not in Building " + buidling.getName());
 
         }
 
         Velocity velocity = velocityService.findByVelocityId(velocityID);
         if (velocity == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the velocity by ID: " + velocityID);
+            return WebServiceResponseWrapper.raiseError("VelocityException.CannotFindVelocity", "Can't find the velocity by ID: " + velocityID);
         }
         else {
             location.setVelocity(velocity);
@@ -175,11 +175,11 @@ public class LocationController {
 
         Location location = locationService.findByLocationName(name);
         if (location != null) {
-            return WebServiceResponseWrapper.raiseError(10000, "The location " + name  + " already exists");
+            return WebServiceResponseWrapper.raiseError("LocationException.LocationExists", "The location " + name  + " already exists");
         }
         Area area = areaService.findByAreaId(areaID);
         if (area == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the area by id: " + areaID);
+            return WebServiceResponseWrapper.raiseError("AreaException.CannotFindArea", "Can't find the area by id: " + areaID);
         }
         if (aisleID == null) {
             aisleID = "";

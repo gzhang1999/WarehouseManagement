@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.authorization.service.UserService;
 import se.gzhang.scm.wms.configuration.service.PolicyService;
 import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.exception.StandProductException;
 import se.gzhang.scm.wms.inbound.model.ReceiptLine;
 import se.gzhang.scm.wms.inventory.model.*;
 import se.gzhang.scm.wms.inventory.repository.InventoryRepository;
@@ -140,12 +141,12 @@ public class InventoryService {
 
         Item item = itemService.findByItemName(itemNumber);
         if (item == null) {
-            throw new GenericException(10000, "Can't find item by name: " + itemNumber);
+            throw new StandProductException("ItemException.CannotFindItem", "Can't find item by name: " + itemNumber);
         }
 
         ItemFootprint itemFootprint = itemFootprintService.findByItemFootprintName(footprintName);
         if (itemFootprint == null) {
-            throw new GenericException(10000, "Can't find item footprint by name: " + footprintName);
+            throw new StandProductException("ItemException.CannotFindItem", "Can't find item footprint by name: " + footprintName);
         }
 
         Inventory inventory = new Inventory();
@@ -160,7 +161,7 @@ public class InventoryService {
     public Inventory moveInventory(Inventory inventory, Location destinationLocation) {
         // check if the movement is allowed
         if (!validateMovement(inventory, destinationLocation)) {
-            throw new GenericException(-1, "Not valid movement");
+            throw new StandProductException("InventoryException.NotValidMovement", "Not valid movement");
         }
 
         Location sourceLocation = inventory.getLocation();

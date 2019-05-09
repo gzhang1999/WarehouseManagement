@@ -20,6 +20,7 @@ package se.gzhang.scm.wms.layout.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import se.gzhang.scm.wms.common.model.UnitOfMeasure;
+import se.gzhang.scm.wms.outbound.order.model.ShippingStageLocationReserveStrategy;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -75,6 +76,8 @@ public class Area implements Serializable {
     @Column(name = "allow_consolidation")
     private Boolean allowConsolidation;
 
+    @Column(name = "location_reserve_strategy")
+    private LocationReserveStrategyType locationReserveStrategyType;
 
     @Override
     public boolean equals(Object o) {
@@ -153,5 +156,13 @@ public class Area implements Serializable {
 
     public void setAreaGroups(Set<AreaGroup> areaGroups) {
         this.areaGroups = areaGroups;
+    }
+
+    public LocationReserveStrategyType getLocationReserveStrategyType() {
+        return locationReserveStrategyType;
+    }
+
+    public void setLocationReserveStrategyType(LocationReserveStrategyType locationReserveStrategyType) {
+        this.locationReserveStrategyType = locationReserveStrategyType;
     }
 }

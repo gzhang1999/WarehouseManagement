@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.exception.StandProductException;
 import se.gzhang.scm.wms.framework.controls.model.UniversalIdentifier;
 import se.gzhang.scm.wms.framework.controls.repository.UniversalIdentifierRepository;
 
@@ -63,7 +64,7 @@ public class UniversalIdentifierService {
         int maxNumber = (int)Math.pow(10, universalIdentifier.getLength());
         int nextNumber = universalIdentifier.getCurrentNumber() + 1;
         if (nextNumber > maxNumber && !universalIdentifier.getRollover()) {
-            throw new GenericException(0, variable + " already reached the maximum number allowed and not supposed to be rolled over");
+            throw new StandProductException("UniversalIDException.MaxNumberReached", variable + " already reached the maximum number allowed and not supposed to be rolled over");
         }
         else if (nextNumber > maxNumber) {
             // next number is bigger than the maximum number allowed but

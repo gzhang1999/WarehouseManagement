@@ -27,6 +27,7 @@ import se.gzhang.scm.wms.common.model.Trailer;
 import se.gzhang.scm.wms.common.model.TrailerState;
 import se.gzhang.scm.wms.common.repository.CarrierRepository;
 import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.exception.StandProductException;
 import se.gzhang.scm.wms.inbound.model.PutawayPolicy;
 import se.gzhang.scm.wms.inbound.model.Receipt;
 import se.gzhang.scm.wms.inbound.model.ReceiptLine;
@@ -150,12 +151,12 @@ public class ReceiptService {
     public void deleteByReceiptID(int receiptID) {
         Receipt receipt = findByReceiptId(receiptID);
         if (receipt.getTrailer() != null && receipt.getTrailer().getTrailerState() != TrailerState.EXPECTED) {
-            throw new GenericException(10000, "Can't remove the receipt as the trailer attached is not in Expected status");
+            throw new StandProductException("ReceiptException.TrailerNotInExceptStatue", "Can't remove the receipt as the trailer attached is not in Expected status");
         }
         if (receipt.getReceiptLineList() != null && receipt.getReceiptLineList().size() > 0) {
             for(ReceiptLine receiptLine : receipt.getReceiptLineList()) {
                 if (receiptLine.getReceivedQuantity() > 0) {
-                    throw new GenericException(10000, "Can't remove the receipt line as it is already started receiving");
+                    throw new StandProductException("ReceiptException.ReceiptAlreadyStarted", "Can't remove the receipt line as it is already started receiving");
                 }
             }
         }
@@ -184,7 +185,7 @@ public class ReceiptService {
 
         // If the receipt belongs to a trailer, make sure we havn't checked the trailer
         if (receipt.getTrailer() != null && receipt.getTrailer().getTrailerState() != TrailerState.EXPECTED) {
-            throw new GenericException(10000, "Can not change the receipt when the trailer is already checked in");
+            throw new StandProductException("ReceiptException.TrailerAlreadyCheckedIn", "Can not change the receipt when the trailer is already checked in");
         }
         receipt.setExternalID(externalID);
         receipt.setPurchaseOrderNumber(purchaseOrderNumber);

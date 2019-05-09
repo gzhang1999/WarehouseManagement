@@ -86,7 +86,7 @@ public class LocationNameTemplateController {
 
         LocationNameTemplate locationNameTemplate = locationNameTemplateService.findByLocationNameTemplateID(templateID);
         if(locationNameTemplate == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the template by id: " + templateID);
+            return WebServiceResponseWrapper.raiseError("LocationTemplateException.CannotFindLocationTemplate", "Can't find the template by id: " + templateID);
         }
         locationNameTemplateService.deleteByLocationNameTemplateID(templateID);
         return new WebServiceResponseWrapper<LocationNameTemplate>(0, "", locationNameTemplate);
@@ -112,7 +112,7 @@ public class LocationNameTemplateController {
 
         LocationNameTemplate locationNameTemplate = locationNameTemplateService.findByLocationNameTemplateID(templateID);
         if (locationNameTemplate == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the template by id: " + templateID);
+            return WebServiceResponseWrapper.raiseError("LocationTemplateException.CannotFindLocationTemplate", "Can't find the template by id: " + templateID);
         }
         locationNameTemplate.setName(name);
         locationNameTemplateService.save(locationNameTemplate);
@@ -142,7 +142,7 @@ public class LocationNameTemplateController {
 
         LocationNameTemplate locationNameTemplate = locationNameTemplateService.findByLocationNameTemplateID(templateID);
         if (locationNameTemplate == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the template by id: " + templateID);
+            return WebServiceResponseWrapper.raiseError("LocationTemplateException.CannotFindLocationTemplate", "Can't find the template by id: " + templateID);
         }
         LocationNameTemplateItem locationNameTemplateItem = new LocationNameTemplateItem();
         locationNameTemplateItem.setName(name);
@@ -177,7 +177,7 @@ public class LocationNameTemplateController {
 
         LocationNameTemplate locationNameTemplate = locationNameTemplateService.findByLocationNameTemplateID(templateID);
         if (locationNameTemplate == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the template by id: " + templateID);
+            return WebServiceResponseWrapper.raiseError("LocationTemplateException.CannotFindLocationTemplate", "Can't find the template by id: " + templateID);
         }
         // Find the item with the same id within the location name template
         for(LocationNameTemplateItem locationNameTemplateItem : locationNameTemplate.getLocationNameTemplateItemList()) {
@@ -204,7 +204,7 @@ public class LocationNameTemplateController {
 
         // If we are still here, which means the name template is a valid template but we can't find the
         // item with the id being passed in, let's raise the error
-        return WebServiceResponseWrapper.raiseError(10000, "Can't find the template item by id: " + templateItemID);
+        return WebServiceResponseWrapper.raiseError("LocationTemplateException.CannotFindLocationTemplate", "Can't find the template item by id: " + templateItemID);
 
     }
 
@@ -213,7 +213,7 @@ public class LocationNameTemplateController {
     public WebServiceResponseWrapper deleteLocationNameTemplateItem(@RequestParam("templateItemID") int templateItemID) {
         LocationNameTemplateItem locationNameTemplateItem = locationNameTemplateItemService.findByLocationNameTemplateItemID(templateItemID);
         if (locationNameTemplateItem == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the template item by id: " + templateItemID);
+            return WebServiceResponseWrapper.raiseError("LocationTemplateException.CannotFindLocationTemplate", "Can't find the template item by id: " + templateItemID);
         }
         locationNameTemplateItemService.deleteLocationTemplateItemById(templateItemID);
         return new WebServiceResponseWrapper<LocationNameTemplateItem>(0, "", locationNameTemplateItem);

@@ -28,6 +28,7 @@ import se.gzhang.scm.wms.inventory.model.Inventory;
 import se.gzhang.scm.wms.inventory.service.InventoryService;
 import se.gzhang.scm.wms.outbound.order.model.*;
 import se.gzhang.scm.wms.outbound.order.service.AllocationStrategyService;
+import se.gzhang.scm.wms.outbound.order.service.SalesOrderService;
 import se.gzhang.scm.wms.outbound.shipment.model.Shipment;
 import se.gzhang.scm.wms.outbound.shipment.model.ShipmentLine;
 import se.gzhang.scm.wms.outbound.shipment.model.ShipmentLineState;
@@ -49,6 +50,8 @@ public class ShipmentService {
     ShipmentLineService shipmentLineService;
     @Autowired
     ShipmentRepository shipmentRepository;
+    @Autowired
+    SalesOrderService salesOrderService;
 
     public List<Shipment> findAll(){
 
@@ -262,8 +265,16 @@ public class ShipmentService {
 
     @Transactional
     public void allocateShipment(Shipment shipment) {
+        // Before we start allocating an shipment, let's make sure we already
+        // have a shipping stage location reserved for the sales order
+        reserveShippingStageLocation(shipment);
+
         List<Inventory> inventoryList = new ArrayList<>();
         for(ShipmentLine shipmentLine : shipment.getShipmentLines()) {
+            if (shipmentLine.getShipmentLineState().equals(ShipmentLineState.CANCELLED) ||
+                shipmentLine.getShipmentLineState().equals(ShipmentLineState.COMPLETED)) {
+                continue;
+            }
             // only allocate the new shipment line
             if (shipmentLine.getOrderQuantity() > (shipmentLine.getInprocessQuantity() + shipmentLine.getShippedQuantity())) {
                 allocateShipmentLine(shipmentLine);
@@ -282,6 +293,17 @@ public class ShipmentService {
         // Change the state of the shipment to ALLOCATED
         shipment.setShipmentState(ShipmentState.ALLOCATED);
         save(shipment);
+    }
+
+    @Transactional
+    public void reserveShippingStageLocation(Shipment shipment) {
+        Set<SalesOrder> salesOrderSet = new HashSet<>();
+        for(ShipmentLine shipmentLine : shipment.getShipmentLines()) {
+            salesOrderSet.add(shipmentLine.getSalesOrderLine().getSalesOrder());
+        }
+        for(SalesOrder salesOrder : salesOrderSet) {
+            salesOrderService.reserveShippingStageLocation(salesOrder);
+        }
     }
 
     @Transactional
@@ -323,6 +345,17 @@ public class ShipmentService {
 
         AllocationStrategy allocationStrategy = allocationStrategyService.getAllocationStrategy(salesOrderLineAllocationStrategy.getAllocationStrategyType());
         allocationStrategy.allocate(shipmentLine, availableInventory);
+    }
+
+    @Transactional
+    public void cancelShipment(Shipment shipment) {
+        // cancel each shipment line
+        for(ShipmentLine shipmentLine : shipment.getShipmentLines()) {
+            shipmentLineService.cancelShipmentLine(shipmentLine);
+        }
+        shipment.setShipmentState(ShipmentState.CANCELLED);
+        shipment.setCancelledDate(new Date());
+        save(shipment);
     }
 
 

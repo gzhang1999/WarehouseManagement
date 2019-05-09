@@ -19,6 +19,8 @@
 package se.gzhang.scm.wms.webservice.model;
 
 
+import se.gzhang.scm.wms.exception.GenericException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,6 +30,7 @@ import java.util.Map;
 // data: data
 public class WebServiceResponseWrapper<T> {
     private int status;
+    private String errorCode;
     private String message;
     private T data;
 
@@ -47,29 +50,31 @@ public class WebServiceResponseWrapper<T> {
         this.data = data;
         this.customFields = customFields;
     }
+    public WebServiceResponseWrapper(int status, String errorCode, String message, T data) {
+        this.status = status;
+        this.errorCode = errorCode;
+        this.message = message;
+        this.data = data;
+        this.customFields = new HashMap<String, String>();
+    }
 
     public void addCustomData(String name, String value) {
         customFields.put(name, value);
     }
 
-    public static WebServiceResponseWrapper raiseError(int errorCode, String errorMessage) {
-        return new WebServiceResponseWrapper(errorCode, errorMessage, "");
+    public static WebServiceResponseWrapper raiseError(String errorCode, String errorMessage) {
+        return new WebServiceResponseWrapper<String>(-1, errorCode, errorMessage, "");
+    }
+    public static WebServiceResponseWrapper raiseError(GenericException exception) {
+        return new WebServiceResponseWrapper<String>(-1, exception.getCode(), exception.getMessage(), "");
     }
 
     public int getStatus() {
         return status;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
     public String getMessage() {
         return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public T getData() {
@@ -84,7 +89,8 @@ public class WebServiceResponseWrapper<T> {
         return customFields;
     }
 
-    public void setCustomFields(Map<String, String> customFields) {
-        this.customFields = customFields;
+    public String getErrorCode() {
+        return errorCode;
     }
+
 }

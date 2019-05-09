@@ -24,9 +24,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Customer;
 import se.gzhang.scm.wms.common.service.CustomerService;
-import se.gzhang.scm.wms.inventory.model.Inventory;
+import se.gzhang.scm.wms.inventory.model.ItemFootprintUOM;
+import se.gzhang.scm.wms.layout.model.Area;
+import se.gzhang.scm.wms.layout.model.Location;
+import se.gzhang.scm.wms.layout.model.VolumeType;
+import se.gzhang.scm.wms.layout.service.AreaService;
+import se.gzhang.scm.wms.layout.service.LocationService;
 import se.gzhang.scm.wms.outbound.order.model.SalesOrder;
 import se.gzhang.scm.wms.outbound.order.model.SalesOrderLine;
+import se.gzhang.scm.wms.outbound.order.model.ShippingStageLocationReserveStrategy;
 import se.gzhang.scm.wms.outbound.order.repository.SalesOrderRepository;
 import se.gzhang.scm.wms.outbound.shipment.model.Shipment;
 import se.gzhang.scm.wms.outbound.shipment.model.ShipmentLine;
@@ -50,6 +56,12 @@ public class SalesOrderService {
     ShipmentLineService shipmentLineService;
     @Autowired
     ShipmentService shipmentService;
+    @Autowired
+    AreaService areaService;
+    @Autowired
+    ShippingStrageLocationReserveStrategyService shippingStrageLocationReserveStrategyService;
+    @Autowired
+    SalesOrderLineService salesOrderLineService;
 
     public List<SalesOrder> findAll(){
 
@@ -187,6 +199,93 @@ public class SalesOrderService {
             List<ShipmentLine> shipmentLineList = shipmentLineService.findShipmentLines(criteria);
             salesOrderLine.setShipmentLineList(shipmentLineList);
         }
+    }
+
+    @Transactional
+    public Location reserveShippingStageLocation(SalesOrder salesOrder) {
+
+        // only process when the order doesn't have any location reserved yet
+        Location reservedLocation = null;
+        for(SalesOrderLine salesOrderLine : salesOrder.getSalesOrderLines()) {
+            if (salesOrderLine.getShippingStageLocation() != null) {
+                reservedLocation = salesOrderLine.getShippingStageLocation();
+            }
+        }
+        if (reservedLocation != null) {
+            // We already reserved a location for this sales order
+            // currently we only support one location for the entire sales order
+            for(SalesOrderLine salesOrderLine : salesOrder.getSalesOrderLines()) {
+                if (!reservedLocation.equals(salesOrderLine.getShippingStageLocation())) {
+                    salesOrderLine.setShippingStageLocation(reservedLocation);
+                    salesOrderLineService.save(salesOrderLine);
+                }
+            }
+            return reservedLocation;
+        }
+        // 1. get all available shipping stage area
+        List<Area> shippingStageArea = areaService.getShipppingStageAreas();
+        // Loop through each area until we get the right location
+        for(Area area : shippingStageArea) {
+            reservedLocation = reserveShippingStageLocation(salesOrder, area);
+            if (reservedLocation != null) {
+                ShippingStageLocationReserveStrategy shippingStageLocationReserveStrategy =
+                        shippingStrageLocationReserveStrategyService.getShippingStrageLocationReserveStrategy(area.getLocationReserveStrategyType());
+                shippingStageLocationReserveStrategy.reserve(reservedLocation, salesOrder);
+                for(SalesOrderLine salesOrderLine : salesOrder.getSalesOrderLines()) {
+                    if (salesOrderLine.getShippingStageLocation() == null) {
+                        salesOrderLine.setShippingStageLocation(reservedLocation);
+                        salesOrderLineService.save(salesOrderLine);
+                    }
+                }
+
+            }
+        }
+        return reservedLocation;
+    }
+
+    public Location reserveShippingStageLocation(SalesOrder salesOrder, Area area) {
+        double salesOrderVolume = getSalesOrderVolume(salesOrder, area.getVolumeType());
+
+        for(Location location : area.getLocations()) {
+            if (location.getVolume() - location.getUsedVolume() > salesOrderVolume) {
+                return location;
+            }
+        }
+        return null;
+    }
+
+    public double getSalesOrderVolume(SalesOrder salesOrder, VolumeType volumeType) {
+        switch (volumeType) {
+            case EACH:
+                return getSalesOrderVolumeByEach(salesOrder);
+            case SIZE:
+                return getSalesOrderVolumeBySize(salesOrder);
+            default:
+                // by default it is SIZE
+                return getSalesOrderVolumeBySize(salesOrder);
+        }
+
+    }
+
+    public double getSalesOrderVolumeBySize(SalesOrder salesOrder) {
+        double size = 0.0d;
+        for(SalesOrderLine salesOrderLine : salesOrder.getSalesOrderLines()) {
+            int orderQuantity = salesOrderLine.getQuantity();
+            // calculate from default item footprint
+            ItemFootprintUOM stockItemFootprintUOM = salesOrderLine.getItem().getDefaultItemFootprint().getStockItemFootprintUOM();
+            size += (orderQuantity / stockItemFootprintUOM.getQuantity()) * stockItemFootprintUOM.getLength() *
+                    stockItemFootprintUOM.getWidth() * stockItemFootprintUOM.getHeight();
+
+        }
+        return size;
+    }
+    public double getSalesOrderVolumeByEach(SalesOrder salesOrder) {
+        double quantity = 0.0d;
+        for(SalesOrderLine salesOrderLine : salesOrder.getSalesOrderLines()) {
+            quantity += salesOrderLine.getQuantity();
+
+        }
+        return quantity;
     }
 
 }

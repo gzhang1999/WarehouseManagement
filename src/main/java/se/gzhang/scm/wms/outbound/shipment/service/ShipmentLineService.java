@@ -23,9 +23,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.outbound.order.model.SalesOrderLine;
-import se.gzhang.scm.wms.outbound.shipment.model.Shipment;
-import se.gzhang.scm.wms.outbound.shipment.model.ShipmentLine;
-import se.gzhang.scm.wms.outbound.shipment.model.ShipmentLineState;
+import se.gzhang.scm.wms.outbound.shipment.model.*;
 import se.gzhang.scm.wms.outbound.shipment.repository.ShipmentLineRepository;
 
 import javax.persistence.criteria.*;
@@ -35,6 +33,19 @@ import java.util.*;
 public class ShipmentLineService {
     @Autowired
     ShipmentLineRepository shipmentLineRepository;
+    @Autowired
+    PickService pickService;
+    @Autowired
+    ShortAllocationService shortAllocationService;
+
+    public List<ShipmentLine> findAll(){
+
+        return shipmentLineRepository.findAll();
+    }
+
+    public ShipmentLine findByShipmentLineId(int id){
+        return shipmentLineRepository.findById(id);
+    }
 
     public List<ShipmentLine> findShipmentLines(Map<String, String> criteriaList) {
 
@@ -107,5 +118,36 @@ public class ShipmentLineService {
         ShipmentLine newShipmentLine = shipmentLineRepository.save(shipmentLine);
         shipmentLineRepository.flush();
         return newShipmentLine;
+    }
+    @Transactional
+    public void removeShipmentLine(ShipmentLine shipmentLine) {
+        shipmentLineRepository.delete(shipmentLine);
+    }
+
+    @Transactional
+    public void cancelShipmentLine(ShipmentLine shipmentLine) {
+
+        // Let's cancel all the pick and short allocation first
+        List<Pick> pickList = shipmentLine.getPicks();
+        for(Pick pick : pickList) {
+
+            if (pick.getPickState().equals(PickState.CANCELLED)) {
+                continue;
+            }
+            pickService.cancelPick(pick);
+        }
+        List<ShortAllocation> shortAllocationList = shipmentLine.getShortAllocation();
+        //
+        for(ShortAllocation shortAllocation : shortAllocationList) {
+
+            if (shortAllocation.getShortAllocationState().equals(ShortAllocationState.CANCELLED)) {
+                continue;
+            }
+            shortAllocationService.cancelShortAllocation(shortAllocation);
+        }
+
+        shipmentLine.setShipmentLineState(ShipmentLineState.CANCELLED);
+        save(shipmentLine);
+
     }
 }

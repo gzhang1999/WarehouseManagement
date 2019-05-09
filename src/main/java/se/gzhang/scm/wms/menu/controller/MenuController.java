@@ -106,7 +106,7 @@ public class MenuController {
         if (currentLoginUser.isRoleManager() && currentLoginUser.isMenuManager()) {
             MenuItem menuItem = menuService.findMenuItemById(menuID);
             if(menuItem == null) {
-                return WebServiceResponseWrapper.raiseError(10001, "Can not find the menu by ID: " + menuID);
+                return WebServiceResponseWrapper.raiseError("MenuException.CannotFindMenu", "Can not find the menu by ID: " + menuID);
             }
             else {
                 return new WebServiceResponseWrapper<MenuItem>(0, "", menuItem);
@@ -114,7 +114,7 @@ public class MenuController {
         }
         else {
             // The user doesn't have the access to the menu
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to assign menu");
+            return WebServiceResponseWrapper.raiseError("MenuException.UserNoRightForAssignMenu", "The user doesn't have right to assign menu");
 
         }
     }
@@ -130,7 +130,7 @@ public class MenuController {
 
             MenuItem menuItem = menuService.findMenuItemById(menuID);
             if(menuItem == null) {
-                return WebServiceResponseWrapper.raiseError(10001, "Can not find the menu by ID: " + menuID);
+                return WebServiceResponseWrapper.raiseError("MenuException.CannotFindMenu", "Can not find the menu by ID: " + menuID);
             }
             else {
                 // load role & menu item, ignore cache as we will need to get the newly
@@ -141,7 +141,7 @@ public class MenuController {
         }
         else {
 
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to assign menu");
+            return WebServiceResponseWrapper.raiseError("MenuException.UserNoRightForAssignMenu", "The user doesn't have right to assign menu");
         }
 
     }
@@ -163,7 +163,7 @@ public class MenuController {
         }
 
 
-        return WebServiceResponseWrapper.raiseError(0, message);
+        return WebServiceResponseWrapper.raiseError("0", message);
 
     }
 
@@ -181,7 +181,7 @@ public class MenuController {
         if (currentLoginUser.isRoleManager() && currentLoginUser.isMenuManager()) {
             MenuItem menuItem = menuService.findMenuItemById(menuID);
             if(menuItem == null) {
-                return WebServiceResponseWrapper.raiseError(10001, "Can not find the menu by ID: " + menuID);
+                return WebServiceResponseWrapper.raiseError("MenuException.CannotFindMenu", "Can not find the menu by ID: " + menuID);
             }
             else {
                 menuItem.setName(menuName);
@@ -196,7 +196,7 @@ public class MenuController {
         }
         else {
             // The user doesn't have the access to the menu
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to assign menu");
+            return WebServiceResponseWrapper.raiseError("MenuException.UserNoRightForAssignMenu", "The user doesn't have right to assign menu");
 
         }
     }

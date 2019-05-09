@@ -155,6 +155,14 @@ public class Item implements Serializable {
         this.itemFootprints = itemFootprints;
     }
 
+    public ItemFootprint getDefaultItemFootprint() {
+        for(ItemFootprint itemFootprint : getItemFootprints()) {
+            if (itemFootprint.isDefaultFootprint()) {
+                return itemFootprint;
+            }
+        }
+        return null;
+    }
     public List<ItemBarcode> getItemBarcodes() {
         return itemBarcodes;
     }

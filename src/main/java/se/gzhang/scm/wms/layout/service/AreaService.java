@@ -93,4 +93,11 @@ public class AreaService {
         areaRepository.flush();
         return newArea;
     }
+
+    public List<Area> getShipppingStageAreas() {
+        Map<String, String> criteriaList = new HashMap<>();
+        criteriaList.put("areaType", AreaType.OUTBOUND_STAGE.name());
+        return findArea(criteriaList);
+    }
+
 }

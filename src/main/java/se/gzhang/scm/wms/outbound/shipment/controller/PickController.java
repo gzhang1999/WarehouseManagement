@@ -22,6 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.exception.Outbound.PickException;
+import se.gzhang.scm.wms.exception.Outbound.PickExceptionType;
 import se.gzhang.scm.wms.outbound.shipment.model.Pick;
 import se.gzhang.scm.wms.outbound.shipment.model.Shipment;
 import se.gzhang.scm.wms.outbound.shipment.service.PickService;
@@ -77,7 +80,8 @@ public class PickController {
 
         Pick pick = pickService.findByPickId(pickID);
         if (pick == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the pick by id: " + pickID);
+            // return WebServiceResponseWrapper.raiseError("PickException.CannotFindPick", "Can't find the pick by id: " + pickID);
+            return WebServiceResponseWrapper.raiseError(PickException.NO_SUCH_PICK_EXCEPTION);
         }
         return new WebServiceResponseWrapper<Pick>(0, "", pick);
     }
@@ -88,10 +92,16 @@ public class PickController {
 
         Pick pick = pickService.findByPickId(pickID);
         if (pick == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the pick by id: " + pickID);
+            // return WebServiceResponseWrapper.raiseError("PickException.CannotFindPick", "Can't find the pick by id: " + pickID);
+            return WebServiceResponseWrapper.raiseError(PickException.NO_SUCH_PICK_EXCEPTION);
         }
-        pickService.cancelPick(pick);
-        return new WebServiceResponseWrapper<Pick>(0, "", pick);
+        try {
+            pickService.cancelPick(pick);
+            return new WebServiceResponseWrapper<Pick>(0, "", pick);
+        }
+        catch (GenericException ex) {
+            return WebServiceResponseWrapper.raiseError(ex.getCode(), ex.getMessage());
+        }
     }
     @ResponseBody
     @RequestMapping(value="/ws/outbound/pick/{id}/confirm", method = RequestMethod.POST)
@@ -100,7 +110,8 @@ public class PickController {
 
         Pick pick = pickService.findByPickId(pickID);
         if (pick == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the pick by id: " + pickID);
+            // return WebServiceResponseWrapper.raiseError("PickException.CannotFindPick", "Can't find the pick by id: " + pickID);
+            return WebServiceResponseWrapper.raiseError(PickException.NO_SUCH_PICK_EXCEPTION);
         }
         pickService.confirmPick(pick, confirmedQuantity);
         return new WebServiceResponseWrapper<Pick>(0, "", pick);

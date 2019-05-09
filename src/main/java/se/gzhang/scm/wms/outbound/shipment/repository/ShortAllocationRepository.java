@@ -32,4 +32,6 @@ public interface ShortAllocationRepository extends JpaRepository<ShortAllocation
 
     ShortAllocation findById(int id);
 
+    ShortAllocation findByNumber(String number);
+
 }

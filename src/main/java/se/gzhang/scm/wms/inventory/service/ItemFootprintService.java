@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import se.gzhang.scm.wms.common.model.Client;
 import se.gzhang.scm.wms.common.model.UnitOfMeasure;
 import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.exception.StandProductException;
 import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.inventory.model.ItemFootprint;
 import se.gzhang.scm.wms.inventory.repository.ItemFootprintRepository;
@@ -164,7 +165,7 @@ public class ItemFootprintService {
             }
 
             if (!defaultFootprintExists) {
-                throw new GenericException(10000, "The footprint code must have a default footprint");
+                throw new StandProductException("FootprintException.NoDefaultFootprint", "The footprint code must have a default footprint");
             }
 
         }
@@ -182,7 +183,7 @@ public class ItemFootprintService {
         ItemFootprint itemFootprint = itemFootprintRepository.findById(id);
 
         if (itemFootprint == null) {
-            throw new GenericException(10000, "Not able to find the item footprint by id: " + id);
+            throw new StandProductException("ItemFootprintException.CannotFindItemFootprint", "Not able to find the item footprint by id: " + id);
         }
         // If we are not empty all footprints from the item, let's make sure
         // we still have a default footprint after we remove this footprint
@@ -203,7 +204,7 @@ public class ItemFootprintService {
             }
 
             if (!defaultFootprintExists) {
-                throw new GenericException(10000, "The footprint code must have a default footprint");
+                throw new StandProductException("FootprintException.NoDefaultFootprint", "The footprint code must have a default footprint");
             }
         }
         itemFootprintRepository.deleteById(id);
@@ -263,7 +264,7 @@ public class ItemFootprintService {
 
         Item item = itemService.findByItemName(itemName);
         if (item == null) {
-            throw new GenericException(10000,"Can't find item by name " + itemName);
+            throw new StandProductException("ItemException.CannotFindItem","Can't find item by name " + itemName);
         }
 
         Map<String, String> criteriaList = new HashMap<>();

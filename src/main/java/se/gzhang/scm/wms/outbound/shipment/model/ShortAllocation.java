@@ -18,12 +18,14 @@
 
 package se.gzhang.scm.wms.outbound.shipment.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import se.gzhang.scm.wms.common.model.Customer;
 import se.gzhang.scm.wms.layout.model.Warehouse;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /*
@@ -36,6 +38,7 @@ import java.util.List;
  * */
 @Entity
 @Table(name = "short_allocation")
+@JsonSerialize(using = ShortAllocationSerializer.class)
 public class ShortAllocation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,6 +55,13 @@ public class ShortAllocation implements Serializable {
     // Short quantity
     @Column(name = "quantity")
     private Integer quantity;
+
+    // Only when the short allocation is cancelled
+    @Column(name = "cancelled_date")
+    private Date cancelledDate;
+
+    @Column(name = "short_allocation_state")
+    private ShortAllocationState shortAllocationState;
 
     public Integer getId() {
         return id;
@@ -83,5 +93,21 @@ public class ShortAllocation implements Serializable {
 
     public void setNumber(String number) {
         this.number = number;
+    }
+
+    public Date getCancelledDate() {
+        return cancelledDate;
+    }
+
+    public void setCancelledDate(Date cancelledDate) {
+        this.cancelledDate = cancelledDate;
+    }
+
+    public ShortAllocationState getShortAllocationState() {
+        return shortAllocationState;
+    }
+
+    public void setShortAllocationState(ShortAllocationState shortAllocationState) {
+        this.shortAllocationState = shortAllocationState;
     }
 }

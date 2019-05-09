@@ -82,7 +82,7 @@ public class ItemFootprintController {
 
         ItemFootprint itemFootprint = itemFootprintService.findByItemFootprintId(itemFootprintID);
         if (itemFootprint == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item footprint by id: " + itemFootprintID);
+            return WebServiceResponseWrapper.raiseError("ItemFootprintException.CannotFindItemFootprint", "Can't find the item footprint by id: " + itemFootprintID);
         }
         return new WebServiceResponseWrapper<ItemFootprint>(0, "", itemFootprint);
     }
@@ -93,7 +93,7 @@ public class ItemFootprintController {
 
         ItemFootprint itemFootprint = itemFootprintService.findByItemFootprintId(itemFootprintID);
         if (itemFootprint == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item footprint by id: " + itemFootprintID);
+            return WebServiceResponseWrapper.raiseError("ItemFootprintException.CannotFindItemFootprint", "Can't find the item footprint by id: " + itemFootprintID);
         }
         try {
             itemFootprintService.deleteByItemFootprintId(itemFootprintID);
@@ -101,7 +101,7 @@ public class ItemFootprintController {
         }
         catch(GenericException ex) {
 
-            return WebServiceResponseWrapper.raiseError(10000, "Error while save item footprint: " + ex.getMessage());
+            return WebServiceResponseWrapper.raiseError("ItemFootprintException.CannotSaveItemFootprint", "Error while save item footprint: " + ex.getMessage());
         }
     }
 
@@ -115,7 +115,7 @@ public class ItemFootprintController {
 
         ItemFootprint itemFootprint = itemFootprintService.findByItemFootprintId(itemFootprintID);
         if (itemFootprint == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item footprint by id: " + itemFootprintID);
+            return WebServiceResponseWrapper.raiseError("ItemFootprintException.CannotFindItemFootprint", "Can't find the item footprint by id: " + itemFootprintID);
         }
 
         // Currently we only allow change the description but not the name
@@ -130,7 +130,7 @@ public class ItemFootprintController {
         }
         catch(GenericException ex) {
 
-            return WebServiceResponseWrapper.raiseError(10000, "Error while save item footprint: " + ex.getMessage());
+            return WebServiceResponseWrapper.raiseError("ItemFootprintException.CannotSaveItemFootprint", "Error while save item footprint: " + ex.getMessage());
         }
     }
     @ResponseBody
@@ -142,7 +142,7 @@ public class ItemFootprintController {
 
         Item item = itemService.findByItemName(itemName);
         if (item == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item by name: " + itemName);
+            return WebServiceResponseWrapper.raiseError("ItemFootprintException.CannotFindItemFootprint", "Can't find the item by name: " + itemName);
         }
 
         ItemFootprint itemFootprint = new ItemFootprint();
@@ -158,7 +158,7 @@ public class ItemFootprintController {
         }
         catch(GenericException ex) {
 
-            return WebServiceResponseWrapper.raiseError(10000, "Error while save item footprint: " + ex.getMessage());
+            return WebServiceResponseWrapper.raiseError("ItemFootprintException.CannotSaveItemFootprint", "Error while save item footprint: " + ex.getMessage());
         }
     }
 
@@ -169,7 +169,7 @@ public class ItemFootprintController {
 
         ItemFootprintUOM itemFootprintUOM = itemFootprintUOMService.findByItemFootprintUOMId(itemFootprintUOMID);
         if (itemFootprintUOM == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item footprint UOM by id: " + itemFootprintUOMID);
+            return WebServiceResponseWrapper.raiseError("ItemFootprintUOMException.CannotFindItemFootprintUOM", "Can't find the item footprint UOM by id: " + itemFootprintUOMID);
         }
         return new WebServiceResponseWrapper<ItemFootprintUOM>(0, "", itemFootprintUOM);
     }
@@ -188,7 +188,7 @@ public class ItemFootprintController {
 
         ItemFootprintUOM itemFootprintUOM = itemFootprintUOMService.findByItemFootprintUOMId(itemFootprintUOMID);
         if (itemFootprintUOM == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item footprint UOM by id: " + itemFootprintUOMID);
+            return WebServiceResponseWrapper.raiseError("ItemFootprintUOMException.CannotFindItemFootprintUOM", "Can't find the item footprint UOM by id: " + itemFootprintUOMID);
         }
         itemFootprintUOM.setQuantity(quantity);
         itemFootprintUOM.setWeight(weight);
@@ -207,7 +207,7 @@ public class ItemFootprintController {
         }
         catch(GenericException ex) {
 
-            return WebServiceResponseWrapper.raiseError(10000, "Error while save item footprint uom: " + ex.getMessage());
+            return WebServiceResponseWrapper.raiseError("ItemFootprintUOMException.CannotSaveItemFootprintUOM", "Error while save item footprint uom: " + ex.getMessage());
         }
     }
     @ResponseBody
@@ -225,7 +225,7 @@ public class ItemFootprintController {
 
         ItemFootprint itemFootprint = itemFootprintService.findByItemFootprintId(itemFootprintID);
         if (itemFootprint == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item footprint by id: " + itemFootprintID);
+            return WebServiceResponseWrapper.raiseError("ItemFootprintException.CannotFindItemFootprint", "Can't find the item footprint by id: " + itemFootprintID);
         }
 
         ItemFootprintUOM itemFootprintUOM = new ItemFootprintUOM();
@@ -247,7 +247,7 @@ public class ItemFootprintController {
         }
         catch(GenericException ex) {
 
-            return WebServiceResponseWrapper.raiseError(10000, "Error while save item footprint uom: " + ex.getMessage());
+            return WebServiceResponseWrapper.raiseError("ItemFootprintUOMException.CannotSaveItemFootprintUOM", "Error while save item footprint uom: " + ex.getMessage());
         }
     }
 
@@ -258,7 +258,7 @@ public class ItemFootprintController {
 
         ItemFootprintUOM itemFootprintUOM = itemFootprintUOMService.findByItemFootprintUOMId(itemFootprintUOMID);
         if (itemFootprintUOM == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item footprint uom by id: " + itemFootprintUOMID);
+            return WebServiceResponseWrapper.raiseError("ItemFootprintUOMException.CannotFindItemFootprintUOM", "Can't find the item footprint uom by id: " + itemFootprintUOMID);
         }
         itemFootprintUOMService.deleteByItemFootprintId(itemFootprintUOMID);
         return new WebServiceResponseWrapper<ItemFootprintUOM>(0, "", itemFootprintUOM);

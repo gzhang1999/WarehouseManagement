@@ -78,6 +78,7 @@
                                             <td th:text="#{area.building}">Building Name</td>
                                             <td th:text="#{area.type}">Type</td>
                                             <td th:text="#{area.volumeType}">Volume Type</td>
+                                            <td th:text="#{area.locationReserveStrategyType}">Location Reserve Strategy Type</td>
                                             <td></td>
                                         </tr>
                                     </thead>
@@ -88,6 +89,7 @@
                                             <td th:text="${area.building.name}" th:id="'areaBuilding-' + ${area.id}"></td>
                                             <td th:text="${area.areaType}" th:id="'areaType-' + ${area.id}"></td>
                                             <td th:text="${area.volumeType}" th:id="'areaVolumeType-' + ${area.id}"></td>
+                                            <td th:text="${area.locationReserveStrategyType}" th:id="'locationReserveStrategyType-' + ${area.id}"></td>
                                             <td>
                                                 <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#editModal" th:text="#{edit}" th:data-areaid="${area.id}" th:data-areaname="${area.name}" data-action="change" >Edit</button>
                                                 <button class="btn btn-danger" type="button" th:text="#{delete}" onclick="removeArea(event)" th:data-areaid="${area.id}" >Delete Area</button>
@@ -138,6 +140,11 @@
                             <label for="editModalVolumeType" class="col-form-label" th:text="#{area.volumeType}">Volume Type:</label>
                             <select class="form-control" id="editModalVolumeType" name="volumeType" data-variable="volumeType"></select>
                         </div>
+                        <div class="form-group">
+                            <label for="editModalLocationReserveStrategyType" class="col-form-label" th:text="#{area.locationReserveStrategyType}">Location Reserve Type:</label>
+                            <select class="form-control" id="editModalLocationReserveStrategyType"
+                                    name="locationReserveStrategyType" data-variable="locationReserveStrategyType"></select>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -175,6 +182,7 @@
                     "   <td id='areaBuilding-" +  area.id + "'>" + area.building + "</td>" +
                     "   <td id='areaType-" +  area.id + "'>" + area.areaType + "</td>" +
                     "   <td id='areaVolumeType-" +  area.id + "'>" + area.volumeType + "</td>" +
+                    "   <td id='locationReserveStrategyType-" +  area.id + "'>" + area.locationReserveStrategyType + "</td>" +
                     "   <td>" +
                     "       <button class='btn btn-primary' type='button' data-toggle='modal' data-target='#editModal' text='edit' data-action='change' data-areaid='" + area.id + "' data-areaname='" + area.name+ "'>" + $.i18n("edit")+ "</button>" +
                     "       <button class='btn btn-danger' type='button' onclick='removeArea(event)' data-areaid='" + area.id + "'>" + $.i18n("delete")+ "</button>" +
@@ -272,7 +280,8 @@
                  name: $('#editModalAreaName').val(),
                  buildingID: $('#editModalBuilding').val(),
                  areaType: $('#editModalAreaType').val(),
-                 volumeType: $('#editModalVolumeType').val()
+                 volumeType: $('#editModalVolumeType').val(),
+                 locationReserveStrategyType: $('#editModalLocationReserveStrategyType').val()
             }
         }).done(function( res ) {
             if (res.status == 0) {
@@ -298,6 +307,7 @@
                     $('#areaBuilding-' + areaID).text(res.data.building);
                     $('#areaType-' + areaID).text(res.data.areaType);
                     $('#areaVolumeType-' + areaID).text(res.data.volumeType);
+                    $('#locationReserveStrategyType-' + areaID).text(res.data.locationReserveStrategyType);
                 }
 
                 $('#editModalErrorMessage').text('');

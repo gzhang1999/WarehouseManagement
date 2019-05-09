@@ -32,7 +32,7 @@ public class DropdownList {
     @Column(name = "id")
     private int id;
 
-    @Column(name = "variable")
+    @Column(name = "variable", unique = true)
     private String variable;
 
     @Column(name = "command")

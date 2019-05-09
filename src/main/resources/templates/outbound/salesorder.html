@@ -172,7 +172,7 @@
                     // "       <button class='btn btn-warning' type='button' data-toggle='modal' data-target='#editSalesOrderModal' data-salesorderid='" + salesOrder.id + "' >" + $.i18n("edit")+ "</button>"+
                     "       <a class='btn btn-primary' href='/flowChangeSalesOrder?salesOrderID=" + salesOrder.id + "' role='button'>" + $.i18n("modify") + "</a>" +
                     "       <button class='btn btn-success' type='button' data-salesorderid='" + salesOrder.id + "' onclick='allocateSalesOrder(event)'>" + $.i18n("salesOrder.allocate.reserve")+ "</button>"+
-                    "       <button class='btn btn-danger' type='button' data-salesorderid='" + salesOrder.id + "' onclick='removeSalesOrder(event)'>" + $.i18n("delete")+ "</button>"+
+                    "       <button class='btn btn-danger' type='button' data-salesorderid='" + salesOrder.id + "' onclick='removeSalesOrder(event)'>" + $.i18n("salesOrder.void")+ "</button>"+
                     "   </td> "
                      "</tr>";
             });
@@ -213,12 +213,13 @@
             $.ajax({
                 url:url
             }).done(function( res ) {
-                console.log(JSON.stringify(res.data))
+
                 var salesOrder = res.data;
                 row.child(formatSalesOrderInformation(salesOrder)).show();
                 tr.addClass('shown');
 
                 table.columns.adjust();
+                escapeDisplays();
 
             });
 
@@ -293,7 +294,9 @@
                                    "    <td> " + salesOrderLine.externalID + "</td> " +
                                    "    <td> " + salesOrderLine.quantity + "</td> " +
                                    "    <td> " + salesOrderLine.item.name + "</td> " +
-                                   "    <td> " + salesOrderLine.inventoryStatus.name + "</td> " +
+                                   "    <td id='inventory-status-" + salesOrderLine.id + "' data-escapedisplay=true data-variable='inventoryStatus'>" +
+                                           salesOrderLine.inventoryStatus.name +
+                                   "    </td> " +
                                    "</tr> ";
         });
         salesOrderLineHtml    += "          </tbody> " +
@@ -318,11 +321,14 @@
                             "            <thead> " +
                             "                <tr> " +
                             "                   <th>" + $.i18n("shipment.line.id") + "</th> " +
+                            "                   <th>" + $.i18n("shipment.number") + "</th> " +
                             "                   <th>" + $.i18n("shipment.line.number") + "</th> " +
+                            "                   <th>" + $.i18n("item") + "</th> " +
                             "                   <th>" + $.i18n("shipment.line.orderQuantity") + "</th> " +
                             "                   <th>" + $.i18n("shipment.line.inprocessQuantity") + "</th> " +
                             "                   <th>" + $.i18n("shipment.line.shippedQuantity") + "</th> " +
                             "                   <th>" + $.i18n("shipment.line.state") + "</th> " +
+                            "                   <th></th> " +
                             "               </tr> " +
                             "           </thead> " +
                             "           <tbody>";
@@ -331,11 +337,18 @@
             $.each(salesOrderLine.shipmentLines, function(index, shipmentLine){
                 shipmentLineHtml    += "  <tr class='odd' role='row'>" +
                                        "    <td> " + shipmentLine.id + "</td> " +
+                                       "    <td> " + shipmentLine.shipment.number + "</td> " +
                                        "    <td> " + shipmentLine.number + "</td> " +
+                                       "    <td> " + salesOrderLine.item.name + "</td> " +
                                        "    <td> " + shipmentLine.orderQuantity + "</td> " +
                                        "    <td> " + shipmentLine.inprocessQuantity + "</td> " +
                                        "    <td> " + shipmentLine.shippedQuantity + "</td> " +
-                                       "    <td> " + shipmentLine.state + "</td> " +
+                                       "    <td id='shipment-line-state-" + shipmentLine.id + "' data-escapedisplay=true data-variable='shipmentLineState'>" +
+                                                shipmentLine.state +
+                                       "    </td> " +
+                                       "    <td> " +
+                                       "       <button class='btn btn-danger' type='button' data-shipmentlineid='" + shipmentLine.id + "' onclick='cancelShipmentLine(event)'>" + $.i18n("cancel")+ "</button>"+
+                                       "    </td> " +
                                        "</tr> ";
             });
         });
@@ -361,6 +374,7 @@
                         "                <tr> " +
                         "                   <th>" + $.i18n("pick.id") + "</th> " +
                         "                   <th>" + $.i18n("pick.number") + "</th> " +
+                        "                   <th>" + $.i18n("item") + "</th> " +
                         "                   <th>" + $.i18n("pick.quantity") + "</th> " +
                         "                   <th>" + $.i18n("pick.state") + "</th> " +
                         "                   <th>" + $.i18n("pick.sourceLocation") + "</th> " +
@@ -378,8 +392,11 @@
                     picksHtml    += "  <tr class='odd' role='row'>" +
                                     "    <td> " + pick.id + "</td> " +
                                     "    <td> " + pick.number + "</td> " +
+                                    "    <td> " + salesOrderLine.item.name + "</td> " +
                                     "    <td> " + pick.quantity + "</td> " +
-                                    "    <td> " + pick.pickState + "</td> " +
+                                    "    <td id='pick-state-" + pick.id + "' data-escapedisplay=true data-variable='pickState'>" +
+                                            pick.pickState +
+                                    "    </td> " +
                                     "    <td> " + (pick.sourceLocation.name == undefined ? "" : pick.sourceLocation.name) + "</td> " +
                                     "    <td> " + (pick.sourceLocation.area == undefined ? "" : pick.sourceLocation.area.name) + "</td> " +
                                     "    <td> " + (pick.destinationLocation.name == undefined ? "" : pick.destinationLocation.name) + "</td> " +
@@ -412,7 +429,10 @@
                                   "                <tr> " +
                                   "                   <th>" + $.i18n("shortAllocation.id") + "</th> " +
                                   "                   <th>" + $.i18n("shortAllocation.number") + "</th> " +
+                                  "                   <th>" + $.i18n("item") + "</th> " +
                                   "                   <th>" + $.i18n("shortAllocation.quantity") + "</th> " +
+                                  "                   <th>" + $.i18n("shortAllocation.state") + "</th> " +
+                                  "                   <th></th> " +
                                   "               </tr> " +
                                   "           </thead> " +
                                   "           <tbody>";
@@ -423,7 +443,14 @@
                     shortAllocationHtml    += "  <tr class='odd' role='row'>" +
                                               "    <td> " + shortAllocation.id + "</td> " +
                                               "    <td> " + shortAllocation.number + "</td> " +
+                                              "    <td> " + salesOrderLine.item.name + "</td> " +
                                               "    <td> " + shortAllocation.quantity + "</td> " +
+                                              "    <td id='shortAllocation-state-" + shortAllocation.id + "' data-escapedisplay=true data-variable='shortAllocationState'> " +
+                                                        shortAllocation.state +
+                                              "    </td> " +
+                                              "    <td> " +
+                                              "       <button class='btn btn-danger' type='button' data-shortallocationid='" + shortAllocation.id + "' onclick='cancelShortAllocation(event)'>" + $.i18n("cancel")+ "</button>"+
+                                              "    </td> " +
                                               "</tr> ";
                 });
             });
@@ -456,7 +483,7 @@
                     refreshMainGrid();
                 }
                 else{
-                    console.log("Error when delete Sales Order: " + JSON.stringify(res))
+                    displayFailMessage(res.data, res.message);
                 }
             });
     }
@@ -472,11 +499,10 @@
                 if (res.status == 0) {
                     refreshMainGrid();
 
-                    displayStateMessage("order " + res.data.number + " allocated!");
-                    promptSuccessMessage("order " + res.data.number + " allocated!");
+                    displaySuccessMessage( "Sales Order " + res.data.number + " allocated!", "sd.SalesOrder.Allocated");
                 }
                 else{
-                    console.log("Error when allocate and reserve inventory for Sales Order: " + JSON.stringify(res))
+                    displayFailMessage(res.data, res.message);
                 }
             });
     }
@@ -484,6 +510,26 @@
     var refreshMainGrid = function() {
         $("#sales_order_query").submit();
 
+    }
+
+    var cancelShipmentLine = function(event) {
+        var control = $(event.target);
+        var shipmentLineID = control.data("shipmentlineid");
+        var url = "/ws/outbound/shipment/line/" + shipmentLineID + "/cancel";
+
+        $.ajax({url : url})
+         .done(function(res) {
+
+             if (res.status == 0) {
+                 displaySuccessMessage("Shipment Line " + res.data.number + " cancelled!", "sd.ShipmentLine.Cancelled");
+                 refreshOutboundInformation(res.data.salesOrderLine.salesOrder.id);
+             }
+             else {
+
+                 displayFailMessage(res.data, res.message);
+
+             }
+        });
     }
 
     var cancelPick = function(event) {
@@ -495,24 +541,44 @@
                 url : url
             }).done(function( res ) {
                 if (res.status == 0) {
-                    displayStateMessage("pick " + res.data.number + " cancelled!");
-                    promptSuccessMessage("pick " + res.data.number + " cancelled!");
-                    refreshPickInformation(res.data.shipmentLine.salesOrderLine.salesOrder.id);
+                    displaySuccessMessage("pick " + res.data.number + " cancelled!", "sd.Pick.Cancelled");
+                    refreshOutboundInformation(res.data.shipmentLine.salesOrderLine.salesOrder.id);
                 }
                 else{
+                    displayFailMessage(res.data, res.message);
+
+                }
+            });
+    }
+    var cancelShortAllocation = function(event) {
+        var control = $(event.target);
+        var shortAllocationID = control.data("shortallocationid");
+        var url = "/ws/outbound/shortallocation/" + shortAllocationID + "/cancel";
+        $.ajax({
+                method:"DELETE",
+                url : url
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    displaySuccessMessage("Short Allocation " + res.data.number + " cancelled!", "sd.ShortAllocation.Cancelled");
+                    refreshOutboundInformation(res.data.shipmentLine.salesOrderLine.salesOrder.id);
+                }
+                else{
+                    displayFailMessage(res.data, res.message);
 
                 }
             });
     }
 
-    var refreshPickInformation = function(salesOrderID) {
+
+    var refreshOutboundInformation = function(salesOrderID) {
         var url = "/ws/outbound/salesorder/query/" + salesOrderID;
         $.ajax({
                 url:url
         }).done(function( res ) {
             var salesOrder = res.data;
-            $("#pick").html(getFormatPickDisplay(salesOrder));
             $("#shipmentLine").html(getFormatShipmentLineDisplay(salesOrder));
+            $("#pick").html(getFormatPickDisplay(salesOrder));
+            $("#shortAllocation").html(getFormatShortAllocationDisplay(salesOrder));
 
         });
     }

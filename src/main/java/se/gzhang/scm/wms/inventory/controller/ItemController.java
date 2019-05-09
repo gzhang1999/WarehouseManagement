@@ -68,7 +68,7 @@ public class ItemController {
 
         Item item = itemService.findByItemId(itemID);
         if (item == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item by id: " + itemID);
+            return WebServiceResponseWrapper.raiseError("ItemException.CannotFindItem", "Can't find the item by id: " + itemID);
         }
         return new WebServiceResponseWrapper<Item>(0, "", item);
     }
@@ -78,7 +78,7 @@ public class ItemController {
 
         Item item = itemService.findByItemName(itemName);
         if (item == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item by name: " + itemName);
+            return WebServiceResponseWrapper.raiseError("ItemException.CannotFindItem", "Can't find the item by name: " + itemName);
         }
         return new WebServiceResponseWrapper<Item>(0, "", item);
     }
@@ -89,7 +89,7 @@ public class ItemController {
 
         Item item = itemService.findByItemId(itemID);
         if (item == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item by id: " + itemID);
+            return WebServiceResponseWrapper.raiseError("ItemException.CannotFindItem", "Can't find the item by id: " + itemID);
         }
         itemService.deleteByItemId(itemID);
         return new WebServiceResponseWrapper<Item>(0, "", item);
@@ -103,7 +103,7 @@ public class ItemController {
 
         Item item = itemService.findByItemId(itemID);
         if (item == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item by id: " + itemID);
+            return WebServiceResponseWrapper.raiseError("ItemException.CannotFindItem", "Can't find the item by id: " + itemID);
         }
 
         // Currently we only allow change the description but not the name

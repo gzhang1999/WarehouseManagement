@@ -22,10 +22,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import se.gzhang.scm.wms.outbound.shipment.model.Pick;
-import se.gzhang.scm.wms.outbound.shipment.model.PickState;
-import se.gzhang.scm.wms.outbound.shipment.model.ShipmentLine;
-import se.gzhang.scm.wms.outbound.shipment.model.ShortAllocation;
+import se.gzhang.scm.wms.outbound.shipment.model.*;
 
 import java.io.IOException;
 
@@ -158,6 +155,10 @@ public class SalesOrderSerializer extends StdSerializer<SalesOrder> {
                 jgen.writeStartArray();
                 if (salesOrderLine.getShipmentLineList() != null) {
                     for (ShipmentLine shipmentLine : salesOrderLine.getShipmentLineList()) {
+                        if (shipmentLine.getShipmentLineState().equals(ShipmentLineState.CANCELLED)) {
+                            continue;
+                        }
+
                         jgen.writeStartObject();
 
                         jgen.writeNumberField("id", shipmentLine.getId());
@@ -217,14 +218,26 @@ public class SalesOrderSerializer extends StdSerializer<SalesOrder> {
                         jgen.writeFieldName("shortAllocation");
                         jgen.writeStartArray();
                         for(ShortAllocation shortAllocation : shipmentLine.getShortAllocation()) {
-                            jgen.writeStartObject();
-                            jgen.writeNumberField("id", shortAllocation.getId());
-                            jgen.writeStringField("number", shortAllocation.getNumber());
-                            jgen.writeNumberField("quantity", shortAllocation.getQuantity());
+                            // only add short allocation that is not cancelled
+                            if (shortAllocation.getShortAllocationState() != ShortAllocationState.CANCELLED) {
+                                jgen.writeStartObject();
+                                jgen.writeNumberField("id", shortAllocation.getId());
+                                jgen.writeStringField("number", shortAllocation.getNumber());
+                                jgen.writeNumberField("quantity", shortAllocation.getQuantity());
+                                jgen.writeStringField("state", shortAllocation.getShortAllocationState().name());
 
-                            jgen.writeEndObject();
+                                jgen.writeEndObject();
+                            }
                         }
                         jgen.writeEndArray();
+
+                        jgen.writeFieldName("shipment");
+                        jgen.writeStartObject();
+                        if (shipmentLine.getShipment() != null) {
+                            jgen.writeNumberField("id", shipmentLine.getShipment().getId());
+                            jgen.writeStringField("number", shipmentLine.getShipment().getNumber());
+                        }
+                        jgen.writeEndObject();
 
                         jgen.writeEndObject();
                     }

@@ -28,6 +28,7 @@ import se.gzhang.scm.wms.common.model.TrailerState;
 import se.gzhang.scm.wms.common.model.TrailerType;
 import se.gzhang.scm.wms.common.repository.TrailerRepository;
 import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.exception.StandProductException;
 import se.gzhang.scm.wms.inbound.model.Receipt;
 import se.gzhang.scm.wms.layout.model.AreaType;
 import se.gzhang.scm.wms.layout.model.Location;
@@ -197,7 +198,7 @@ public class TrailerService {
     public void deleteByTrailerID(int trailerID) {
         Trailer trailer = findByTrailerId(trailerID);
         if (trailer.getTrailerState() != TrailerState.EXPECTED) {
-            throw new GenericException(10000, "Can't remove the receipt as the trailer attached is not in Expected status");
+            throw new StandProductException("ReceiptException.TrailerNotInExpectedStatus", "Can't remove the receipt as the trailer attached is not in Expected status");
         }
         trailerRepository.deleteById(trailerID);
     }
@@ -205,7 +206,7 @@ public class TrailerService {
     public Trailer voidByTrailerID(int trailerID) {
         Trailer trailer = findByTrailerId(trailerID);
         if (trailer.getTrailerState() != TrailerState.EXPECTED) {
-            throw new GenericException(10000, "Can't remove the receipt as the trailer attached is not in Expected status");
+            throw new StandProductException("ReceiptException.TrailerNotInExpectedStatus", "Can't remove the receipt as the trailer attached is not in Expected status");
         }
         return setTrailerState(trailer, TrailerState.VOID);
     }
@@ -238,7 +239,7 @@ public class TrailerService {
     // 2. Dock for processing
     public Trailer moveTrailer(Trailer trailer, Location location) {
         if (!isLocationValidForParking(location)) {
-            throw new GenericException(10000, "Can't move trailer to this location as it is not designed for trailer parking");
+            throw new StandProductException("ReceiptException.LocationNotForTrailer", "Can't move trailer to this location as it is not designed for trailer parking");
         }
         trailer.setLocation(location);
         return save(trailer);
@@ -258,7 +259,7 @@ public class TrailerService {
     public Trailer setTrailerState(Trailer trailer, TrailerState trailerState) {
 
         if (!isDestinationTrailerStateValid(trailer, trailerState)) {
-            throw new GenericException(10000, "Cannot transfer current trailer to the state: " + trailerState.name());
+            throw new StandProductException("ReceiptException.NotValidDestinationState", "Cannot transfer current trailer to the state: " + trailerState.name());
         }
         trailer.setTrailerState(trailerState);
         return save(trailer);

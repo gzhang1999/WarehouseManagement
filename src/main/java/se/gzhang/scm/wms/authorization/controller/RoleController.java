@@ -82,7 +82,7 @@ public class RoleController {
         if (currentLoginUser.isRoleManager()) {
             Role role = roleService.findByRoleId(roleID);
             if(role == null) {
-                return WebServiceResponseWrapper.raiseError(10001, "Can not find the role by ID: " + roleID);
+                return WebServiceResponseWrapper.raiseError("RoleException.CannotFindRole", "Can not find the role by ID: " + roleID);
             }
             else {
                 return new WebServiceResponseWrapper<Role>(0, "", role);
@@ -90,7 +90,7 @@ public class RoleController {
         }
         else {
             // The user doesn't have the access to the role
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to manager roles");
+            return WebServiceResponseWrapper.raiseError("RoleException.NoRightForManageRole", "The user doesn't have right to manager roles");
 
         }
 
@@ -106,7 +106,7 @@ public class RoleController {
         if (currentLoginUser.isRoleManager()) {
             Role role = roleService.findByRoleId(roleID);
             if(role == null) {
-                return WebServiceResponseWrapper.raiseError(10001, "Can not find the role by ID: " + roleID);
+                return WebServiceResponseWrapper.raiseError("RoleException.CannotFindRole", "Can not find the role by ID: " + roleID);
             }
             else {
                 role.setName(roleName);
@@ -118,7 +118,7 @@ public class RoleController {
         }
         else {
             // The user doesn't have the access to the role
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to manager roles");
+            return WebServiceResponseWrapper.raiseError("RoleException.NoRightForManageRole", "The user doesn't have right to manager roles");
         }
     }
 
@@ -139,7 +139,7 @@ public class RoleController {
         }
         else {
             // The user doesn't have the access to the role
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to manager roles");
+            return WebServiceResponseWrapper.raiseError("RoleException.NoRightForManageRole", "The user doesn't have right to manager roles");
         }
     }
 
@@ -154,7 +154,7 @@ public class RoleController {
 
             Role role = roleService.findByRoleId(roleID);
             if(role == null) {
-                return WebServiceResponseWrapper.raiseError(10001, "Can not find the role by ID: " + roleID);
+                return WebServiceResponseWrapper.raiseError("RoleException.CannotFindRole", "Can not find the role by ID: " + roleID);
             }
             else {
                 List<User> users = userService.findAll();
@@ -172,7 +172,7 @@ public class RoleController {
         }
         else {
 
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to manager role");
+            return WebServiceResponseWrapper.raiseError("RoleException.NoRightForManageRole", "The user doesn't have right to manager role");
         }
 
     }
@@ -188,7 +188,7 @@ public class RoleController {
 
             Role role = roleService.findByRoleId(roleID);
             if(role == null) {
-                return WebServiceResponseWrapper.raiseError(10001, "Can not find the role by ID: " + roleID);
+                return WebServiceResponseWrapper.raiseError("RoleException.CannotFindRole", "Can not find the role by ID: " + roleID);
             }
             else {
                 List<MenuItem> menuItems = menuService.findAll(true);
@@ -204,7 +204,7 @@ public class RoleController {
         }
         else {
 
-            return WebServiceResponseWrapper.raiseError(10000, "The user doesn't have right to manager role");
+            return WebServiceResponseWrapper.raiseError("RoleException.NoRightForManageRole", "The user doesn't have right to manager role");
         }
 
     }

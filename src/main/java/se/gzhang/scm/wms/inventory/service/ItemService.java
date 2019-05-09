@@ -28,6 +28,7 @@ import se.gzhang.scm.wms.common.repository.ClientRepository;
 import se.gzhang.scm.wms.common.service.ClientService;
 import se.gzhang.scm.wms.common.service.UnitOfMeasureService;
 import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.exception.StandProductException;
 import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.inventory.repository.ItemRepository;
 import se.gzhang.scm.wms.layout.model.Area;
@@ -164,17 +165,17 @@ public class ItemService {
 
         Warehouse warehouse = warehouseService.findByWarehouseName(warehouseName);
         if (warehouse == null) {
-            throw new GenericException(10000,"Can't find warehouse by name " + warehouseName);
+            throw new StandProductException("WarehouseExeption.CannotFindWarehouse","Can't find warehouse by name " + warehouseName);
         }
 
         Client client = clientService.findByClientName(clientName);
         if (client == null) {
-            throw new GenericException(10000,"Can't find client by name " + clientName);
+            throw new GenericException("ClientExeption.CannotFindClient","Can't find client by name " + clientName);
         }
 
         UnitOfMeasure unitOfMeasure = unitOfMeasureService.findByUOMName(lpnUOMName);
         if (unitOfMeasure == null) {
-            throw new GenericException(10000,"Can't find unit of measure by name " + lpnUOMName);
+            throw new GenericException("UnitOfMessageException.CannotFindUnitOfMessage","Can't find unit of measure by name " + lpnUOMName);
         }
 
 

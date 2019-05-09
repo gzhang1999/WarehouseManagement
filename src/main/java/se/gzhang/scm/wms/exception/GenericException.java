@@ -19,15 +19,17 @@
 package se.gzhang.scm.wms.exception;
 
 public class GenericException extends RuntimeException {
-    private int code;
+    private String code;
     private String message;
-    public GenericException(int code, String message) {
+    public GenericException(String code, String message) {
         super(message);
         this.code = code;
         this.message = message;
     }
 
-    public int getCode() {
+    public String getCode() {
         return code;
     }
+
+    public String getMessage() {return message;}
 }

@@ -21,13 +21,16 @@ package se.gzhang.scm.wms.layout.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Velocity;
 import se.gzhang.scm.wms.common.service.VelocityService;
 import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.exception.StandProductException;
 import se.gzhang.scm.wms.inventory.model.Inventory;
 import se.gzhang.scm.wms.inventory.service.InventoryService;
 import se.gzhang.scm.wms.layout.model.*;
 import se.gzhang.scm.wms.layout.repository.LocationRepository;
+import se.gzhang.scm.wms.outbound.order.model.SalesOrder;
 import se.gzhang.scm.wms.system.tools.service.FileUploadOptionService;
 
 import javax.persistence.criteria.*;
@@ -195,7 +198,7 @@ public class LocationService {
                 else {
                     area = getAreaByName(locationAttribute);
                     if (area == null) {
-                        throw new GenericException(10000, "can't find area with code: " + locationAttribute);
+                        throw new StandProductException("AreaException.CannotFindArea", "can't find area with code: " + locationAttribute);
                     }
                     areaMap.put(locationAttribute, area);
                 }
@@ -351,8 +354,22 @@ public class LocationService {
                     location.getVolume() - location.getUsedVolume() - location.getPendingVolume() : 0);
     }
 
+    @Transactional
     public void refreshLocationUsedVolume(Location location) {
         location.setUsedVolume(getUsedVolumeByInventory(location));
         save(location);
     }
+
+    @Transactional
+    public void reserveLocation(Location location, String reserveCode) {
+        location.setReserveCode(reserveCode);
+        save(location);
+    }
+    @Transactional
+    public void reserveLocation(Location location, String reserveCode, double volume) {
+        location.setReserveCode(reserveCode);
+        location.setPendingVolume(location.getPendingVolume() + volume);
+        save(location);
+    }
+
 }

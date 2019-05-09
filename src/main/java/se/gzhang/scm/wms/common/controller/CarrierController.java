@@ -68,7 +68,7 @@ public class CarrierController {
 
         Carrier carrier = carrierService.findByCarrierId(carrierID);
         if (carrier == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the carrier by id: " + carrierID);
+            return WebServiceResponseWrapper.raiseError("CarrierException.CannotFindCarrier", "Can't find the carrier by id: " + carrierID);
         }
         return new WebServiceResponseWrapper<Carrier>(0, "", carrier);
     }
@@ -79,7 +79,7 @@ public class CarrierController {
 
         Carrier carrier = carrierService.findByCarrierId(carrierID);
         if (carrier == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the carrier by id: " + carrierID);
+            return WebServiceResponseWrapper.raiseError("CarrierException.CannotFindCarrier", "Can't find the carrier by id: " + carrierID);
         }
         carrierService.deleteByCarrierID(carrierID);
         return new WebServiceResponseWrapper<Carrier>(0, "", carrier);
@@ -112,7 +112,7 @@ public class CarrierController {
 
         Carrier carrier = carrierService.findByCarrierId(carrierID);
         if (carrier == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the carrier by id: " + carrierID);
+            return WebServiceResponseWrapper.raiseError("CarrierException.CannotFindCarrier", "Can't find the carrier by id: " + carrierID);
         }
         carrier.setDescription(description);
         carrier.setContactPerson(contactPerson);
@@ -130,7 +130,7 @@ public class CarrierController {
 
         Carrier carrier = carrierService.findByCarrierId(carrierID);
         if (carrier == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the carrier by id: " + carrierID);
+            return WebServiceResponseWrapper.raiseError("CarrierException.CannotFindCarrier", "Can't find the carrier by id: " + carrierID);
         }
 
         CarrierServiceLevel carrierServiceLevel = new CarrierServiceLevel();
@@ -152,7 +152,7 @@ public class CarrierController {
 
         CarrierServiceLevel carrierServiceLevel = carrierServiceLevelService.findByCarrierServiceLevelId(carrierServiceLevelID);
         if (carrierServiceLevel == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the carrier service level by id: " + carrierServiceLevelID);
+            return WebServiceResponseWrapper.raiseError("CarrierException.CannotFindCarrierService", "Can't find the carrier service level by id: " + carrierServiceLevelID);
         }
 
         // The user is only allowed to change the description
@@ -171,7 +171,7 @@ public class CarrierController {
 
         CarrierServiceLevel carrierServiceLevel = carrierServiceLevelService.findByCarrierServiceLevelId(carrierServiceLevelID);
         if (carrierServiceLevel == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the carrier service level by id: " + carrierServiceLevelID);
+            return WebServiceResponseWrapper.raiseError("CarrierException.CannotFindCarrierService", "Can't find the carrier service level by id: " + carrierServiceLevelID);
         }
 
         carrierServiceLevelService.deleteByCarrierServiceLevelID(carrierServiceLevelID);

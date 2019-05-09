@@ -72,7 +72,7 @@ public class AreaGroupController {
 
         AreaGroup areaGroup = areaGroupService.findByAreaGroupId(areaGroupID);
         if (areaGroup == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the area group by id: " + areaGroupID);
+            return WebServiceResponseWrapper.raiseError("AreaGroupException.CannotFindAreaGroup", "Can't find the area group by id: " + areaGroupID);
         }
         return new WebServiceResponseWrapper<AreaGroup>(0, "", areaGroup);
     }
@@ -83,7 +83,7 @@ public class AreaGroupController {
 
         AreaGroup areaGroup = areaGroupService.findByAreaGroupId(areaGroupID);
         if (areaGroup == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the area group by id: " + areaGroupID);
+            return WebServiceResponseWrapper.raiseError("AreaGroupException.CannotFindAreaGroup", "Can't find the area group by id: " + areaGroupID);
         }
         areaGroupService.deleteAreaGroupByAreaGroupId(areaGroupID);
         return new WebServiceResponseWrapper<AreaGroup>(0, "", areaGroup);
@@ -111,7 +111,7 @@ public class AreaGroupController {
                                                 @RequestParam("description") String description) {
         AreaGroup areaGroup = areaGroupService.findByAreaGroupId(areaGroupID);
         if (areaGroup == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the area grouop by id: " + areaGroupID);
+            return WebServiceResponseWrapper.raiseError("AreaGroupException.CannotFindAreaGroup", "Can't find the area group by id: " + areaGroupID);
         }
         areaGroup.setName(name);
         areaGroup.setDescription(description);

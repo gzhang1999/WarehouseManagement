@@ -21,6 +21,7 @@ package se.gzhang.scm.wms.outbound.order.model;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import se.gzhang.scm.wms.inventory.model.InventoryStatus;
 import se.gzhang.scm.wms.inventory.model.Item;
+import se.gzhang.scm.wms.layout.model.Location;
 import se.gzhang.scm.wms.outbound.shipment.model.ShipmentLine;
 
 import javax.persistence.*;
@@ -58,6 +59,11 @@ public class SalesOrderLine implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="inventory_status_id")
     private InventoryStatus inventoryStatus;
+
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="location")
+    private Location shippingStageLocation;
 
     @Transient
     List<ShipmentLine> shipmentLineList;
@@ -161,5 +167,13 @@ public class SalesOrderLine implements Serializable {
 
     public void setShipmentLineList(List<ShipmentLine> shipmentLineList) {
         this.shipmentLineList = shipmentLineList;
+    }
+
+    public Location getShippingStageLocation() {
+        return shippingStageLocation;
+    }
+
+    public void setShippingStageLocation(Location shippingStageLocation) {
+        this.shippingStageLocation = shippingStageLocation;
     }
 }

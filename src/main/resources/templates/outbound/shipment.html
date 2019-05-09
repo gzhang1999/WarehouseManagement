@@ -144,7 +144,7 @@
                     "       <a href='#' data-shipmentid='" + shipment.id + "' onclick='showShipmentDetial(event)'>" + shipment.id + "</a>" +
                     "   </td>" +
                     "   <td>" + shipment.number + "   </td>" +
-                    "   <td>" + shipment.shipmentState + "   </td>" +
+                    "   <td id='shipment-state-" + shipment.id + "' data-escapedisplay=true data-variable='shipmentState'>" + shipment.shipmentState + "   </td>" +
                     "   <td> " +
                     "       <button class='btn btn-success' type='button' data-shipmentid='" + shipment.id + "' onclick='allocateShipment(event)'>" + $.i18n("shipment.allocate")+ "</button>"+
                     "       <button class='btn btn-danger' type='button' data-shipmentid='" + shipment.id + "' onclick='cancelShipment(event)'>" + $.i18n("cancel")+ "</button>"+
@@ -153,6 +153,7 @@
             });
             var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
             table.rows.add(html).draw();
+
         }
     }
 
@@ -224,6 +225,7 @@
 
     }
 
+
     var formatShipmentInformation = function(shipment) {
 
         var shipmentLineHtml = getFormatShipmentLineDisplay(shipment);
@@ -274,23 +276,29 @@
                             "                   <th>" + $.i18n("salesOrder.number") + "</th> " +
                             "                   <th>" + $.i18n("salesOrder.line.number") + "</th> " +
                             "                   <th>" + $.i18n("salesOrder.line.quantity") + "</th> " +
+                            "                   <th></th> " +
                             "               </tr> " +
                             "           </thead> " +
                             "           <tbody>";
 
 
         $.each(shipment.shipmentLines, function(index, shipmentLine){
-            shipmentLineHtml    += "  <tr class='odd' role='row'>" +
-                                   "    <td> " + shipmentLine.id + "</td> " +
-                                   "    <td> " + shipmentLine.number + "</td> " +
-                                   "    <td> " + shipmentLine.state + "</td> " +
-                                   "    <td> " + shipmentLine.orderQuantity + "</td> " +
-                                   "    <td> " + shipmentLine.inprocessQuantity + "</td> " +
-                                   "    <td> " + shipmentLine.shippedQuantity + "</td> " +
-                                   "    <td> " + shipmentLine.salesOrderLine.salesOrder.number + "</td> " +
-                                   "    <td> " + shipmentLine.salesOrderLine.number + "</td> " +
-                                   "    <td> " + shipmentLine.salesOrderLine.quantity + "</td> " +
-                                   "</tr> ";
+                shipmentLineHtml    += "  <tr class='odd' role='row'>" +
+                                       "    <td> " + shipmentLine.id + "</td> " +
+                                       "    <td> " + shipmentLine.number + "</td> " +
+                                       "    <td id='shipment-line-state-" + shipmentLine.id + "' data-escapedisplay=true data-variable='shipmentLineState'>" +
+                                                shipmentLine.state +
+                                       "    </td> " +
+                                       "    <td> " + shipmentLine.orderQuantity + "</td> " +
+                                       "    <td> " + shipmentLine.inprocessQuantity + "</td> " +
+                                       "    <td> " + shipmentLine.shippedQuantity + "</td> " +
+                                       "    <td> " + shipmentLine.salesOrderLine.salesOrder.number + "</td> " +
+                                       "    <td> " + shipmentLine.salesOrderLine.number + "</td> " +
+                                       "    <td> " + shipmentLine.salesOrderLine.quantity + "</td> " +
+                                       "    <td> " +
+                                       "       <button class='btn btn-danger' type='button' data-shipmentlineid='" + shipmentLine.id + "' onclick='cancelShipmentLine(event)'>" + $.i18n("cancel")+ "</button>"+
+                                       "    </td> " +
+                                       "</tr> ";
         });
         shipmentLineHtml    += "          </tbody> " +
                             "        </table> " +
@@ -333,7 +341,9 @@
                                     "    <td> " + pick.id + "</td> " +
                                     "    <td> " + pick.number + "</td> " +
                                     "    <td> " + pick.quantity + "</td> " +
-                                    "    <td> " + pick.pickState + "</td> " +
+                                    "    <td id='pick-state-" + pick.id + "' data-escapedisplay=true data-variable='pickState'>" +
+                                            pick.pickState +
+                                    "    </td> " +
                                     "    <td> " + (pick.sourceLocation.name == undefined ? "" : pick.sourceLocation.name) + "</td> " +
                                     "    <td> " + (pick.sourceLocation.area == undefined ? "" : pick.sourceLocation.area.name) + "</td> " +
                                     "    <td> " + (pick.destinationLocation.name == undefined ? "" : pick.destinationLocation.name) + "</td> " +
@@ -369,6 +379,7 @@
                                   "                   <th>" + $.i18n("shipment.line.number") + "</th> " +
                                   "                   <th>" + $.i18n("shortAllocation.id") + "</th> " +
                                   "                   <th>" + $.i18n("shortAllocation.quantity") + "</th> " +
+                                  "                   <th>" + $.i18n("shortAllocation.state") + "</th> " +
                                   "               </tr> " +
                                   "           </thead> " +
                                   "           <tbody>";
@@ -379,6 +390,9 @@
                                           "    <td> " + shipmentLine.number + "</td> " +
                                           "    <td> " + shortAllocation.id + "</td> " +
                                           "    <td> " + shortAllocation.quantity + "</td> " +
+                                          "    <td id='shortAllocation-state-" + shortAllocation.id + "' data-escapedisplay=true data-variable='shortAllocationState'> " +
+                                                    shortAllocation.state +
+                                          "    </td> " +
                                           "</tr> ";
             });
         });
@@ -400,6 +414,50 @@
           .scroller.measure();
     });
 
+    var cancelShipment = function(event) {
+        var control = $(event.target);
+        var shipmentID = control.data("shipmentid");
+        var url = "/ws/outbound/shipment/" + shipmentID + "/cancel";
+
+        $.ajax({url : url})
+         .done(function(res) {
+
+             if (res.status == 0) {
+                 displayStateMessage("Shipment  " + res.data.number + " cancelled!");
+                 promptSuccessMessage("Shipment  " + res.data.number + " cancelled!");
+                 refreshShipmentInformation();
+             }
+             else{
+                displayFailMessage(res.data, res.message);
+
+             }
+        });
+    }
+
+    var refreshShipmentInformation = function() {
+        $("#shipment_query").submit();
+    }
+
+    var cancelShipmentLine = function(event) {
+        var control = $(event.target);
+        var shipmentLineID = control.data("shipmentlineid");
+        var url = "/ws/outbound/shipment/line/" + shipmentLineID + "/cancel";
+
+        $.ajax({url : url})
+         .done(function(res) {
+
+             if (res.status == 0) {
+                 displayStateMessage("Shipment Line " + res.data.number + " cancelled!");
+                 promptSuccessMessage("Shipment Line " + res.data.number + " cancelled!");
+                 refreshOutboundInformation(res.data.shipment.id);
+             }
+             else{
+                displayFailMessage(res.data, res.message);
+
+             }
+        });
+    }
+
     var cancelPick = function(event) {
         var control = $(event.target);
         var pickID = control.data("pickid");
@@ -409,25 +467,46 @@
                 url : url
             }).done(function( res ) {
                 if (res.status == 0) {
-                    console.log(JSON.stringify(res.data));
                     displayStateMessage("pick " + res.data.number + " cancelled!");
                     promptSuccessMessage("pick " + res.data.number + " cancelled!");
-                    refreshPickInformation(res.data.shipmentLine.shipment.id);
+                    refreshOutboundInformation(res.data.shipmentLine.shipment.id);
                 }
                 else{
+                    displayFailMessage(res.data, res.message);
+
+                 }
+            });
+    }
+    var cancelShortAllocation = function(event) {
+        var control = $(event.target);
+        var shortAllocationID = control.data("shortallocationid");
+        var url = "/ws/outbound/shortallocation/" + shortAllocationID + "/cancel";
+        $.ajax({
+                method:"DELETE",
+                url : url
+            }).done(function( res ) {
+                if (res.status == 0) {
+                    displayStateMessage("Short Allocation " + res.data.number + " cancelled!");
+                    promptSuccessMessage("Short Allocation " + res.data.number + " cancelled!");
+                    refreshOutboundInformation(res.data.shipmentLine.shipment.id);
+                }
+                else{
+                    displayFailMessage(res.data, res.message);
 
                 }
             });
     }
 
-    var refreshPickInformation = function(shipmentID) {
+
+    var refreshOutboundInformation = function(shipmentID) {
         var url = "/ws/outbound/shipment/query/" + shipmentID;
         $.ajax({
                 url:url
         }).done(function( res ) {
             var shipment = res.data;
-            $("#pick").html(getFormatPickDisplay(shipment));
             $("#shipmentLine").html(getFormatShipmentLineDisplay(shipment));
+            $("#pick").html(getFormatPickDisplay(shipment));
+            $("#shortAllocation").html(getFormatShortAllocationDisplay(shipment));
 
         });
     }

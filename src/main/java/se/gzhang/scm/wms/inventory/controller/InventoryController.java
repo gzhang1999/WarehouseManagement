@@ -75,7 +75,7 @@ public class InventoryController {
 
         Inventory inventory = inventoryService.findByInventoryID(inventoryID);
         if (inventory == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the inventory by id: " + inventoryID);
+            return WebServiceResponseWrapper.raiseError("InventoryException.CannotFindInventory", "Can't find the inventory by id: " + inventoryID);
         }
         return new WebServiceResponseWrapper<Inventory>(0, "", inventory);
     }
@@ -93,11 +93,11 @@ public class InventoryController {
 
         ItemFootprint itemFootprint = itemFootprintService.findByItemFootprintId(itemFootprintID);
         if (itemFootprint == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item footprint by id: " + itemFootprintID);
+            return WebServiceResponseWrapper.raiseError("ItemFootprintException.CannotFindItemFootprint", "Can't find the item footprint by id: " + itemFootprintID);
         }
         Location location = locationService.findByLocationId(locationID);
         if (location == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the location by id: " + locationID);
+            return WebServiceResponseWrapper.raiseError("LocationException.CannotFindLocation", "Can't find the location by id: " + locationID);
         }
 
         Inventory inventory = inventoryService.addInventory(location, itemFootprint,
@@ -119,12 +119,12 @@ public class InventoryController {
 
         Inventory inventory = inventoryService.findByInventoryID(inventoryID);
         if (inventory == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the inventory by id: " + inventoryID);
+            return WebServiceResponseWrapper.raiseError("InventoryException.CannotFindInventory", "Can't find the inventory by id: " + inventoryID);
         }
 
         ItemFootprint itemFootprint = itemFootprintService.findByItemFootprintId(itemFootprintID);
         if (itemFootprint == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the item footprint by id: " + itemFootprintID);
+            return WebServiceResponseWrapper.raiseError("ItemFootprintException.CannotFindItemFootprint", "Can't find the item footprint by id: " + itemFootprintID);
         }
 
         int unitQuantity = quantity;
@@ -148,7 +148,7 @@ public class InventoryController {
 
         Inventory inventory = inventoryService.findByInventoryID(inventoryID);
         if (inventory == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the inventory by id: " + inventoryID);
+            return WebServiceResponseWrapper.raiseError("InventoryException.CannotFindInventory", "Can't find the inventory by id: " + inventoryID);
         }
 
         System.out.println("## 1. Delete inventory: " + inventory.getId());

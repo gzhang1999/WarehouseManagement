@@ -55,6 +55,7 @@ public class AreaSerializer  extends StdSerializer<Area> {
 
         jgen.writeStringField("areaType", area.getAreaType().toString());
         jgen.writeStringField("volumeType", area.getVolumeType().toString());
+        jgen.writeStringField("locationReserveStrategyType", area.getLocationReserveStrategyType().toString());
 
         jgen.writeNumberField("buildingID", area.getBuilding().getId());
         jgen.writeStringField("building", area.getBuilding().getName());

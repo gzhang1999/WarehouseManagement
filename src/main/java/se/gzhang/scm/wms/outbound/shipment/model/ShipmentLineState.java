@@ -24,7 +24,7 @@ public enum ShipmentLineState implements EnumWithDescription<String> {
     NEW("New"),
     ALLOCATED("Allocated"),
     CANCELLED("Cancelled"),
-    Completed("Completed");
+    COMPLETED("Completed");
 
     private String description;
 

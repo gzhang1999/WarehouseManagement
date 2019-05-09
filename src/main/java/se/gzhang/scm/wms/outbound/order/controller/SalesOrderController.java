@@ -83,7 +83,7 @@ public class SalesOrderController {
 
         SalesOrder salesOrder = salesOrderService.findBySalesOrderId(salesOrderID);
         if (salesOrder == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the sales order by id: " + salesOrderID);
+            return WebServiceResponseWrapper.raiseError("SalesOrderException.CannotFindSalesOrder", "Can't find the sales order by id: " + salesOrderID);
         }
         salesOrderService.loadShipmentInformation(salesOrder);
 
@@ -96,7 +96,7 @@ public class SalesOrderController {
 
         SalesOrder salesOrder = salesOrderService.findBySalesOrderId(salesOrderID);
         if (salesOrder == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the sales order by id: " + salesOrderID);
+            return WebServiceResponseWrapper.raiseError("SalesOrderException.CannotFindSalesOrder", "Can't find the sales order by id: " + salesOrderID);
         }
 
         salesOrderService.deleteBySalesOrderID(salesOrderID);
@@ -113,7 +113,7 @@ public class SalesOrderController {
 
         SalesOrder salesOrder = salesOrderService.findBySalesOrderId(salesOrderID);
         if (salesOrder == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the sales order by id: " + salesOrderID);
+            return WebServiceResponseWrapper.raiseError("SalesOrderException.CannotFindSalesOrder", "Can't find the sales order by id: " + salesOrderID);
         }
 
         try {
@@ -131,7 +131,7 @@ public class SalesOrderController {
 
         SalesOrder salesOrder = salesOrderService.findBySalesOrderId(salesOrderID);
         if (salesOrder == null) {
-            return WebServiceResponseWrapper.raiseError(10000, "Can't find the sales order by id: " + salesOrderID);
+            return WebServiceResponseWrapper.raiseError("SalesOrderException.CannotFindSalesOrder", "Can't find the sales order by id: " + salesOrderID);
         }
 
         salesOrderService.allocateInventory(salesOrder);

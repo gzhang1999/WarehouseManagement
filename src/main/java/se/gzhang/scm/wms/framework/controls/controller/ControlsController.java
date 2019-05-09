@@ -55,7 +55,7 @@ public class ControlsController {
         DropdownList dropdownList = dropdownListService.findByVariable(variable, parameters);
 
         if(dropdownList == null) {
-            return WebServiceResponseWrapper.raiseError(10002, "Cannot find drop down list content for variable : " + variable);
+            return WebServiceResponseWrapper.raiseError("DropDownListException.CannotFindDropdownList", "Cannot find drop down list content for variable : " + variable);
         }
         else {
             return new WebServiceResponseWrapper<DropdownList>(0, "", dropdownList);
