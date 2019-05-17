@@ -24,6 +24,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.authorization.model.Role;
 import se.gzhang.scm.wms.authorization.model.User;
 import se.gzhang.scm.wms.authorization.service.RoleService;
@@ -272,6 +273,7 @@ public class MenuService {
         return findMenuItemById(menuID, true);
     }
 
+    @Transactional
     public MenuItem save(MenuItem menuItem) {
         return menuItemRepository.save(menuItem);
 
@@ -338,10 +340,6 @@ public class MenuService {
     }
 
     public List<MenuItem> findMenu(Map<String, String> criteriaList) {
-        System.out.println("Find menu by:");
-        for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
-            System.out.println(entry.getKey() + " : " + entry.getValue());
-        }
         if (!criteriaList.containsKey("parentMenuID") ||
                 criteriaList.get("parentMenuID").isEmpty()) {
             // both parent menu id and parent menu name are  valid criterias.

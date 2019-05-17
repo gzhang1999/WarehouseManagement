@@ -86,6 +86,12 @@ public class ShipmentLine implements Serializable {
     @Column(name = "cancelled_date")
     private Date cancelledDate;
 
+    public void addPick(Pick pick) {
+        if (picks == null) {
+            picks = new ArrayList<>();
+        }
+        picks.add(pick);
+    }
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

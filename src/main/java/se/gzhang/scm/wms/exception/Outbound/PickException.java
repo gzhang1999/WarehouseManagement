@@ -22,9 +22,14 @@ import se.gzhang.scm.wms.exception.StandProductException;
 
 public class PickException extends StandProductException {
 
-    public static final PickException NO_SUCH_PICK_EXCEPTION = new PickException(PickExceptionType.NO_SUCH_PICK);
+    public static final PickException NO_SUCH_PICK = new PickException(PickExceptionType.NO_SUCH_PICK);
 
-    public static final PickException NOT_VALID_STATE_FOR_CANCELLATION = new PickException(PickExceptionType.NOT_VALID_STATE_FOR_CANCELLATION);
+    public static final PickException NOT_VALID_STATE_FOR_CANCELLATION= new PickException(PickExceptionType.NOT_VALID_STATE_FOR_CANCELLATION);
+    public static final PickException OVER_PICK_PROHIBIT = new PickException(PickExceptionType.OVER_PICK_PROHIBIT);
+    public static final PickException NOT_SUFFICIENT_QUANTITY = new PickException(PickExceptionType.NOT_SUFFICIENT_QUANTITY);
+
+    public static final PickException SPLIT_NOT_ALLOWED = new PickException(PickExceptionType.SPLIT_NOT_ALLOWED);
+    public static final PickException SPLIT_NOT_ALLOWED_NOT_RIGHT_STATE = new PickException(PickExceptionType.SPLIT_NOT_ALLOWED_NOT_RIGHT_STATE);
 
     public PickException(PickExceptionType pickExceptionType) {
         super("PickException." + pickExceptionType.name(), pickExceptionType.getDescription());

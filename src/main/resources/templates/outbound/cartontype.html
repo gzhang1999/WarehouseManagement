@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>
+                            <a class="badge badge-success float-right" th:href="@{/flowAddCartonType}"
+                               data-action="new" th:text="#{cartonType.new}" >New Carton Type</a>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form class="form-inline" id="cartonType_query" data-display="cartonTypeTable" th:action="@{/ws/outbound/cartontype/list}">
+
+                            <div class="form-group my-sm-1">
+                                <label for="queryName" class="col-form-label" th:text="#{cartonType.name}">Carton Type Name:</label>
+                                <input type="text" class="form-control  mx-sm-4" id="queryName" name="name" th:value="${url_query_name}">
+                            </div>
+                            <div class="form-group my-sm-1">
+                                <label for="queryEnabled" class="col-form-label" th:text="#{cartonType.enabled}">Enabled:</label>
+                                <input type="checkbox" class="form-control  mx-sm-4" id="queryEnabled" name="enabled"
+                                       data-cbtype="tri-state">
+                            </div>
+                        </form>
+
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{find}" data-buttontype="query" data-target="cartonType_query">
+                            <i class="fa fa-dot-circle-o"></i> Find</button>
+                        <button class="btn btn-sm btn-primary" type="button" th:text="#{clear}" data-buttontype="clear" data-target="cartonType_query">
+                            <i class="fa fa-dot-circle-o"></i> Clear</button>
+                    </div>
+                </div>
+
+
+                <div class="card card-accent-success">
+                    <div class="card-body">
+                        <!-- Grid Display -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table id = "cartonTypeTable" class="table table-striped table-bordered display nowrap"
+                                       style="width:100%" data-tabletype="datatable" data-init="true" data-scrollx="true">
+                                    <thead>
+                                        <tr>
+                                            <td th:text="#{cartonType.id}">Carton Type ID</td>
+                                            <td th:text="#{cartonType.name}">Carton Type Name</td>
+                                            <td th:text="#{cartonType.description}">Carton Type Description</td>
+                                            <td th:text="#{cartonType.enabled}">Carton Type Enabled?</td>
+                                            <td th:text="#{cartonType.length}">Carton Length</td>
+                                            <td th:text="#{cartonType.width}">Carton Width</td>
+                                            <td th:text="#{cartonType.height}">Carton Height</td>
+                                            <td th:text="#{cartonType.fillRate}">Carton Fill Rate</td>
+                                            <td th:text="#{cartonType.weight}">Carton Weight</td>
+                                            <td th:text="#{cartonType.weightCapacity}">Carton Capacity(Weight)</td>
+                                            <td th:text="#{cartonType.cost}">Carton Cost</td>
+                                            <td></td>
+                                        </tr>
+                                    </thead>
+                                    <tbody th:if="${cartonTypeList != null and not #lists.isEmpty(cartonTypeList)}">
+                                        <tr  th:each="cartonType : ${cartonTypeList}" th:id="${'row_' + cartonType.id}">
+                                            <td th:text="${cartonType.id}"></td>
+                                            <td th:text="${cartonType.name}"></td>
+                                            <td th:text="${cartonType.description}"></td>
+                                            <td th:text="${cartonType.enabled}"></td>
+                                            <td th:text="${cartonType.length}"></td>
+                                            <td th:text="${cartonType.width}"></td>
+                                            <td th:text="${cartonType.height}"></td>
+                                            <td th:text="${cartonType.fillRate}"></td>
+                                            <td th:text="${cartonType.weight}"></td>
+                                            <td th:text="${cartonType.weightCapacity}"></td>
+                                            <td th:text="${cartonType.cost}"></td>
+                                            <td>
+                                                <button th:if="${cartonType.enabled==false}" class='btn btn-success' type='button'
+                                                        onclick='enableCartonType(event)' th:text="#{cartonType.enable}"
+                                                        data-cartontypeid="${cartonType.id}"></button>
+                                                <button th:if="${cartonType.enabled==true}" class='btn btn-danger' type='button'
+                                                        onclick='disableCartonType(event)' th:text="#{cartonType.disable}"
+                                                        data-cartontypeid="${cartonType.id}">></button>
+                                                <button class='btn btn-warning' type='button'
+                                                        onclick='modifyCartonType(event)' th:text="#{cartonType.modify}"
+                                                        data-cartontypeid="${cartonType.id}">></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+<script>
+
+    var renderTable = function(tableID, data, customFields) {
+
+        var table = $("#" + tableID).DataTable();
+
+        if (data.length == 0) {
+            table.clear().draw();
+        }
+        else {
+            table.clear();
+            var htmlData = "";
+
+            $.each(data, function(index, cartonType){
+                htmlData +=
+                        "<tr  id='row_" + cartonType.id + "'>" +
+                        "    <td> " + cartonType.id + "   </td>" +
+                        "    <td> " + cartonType.name + "</td> " +
+                        "    <td> " + cartonType.description + "</td> ";
+                if (cartonType.enabled == true) {
+                    htmlData +=
+                        "    <td> <input type='checkbox' checked disabled></td> ";
+                }
+                else {
+                    htmlData +=
+                        "    <td> <input type='checkbox' disabled></td> ";
+                }
+                htmlData +=
+                        "    <td> " + cartonType.length + "</td> " +
+                        "    <td> " + cartonType.width + "</td> " +
+                        "    <td> " + cartonType.height + "</td> " +
+                        "    <td> " + cartonType.fillRate + "</td> " +
+                        "    <td> " + cartonType.weight + "</td> " +
+                        "    <td> " + cartonType.weightCapacity + "</td> " +
+                        "    <td> " + cartonType.cost + "</td> " +
+                        "    <td> ";
+                if (cartonType.enabled == true) {
+                    htmlData += " <button class='btn btn-danger' type='button' data-cartontypeid='" + cartonType.id + "'" +
+                                "         onclick='disableCartonType(event)'> "  + $.i18n("cartonType.disable")+ "</button>";
+                }
+                else {
+                    htmlData += " <button class='btn btn-success' type='button' data-cartontypeid='" + cartonType.id + "'" +
+                                "         onclick='enableCartonType(event)'> " + $.i18n("cartonType.enable") + "</button>";
+                }
+                htmlData += " <button class='btn btn-warning' type='button'  data-cartontypeid='" + cartonType.id + "'" +
+                            "         onclick='modifyCartonType(event)'> "  + $.i18n("cartonType.modify") + "</button>" +
+                            " </td> " +
+                            " </tr>";
+            });
+            var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
+            table.rows.add(html).draw();
+        }
+    }
+
+    var refreshMainGrid = function() {
+        $("#cartonType_query").submit();
+    }
+
+
+    var enableCartonType = function(event) {
+        var control = $(event.target);
+        var cartonTypeID = control.data("cartontypeid");
+
+        var url = "/ws/outbound/cartontype/" + cartonTypeID + "/enable";
+        $.ajax({
+            method:"POST",
+            url : url,
+            data: {
+                enabled: true
+            }
+        }).done(function( res ) {
+            if (res.status == 0) {
+
+                displaySuccessMessage("carton type " + res.data.name + " enabled!");
+                refreshMainGrid();
+            }
+            else{
+                displayFailMessage(res.data, res.message);
+            }
+        });
+    }
+    var disableCartonType = function(event) {
+        var control = $(event.target);
+        var cartonTypeID = control.data("cartontypeid");
+
+        var url = "/ws/outbound/cartontype/" + cartonTypeID + "/disable";
+        $.ajax({
+            method:"POST",
+            url : url,
+            data: {
+                enabled: false
+            }
+        }).done(function( res ) {
+                if (res.status == 0) {
+                    displaySuccessMessage("carton type " + res.data.name + " disabled!");
+                    refreshMainGrid();
+                }
+                else{
+                    displayFailMessage(res.data, res.message);
+                }
+        });
+    }
+    var modifyCartonType = function(event) {
+        var control = $(event.target);
+        var cartonTypeID = control.data("cartontypeid");
+
+        window.open("/flowModifyCartonType?id=" + cartonTypeID, "_self");
+
+    }
+
+
+</script>
+</body>
+</html>

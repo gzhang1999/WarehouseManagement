@@ -54,6 +54,7 @@ public class SalesOrderLineSerializer extends StdSerializer<SalesOrderLine> {
             jgen.writeNumberField("id", salesOrderLine.getSalesOrder().getId());
             jgen.writeStringField("externalID", salesOrderLine.getSalesOrder().getExternalID());
             jgen.writeStringField("number", salesOrderLine.getSalesOrder().getNumber());
+            jgen.writeStringField("shippingMethod", (salesOrderLine.getSalesOrder().getShippingMethod() == null ? "" : salesOrderLine.getSalesOrder().getShippingMethod().name()));
 
             jgen.writeFieldName("warehouse");
             jgen.writeStartObject();
@@ -144,6 +145,25 @@ public class SalesOrderLineSerializer extends StdSerializer<SalesOrderLine> {
                             if (pick.getDestinationLocation().getArea() != null) {
                                 jgen.writeNumberField("id", pick.getDestinationLocation().getArea().getId());
                                 jgen.writeStringField("name", pick.getDestinationLocation().getArea().getName());
+                            }
+                            jgen.writeEndObject();
+                        }
+                        jgen.writeEndObject();
+
+                        jgen.writeFieldName("carton");
+                        jgen.writeStartObject();
+                        if (pick.getCarton() != null) {
+                            jgen.writeNumberField("id", pick.getCarton().getId());
+                            jgen.writeStringField("number", pick.getCarton().getNumber());
+                            jgen.writeFieldName("type");
+                            jgen.writeStartObject();
+                            if (pick.getCarton().getCartonType() != null) {
+                                jgen.writeNumberField("id", pick.getCarton().getCartonType().getId());
+                                jgen.writeStringField("name", pick.getCarton().getCartonType().getName());
+                                jgen.writeNumberField("length", pick.getCarton().getCartonType().getLength());
+                                jgen.writeNumberField("width", pick.getCarton().getCartonType().getWidth());
+                                jgen.writeNumberField("height", pick.getCarton().getCartonType().getHeight());
+                                jgen.writeNumberField("fillRate", pick.getCarton().getCartonType().getFillRate());
                             }
                             jgen.writeEndObject();
                         }

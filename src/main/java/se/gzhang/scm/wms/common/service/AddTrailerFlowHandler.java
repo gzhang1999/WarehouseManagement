@@ -56,8 +56,6 @@ public class AddTrailerFlowHandler {
 
     public void saveTrailer(AddTrailerFlowModel addTrailerFlowModel, LocalParameterMap parameters, HttpSession session){
         Trailer trailer = getTrailerFromHttpRequestParameters(parameters);
-        System.out.println("Create trailer for warheouse: " + session.getAttribute("warehouse_id") +
-                " / " + session.getAttribute("warehouse_name"));
         trailer.setWarehouse(warehouseService.findByWarehouseId(Integer.parseInt(session.getAttribute("warehouse_id").toString())));
         addTrailerFlowModel.setupTrailer(trailer);
     }
@@ -124,25 +122,6 @@ public class AddTrailerFlowHandler {
         // We will need to assign the receipts to the trailer
         // before serialize the trailer
         trailer.setReceiptList(addTrailerFlowModel.getReceiptList());
-        System.out.println("Start to serialize trailer:" + trailer.getTrailerNumber() +
-                " / " + trailer.getLicensePlate());
-        System.out.println("# How many lines? " + addTrailerFlowModel.getReceiptList().size() + " / " + trailer.getReceiptList().size());
-        for(Receipt receipt : trailer.getReceiptList()) {
-            System.out.println(">>>>  Receipt: " + receipt.getNumber() + "    <<<<<");
-            if (receipt.getReceiptLineList() == null || receipt.getReceiptLineList().size() == 0) {
-                System.out.println("## Receipt Line Numbers: 0" );
-            }
-            else  {
-                System.out.println("## Receipt Line Numbers: " + receipt.getReceiptLineList().size());
-                for(ReceiptLine receiptLine : receipt.getReceiptLineList()) {
-                    System.out.println("====== " + receiptLine.getLineNumber() + "  =======");
-                    System.out.println(">>>> " + receiptLine.getItem().getName() );
-                    System.out.println(">>>> " + receiptLine.getExpectedQuantity());
-                    System.out.println(">>>> " + receiptLine.getInventoryStatus().getName() );
-                }
-
-            }
-        }
         trailerService.save(trailer);
 
     }

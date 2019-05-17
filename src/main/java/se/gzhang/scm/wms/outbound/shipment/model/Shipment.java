@@ -66,6 +66,9 @@ public class Shipment implements Serializable {
     @Column(name = "shipment_state")
     private ShipmentState shipmentState;
 
+    @Column(name = "shipping_method")
+    private ShippingMethod shippingMethod;
+
     @Column(name = "cancelled_date")
     private Date cancelledDate;
 
@@ -149,5 +152,13 @@ public class Shipment implements Serializable {
 
     public void setCancelledDate(Date cancelledDate) {
         this.cancelledDate = cancelledDate;
+    }
+
+    public ShippingMethod getShippingMethod() {
+        return shippingMethod;
+    }
+
+    public void setShippingMethod(ShippingMethod shippingMethod) {
+        this.shippingMethod = shippingMethod;
     }
 }

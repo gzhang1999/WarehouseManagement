@@ -43,6 +43,15 @@ var initQueryButtons = function() {
                     var displayTableID = $(this).data("display");
                     var table = $("#" + displayTableID).DataTable();
                     table.clear().draw();
+
+                    var triStateCheckboxs = $(this).find("[data-cbtype='tri-state']");
+                    if(triStateCheckboxs.length != 0) {
+                        triStateCheckboxs.each(function(){
+                            $(this).prop("indeterminate", true);
+                            $(this).data("checked", "indeterminate");
+                        });
+                    }
+
                 });
             });
         });
@@ -92,7 +101,7 @@ var initQueryForm = function(formID) {
                renderTable(this.displayTable, res.data, res.customFields);
                // After we render the table with content, let's escape the
                // display
-               escapeDisplay(this.displayTable);
+               escapeDisplays(this.displayTable);
 
            });
        });

@@ -21,10 +21,12 @@ package se.gzhang.scm.wms.inventory.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Client;
 import se.gzhang.scm.wms.common.model.UnitOfMeasure;
 import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.exception.StandProductException;
+import se.gzhang.scm.wms.exception.inventory.ItemFootprintException;
 import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.inventory.model.ItemFootprint;
 import se.gzhang.scm.wms.inventory.repository.ItemFootprintRepository;
@@ -121,10 +123,12 @@ public class ItemFootprintService {
         });
     }
 
+    @Transactional
     public ItemFootprint save(ItemFootprint itemFootprint) throws GenericException{
         return save(itemFootprint, false);
     }
 
+    @Transactional
     public ItemFootprint save(ItemFootprint itemFootprint, boolean ignoreDefaultFootprintValidation) throws GenericException{
         // If current footprint is default footprint, automatically revoke
         // the default footprint from other footprint of the same item, if any.
@@ -165,25 +169,22 @@ public class ItemFootprintService {
             }
 
             if (!defaultFootprintExists) {
-                throw new StandProductException("FootprintException.NoDefaultFootprint", "The footprint code must have a default footprint");
+                throw ItemFootprintException.NO_DEFAULT_ITEM_FOOTPRINT;
             }
 
         }
 
-
-        ItemFootprint newItemFootprint = itemFootprintRepository.save(itemFootprint);
-        itemFootprintRepository.flush();
-
-
-        return newItemFootprint;
+        return itemFootprintRepository.save(itemFootprint);
     }
+
+    @Transactional
     public void deleteByItemFootprintId(int id)  throws GenericException{
         // Check if there's default footprint code in the same item
         // after we remove this one
         ItemFootprint itemFootprint = itemFootprintRepository.findById(id);
 
         if (itemFootprint == null) {
-            throw new StandProductException("ItemFootprintException.CannotFindItemFootprint", "Not able to find the item footprint by id: " + id);
+            throw ItemFootprintException.NO_SUCH_ITEM_FOOTPRINT;
         }
         // If we are not empty all footprints from the item, let's make sure
         // we still have a default footprint after we remove this footprint
@@ -204,18 +205,17 @@ public class ItemFootprintService {
             }
 
             if (!defaultFootprintExists) {
-                throw new StandProductException("FootprintException.NoDefaultFootprint", "The footprint code must have a default footprint");
+                throw ItemFootprintException.NO_DEFAULT_ITEM_FOOTPRINT;
             }
         }
         itemFootprintRepository.deleteById(id);
 
     }
 
+    @Transactional
     public List<ItemFootprint> loadFromFile(String[] columnNameList, List<String> itemFootprints, String processID) {
 
-
         List<ItemFootprint> itemFootprintList = new ArrayList<>();
-
 
         for(String itemFootprintString : itemFootprints) {
 

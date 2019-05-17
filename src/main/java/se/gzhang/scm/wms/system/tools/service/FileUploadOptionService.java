@@ -21,6 +21,7 @@ package se.gzhang.scm.wms.system.tools.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.inventory.model.ItemFootprint;
 import se.gzhang.scm.wms.inventory.model.ItemFootprintUOM;
 import se.gzhang.scm.wms.inventory.service.ItemBarcodeService;
@@ -72,10 +73,9 @@ public class FileUploadOptionService {
         return fileUploadOptionRepository.findById(id);
     }
 
+    @Transactional
     public FileUploadOption save(FileUploadOption fileUploadOption) {
-        FileUploadOption newFileUploadOption = fileUploadOptionRepository.save(fileUploadOption);
-        fileUploadOptionRepository.flush();
-        return newFileUploadOption;
+        return fileUploadOptionRepository.save(fileUploadOption);
     }
 
 
@@ -85,6 +85,7 @@ public class FileUploadOptionService {
 
     }
 
+    @Transactional
     public void deleteByFileUploadOptionID(int id) {
 
         fileUploadOptionRepository.deleteById(id);
@@ -92,10 +93,6 @@ public class FileUploadOptionService {
     }
 
     public List<FileUploadOption> findFileUploadOptions(Map<String, String> criteriaList) {
-        System.out.println("Find item with following criteria");
-        for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
-            System.out.println("name: " + entry.getKey() + " , value: " + entry.getValue());
-        }
         return fileUploadOptionRepository.findAll(new Specification<FileUploadOption>() {
             @Override
             public Predicate toPredicate(Root<FileUploadOption> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
@@ -124,16 +121,10 @@ public class FileUploadOptionService {
             return;
         }
         String[] columnName = fileContent.get(0).split(",");
-        System.out.println("fileContent.size(): " + fileContent.size());
         // Remove first row so we will only have location information in the content
         fileContent.remove(0);
         // Setup the process with the current total number of record in the file
         initialFileUploadProcess(processID, fileContent.size());
-
-        System.out.println("## File Upload Process / Set total number count" );
-        System.out.println("## " + getFileUploadProgress(processID));
-
-        System.out.println("fileContent.size(): " + fileContent.size());
 
         if(optionName.equalsIgnoreCase("Location")) {
             locationService.loadFromFile(columnName,fileContent, processID);

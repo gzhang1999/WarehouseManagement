@@ -21,6 +21,7 @@ package se.gzhang.scm.wms.authorization.service;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.authorization.model.Role;
 import se.gzhang.scm.wms.authorization.model.User;
 import se.gzhang.scm.wms.authorization.repository.RoleRepository;
@@ -68,6 +69,7 @@ public class UserService {
     }
     public  User findUserById(int id){return userRepository.findById(id).orElse(null);}
 
+    @Transactional
     public void saveUser(User user) {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setActive(true);
@@ -76,6 +78,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+
     public User getCurrentLoginUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return findUserByUsername(auth.getName());
@@ -83,11 +86,7 @@ public class UserService {
 
 
     public List<User> findUsers(Map<String, String> criteriaList) {
-        System.out.println("query user by >>> ");
-        for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
-            System.out.println("key: " + entry.getKey() + " / value: " + entry.getValue());
 
-        }
         List<User> userList =
                 userRepository.findAll(new Specification<User>() {
                     @Override
@@ -144,12 +143,9 @@ public class UserService {
         return userList;
     }
 
+    @Transactional
     public User save(User user) {
-        User newUser = userRepository.save(user);
-        userRepository.flush();
-        System.out.println("Saved user with id: " + newUser.getId());
-        return newUser;
-
+        return userRepository.save(user);
     }
 
     // TO-DO: Check wither the user can access the menu
@@ -185,16 +181,17 @@ public class UserService {
     }
 
 
+    @Transactional
     public void grantRoleAccess(User user, Role role) {
         if (!isRoleAccessible(user, role)) {
             user.getRoles().add(role);
-            System.out.println("grantRoleAccess / The user: " + user.getUsername() + " now has the following roles: ");
             for(Role currentRole : user.getRoles()) {
                 System.out.println(">> " + currentRole.getName());
             }
             save(user);
         }
     }
+    @Transactional
     public void removeRoleAccess(User user, Role removedRole) {
         if (isRoleAccessible(user, removedRole)) {
             for (Iterator<Role> iterator = user.getRoles().iterator(); iterator.hasNext(); ) {
@@ -202,21 +199,18 @@ public class UserService {
                 if (role.getId() == removedRole.getId()){
                     iterator.remove();
                     save(user);
-
-                    System.out.println("The user: " + user.getUsername() + " now has the following roles: ");
-                    for(Role currentRole : user.getRoles()) {
-                        System.out.println(">> " + currentRole.getName());
-                    }
                     break;
                 }
             }
         }
     }
 
+    @Transactional
     public void grantWarehouseAccess(int userID, int warehouseID) {
         grantWarehouseAccess(findUserById(userID), warehouseService.findByWarehouseId(warehouseID));
     }
 
+    @Transactional
     public void grantWarehouseAccess(User user, Warehouse warehouse) {
         // Only grant the warehouse when the user doesn't have the access yet
         if (!hasWarehouseAccess(user, warehouse)) {
@@ -225,11 +219,12 @@ public class UserService {
         }
     }
 
-
+    @Transactional
     public void removeWarehouseAccess(int userID, int warehouseID) {
         removeWarehouseAccess(findUserById(userID), warehouseService.findByWarehouseId(warehouseID));
     }
 
+    @Transactional
     public void removeWarehouseAccess(User user, Warehouse warehouse) {
         // Only remove the warehouse when the user has the access already
         if (hasWarehouseAccess(user, warehouse)) {

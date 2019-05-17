@@ -20,19 +20,18 @@ package se.gzhang.scm.wms.outbound.shipment.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Customer;
 import se.gzhang.scm.wms.framework.controls.service.UniversalIdentifierService;
 import se.gzhang.scm.wms.inventory.model.Inventory;
 import se.gzhang.scm.wms.inventory.service.InventoryService;
+import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.outbound.order.model.*;
 import se.gzhang.scm.wms.outbound.order.service.AllocationStrategyService;
 import se.gzhang.scm.wms.outbound.order.service.SalesOrderService;
-import se.gzhang.scm.wms.outbound.shipment.model.Shipment;
-import se.gzhang.scm.wms.outbound.shipment.model.ShipmentLine;
-import se.gzhang.scm.wms.outbound.shipment.model.ShipmentLineState;
-import se.gzhang.scm.wms.outbound.shipment.model.ShipmentState;
+import se.gzhang.scm.wms.outbound.shipment.model.*;
 import se.gzhang.scm.wms.outbound.shipment.repository.ShipmentRepository;
 
 import javax.persistence.criteria.*;
@@ -52,6 +51,11 @@ public class ShipmentService {
     ShipmentRepository shipmentRepository;
     @Autowired
     SalesOrderService salesOrderService;
+    @Autowired
+    PickService pickService;
+    @Autowired
+    CartonService cartonService;
+
 
     public List<Shipment> findAll(){
 
@@ -66,6 +70,7 @@ public class ShipmentService {
         return shipmentRepository.findByNumber(number);
     }
 
+    @Transactional
     public Shipment save(Shipment shipment) {
         return shipmentRepository.save(shipment);
     }
@@ -202,6 +207,7 @@ public class ShipmentService {
             shipment.setWarehouse(salesOrder.getWarehouse());
             shipment.setCustomer(salesOrder.getShipToCustomer());
             shipment.setShipmentState(ShipmentState.NEW);
+            shipment.setShippingMethod(salesOrder.getShippingMethod());
         }
         save(shipment);
         return shipment;
@@ -213,7 +219,7 @@ public class ShipmentService {
 
         // Check if we already have a shipment line assigned for this sales order line
         if (shipmentLineService.getOpenShipmentLine(salesOrderLine) == null) {
-            shipment.addShipmentLine(createShipmentLine(shipment, salesOrderLine));
+            createShipmentLine(shipment, salesOrderLine);
         }
 
     }
@@ -263,6 +269,25 @@ public class ShipmentService {
         }
     }
 
+    public List<Pick> getPicks(Shipment shipment) {
+        List<Pick> pickList = new ArrayList<>();
+        for(ShipmentLine shipmentLine : shipment.getShipmentLines()) {
+            pickList.addAll(shipmentLine.getPicks());
+        }
+        return pickList;
+    }
+    public List<Pick> getPicks(Shipment shipment, PickState pickState) {
+        List<Pick> pickList = new ArrayList<>();
+        for(ShipmentLine shipmentLine : shipment.getShipmentLines()) {
+            for(Pick pick: shipmentLine.getPicks()) {
+                if (pick.getPickState().equals(pickState)) {
+                    pickList.add(pick);
+                }
+            }
+        }
+        return pickList;
+    }
+
     @Transactional
     public void allocateShipment(Shipment shipment) {
         // Before we start allocating an shipment, let's make sure we already
@@ -292,7 +317,30 @@ public class ShipmentService {
         }
         // Change the state of the shipment to ALLOCATED
         shipment.setShipmentState(ShipmentState.ALLOCATED);
-        save(shipment);
+
+        shipment = save(shipment);
+        // Since we ship by parcel, let's pack the picks into packages
+        if (shipment.getShippingMethod().equals(ShippingMethod.PARCEL)) {
+            processPackForParcel(shipment);
+        }
+
+    }
+
+    @Transactional
+    private void processPackForParcel(Shipment shipment) {
+        // let's get all the picks that has not been started yet
+        // and have not been assigned a carton box and
+        // assign a box to it
+        List<Pick> pickList = getPicks(shipment, PickState.NEW);
+        Iterator<Pick> pickIterator = pickList.iterator();
+        while(pickIterator.hasNext()) {
+            Pick pick = pickIterator.next();
+            if (pick.getCarton() != null || pick.getPickState() != PickState.NEW) {
+                pickIterator.remove();
+            }
+        }
+
+        cartonService.assignCarton(pickList);
     }
 
     @Transactional
@@ -345,6 +393,7 @@ public class ShipmentService {
 
         AllocationStrategy allocationStrategy = allocationStrategyService.getAllocationStrategy(salesOrderLineAllocationStrategy.getAllocationStrategyType());
         allocationStrategy.allocate(shipmentLine, availableInventory);
+
     }
 
     @Transactional
@@ -357,6 +406,44 @@ public class ShipmentService {
         shipment.setCancelledDate(new Date());
         save(shipment);
     }
+
+    // ship a shipment based on the shipping method
+    // Parcel: We will just ship all the inventory and mark the shipment
+    //         as complete
+    // LTL(Less than Truck Load): We will just ship all the inventory and mark
+    //         the shipment as complete. The user has the option to load the trailer
+    //         but we will only keep the informaion of the trailer, but not how
+    //         the trailer travels
+    // TL(Truck Load): The user has full control over the trailer, all the shipment
+    //          on the trailer, how the trailer travels to ship the shipment, when
+    //          the trailer arrive at the warehouse, loading and unloading, etc.
+    @Transactional
+    public void ship(Shipment shipment) {
+
+    }
+
+    @Transactional
+    public void ship(Carton carton) {
+
+        // ship the inventory
+        inventoryService.shipCarton(carton);
+
+        // For parcel, we will ship by carton, let's
+        // go through each pick, complete the pick and
+        // mark the quantity in the shipment as 'shipped'
+        for(Pick pick : carton.getPickList()) {
+            pickService.completePick(pick);
+
+            // move the quantity from picked quantity to shipped quantity
+            ShipmentLine shipmentLine = pick.getShipmentLine();
+            int shippedQuantity = pick.getPickedQuantity();
+            shipmentLine.setInprocessQuantity(shipmentLine.getInprocessQuantity() - shippedQuantity);
+            shipmentLine.setShippedQuantity(shipmentLine.getShippedQuantity() + shippedQuantity);
+            shipmentLineService.save(shipmentLine);
+
+        }
+    }
+
 
 
 }

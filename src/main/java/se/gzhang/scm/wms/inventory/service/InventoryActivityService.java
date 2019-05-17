@@ -20,6 +20,7 @@ package se.gzhang.scm.wms.inventory.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.authorization.model.User;
 import se.gzhang.scm.wms.inventory.model.Inventory;
 import se.gzhang.scm.wms.inventory.model.InventoryActivity;
@@ -42,13 +43,13 @@ public class InventoryActivityService {
         return inventoryActivityRepository.findById(inventoryActivityID);
     }
 
+    @Transactional
     public InventoryActivity save(InventoryActivity inventoryActivity) {
 
-        InventoryActivity newInventoryActivity = inventoryActivityRepository.save(inventoryActivity);
-        inventoryActivityRepository.flush();
-        return newInventoryActivity;
+        return inventoryActivityRepository.save(inventoryActivity);
     }
 
+    @Transactional
     public InventoryActivity logInventoryActivity(String originalLPN,
                                                   String newLPN,
                                                   Integer originalQuantity,
@@ -73,10 +74,11 @@ public class InventoryActivityService {
         inventoryActivity.setReasonCode(reasonCode);
         inventoryActivity.setReason(reason);
 
-        System.out.println("## 3. logDeleteInventoryActivity: " + inventoryActivityType.toString());
+
         return save(inventoryActivity);
     }
 
+    @Transactional
     public InventoryActivity logInventoryAdjustActivity(Inventory inventory,
                                                         int newQuantity,
                                                         User user,
@@ -91,6 +93,7 @@ public class InventoryActivityService {
                 InventoryActivityType.INVENTORY_QUANTITY_ADJUSTMENT,
                 user,reasonCode,reason);
     }
+    @Transactional
     public InventoryActivity logCreateInventoryActivity(Inventory inventory,
                                                         User user,
                                                         String reasonCode,
@@ -105,6 +108,7 @@ public class InventoryActivityService {
                 user,reasonCode,reason);
     }
 
+    @Transactional
     public InventoryActivity logDeleteInventoryActivity(Inventory inventory,
                                                         User user,
                                                         String reasonCode,

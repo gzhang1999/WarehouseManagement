@@ -21,6 +21,7 @@ package se.gzhang.scm.wms.inventory.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Client;
 import se.gzhang.scm.wms.common.model.UnitOfMeasure;
 import se.gzhang.scm.wms.common.model.Velocity;
@@ -29,6 +30,9 @@ import se.gzhang.scm.wms.common.service.ClientService;
 import se.gzhang.scm.wms.common.service.UnitOfMeasureService;
 import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.exception.StandProductException;
+import se.gzhang.scm.wms.exception.common.ClientException;
+import se.gzhang.scm.wms.exception.common.UnitOfMeasureException;
+import se.gzhang.scm.wms.exception.layout.WarehouseException;
 import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.inventory.repository.ItemRepository;
 import se.gzhang.scm.wms.layout.model.Area;
@@ -74,15 +78,13 @@ public class ItemService {
         return itemRepository.findByName(name);
     }
 
+    @Transactional
     public void deleteByItemId(int id) {
         itemRepository.deleteById(id);
     }
 
     public List<Item> findItems(Map<String, String> criteriaList) {
-        System.out.println("Find item with following criteria");
-        for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
-            System.out.println("name: " + entry.getKey() + " , value: " + entry.getValue());
-        }
+
         return itemRepository.findAll(new Specification<Item>() {
             @Override
             public Predicate toPredicate(Root<Item> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
@@ -101,11 +103,10 @@ public class ItemService {
         });
     }
 
+    @Transactional
     public Item save(Item item) {
 
-        Item newItem = itemRepository.save(item);
-        itemRepository.flush();
-        return newItem;
+        return itemRepository.save(item);
     }
 
 
@@ -165,17 +166,17 @@ public class ItemService {
 
         Warehouse warehouse = warehouseService.findByWarehouseName(warehouseName);
         if (warehouse == null) {
-            throw new StandProductException("WarehouseExeption.CannotFindWarehouse","Can't find warehouse by name " + warehouseName);
+            throw WarehouseException.NO_SUCH_WAREHOUSE;
         }
 
         Client client = clientService.findByClientName(clientName);
         if (client == null) {
-            throw new GenericException("ClientExeption.CannotFindClient","Can't find client by name " + clientName);
+            throw ClientException.NO_SUCH_CLIENT;
         }
 
         UnitOfMeasure unitOfMeasure = unitOfMeasureService.findByUOMName(lpnUOMName);
         if (unitOfMeasure == null) {
-            throw new GenericException("UnitOfMessageException.CannotFindUnitOfMessage","Can't find unit of measure by name " + lpnUOMName);
+            throw UnitOfMeasureException.NO_SUCH_UOM;
         }
 
 

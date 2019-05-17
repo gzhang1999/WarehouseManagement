@@ -19,11 +19,16 @@
 package se.gzhang.scm.wms.outbound.shipment.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import se.gzhang.scm.wms.inventory.model.Inventory;
+import se.gzhang.scm.wms.inventory.model.InventoryStatus;
+import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.layout.model.Location;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "pick")
@@ -61,6 +66,31 @@ public class Pick implements Serializable {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="shipment_line_id")
     private ShipmentLine shipmentLine;
+
+    @OneToMany(
+            mappedBy = "pick"
+    )
+    private List<Inventory> pickedInventory = new ArrayList<>();
+
+    // When we picked by carton, for parcel
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="carton_id")
+    private Carton carton;
+
+    @Transient
+    private CartonType cartonType;
+
+    @Override
+    public Pick clone() throws CloneNotSupportedException{
+        return (Pick)super.clone();
+
+    }
+
+    public Item getItem() {
+        return getShipmentLine().getSalesOrderLine().getItem();
+    }
+
+    public InventoryStatus getInventoryStatus() {return getShipmentLine().getSalesOrderLine().getInventoryStatus();}
 
     public Integer getId() {
         return id;
@@ -132,5 +162,29 @@ public class Pick implements Serializable {
 
     public void setPickedQuantity(Integer pickedQuantity) {
         this.pickedQuantity = pickedQuantity;
+    }
+
+    public List<Inventory> getPickedInventory() {
+        return pickedInventory;
+    }
+
+    public void setPickedInventory(List<Inventory> pickedInventory) {
+        this.pickedInventory = pickedInventory;
+    }
+
+    public Carton getCarton() {
+        return carton;
+    }
+
+    public void setCarton(Carton carton) {
+        this.carton = carton;
+    }
+
+    public CartonType getCartonType() {
+        return cartonType;
+    }
+
+    public void setCartonType(CartonType cartonType) {
+        this.cartonType = cartonType;
     }
 }

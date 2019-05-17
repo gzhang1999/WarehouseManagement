@@ -42,7 +42,7 @@ public class ShortAllocationController {
 
         ShortAllocation shortAllocation = shortAllocationService.findByShortAllocationId(shortAllocationID);
         if (shortAllocation == null) {
-            return WebServiceResponseWrapper.raiseError(ShortAllocationException.NO_SUCH_SHORT_ALLOCATION_EXCEPTION);
+            return WebServiceResponseWrapper.raiseError(ShortAllocationException.NO_SUCH_SHORT_ALLOCATION);
         }
         shortAllocationService.cancelShortAllocation(shortAllocation);
         return new WebServiceResponseWrapper<ShortAllocation>(0, "", shortAllocation);

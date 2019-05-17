@@ -21,13 +21,16 @@ package se.gzhang.scm.wms.inbound.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Carrier;
 import se.gzhang.scm.wms.common.model.Supplier;
 import se.gzhang.scm.wms.common.model.Trailer;
 import se.gzhang.scm.wms.common.model.TrailerState;
 import se.gzhang.scm.wms.common.repository.CarrierRepository;
 import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.exception.Inbound.ReceiptException;
 import se.gzhang.scm.wms.exception.StandProductException;
+import se.gzhang.scm.wms.exception.common.TrailerException;
 import se.gzhang.scm.wms.inbound.model.PutawayPolicy;
 import se.gzhang.scm.wms.inbound.model.Receipt;
 import se.gzhang.scm.wms.inbound.model.ReceiptLine;
@@ -85,11 +88,10 @@ public class ReceiptService {
         return receiptRepository.findByExternalID(externalID);
     }
 
-
+    @Transactional
     public Receipt save(Receipt receipt) {
-        Receipt newReceipt = receiptRepository.save(receipt);
-        receiptRepository.flush();
-        return newReceipt;
+        return receiptRepository.save(receipt);
+
     }
 
 
@@ -148,21 +150,23 @@ public class ReceiptService {
         });
     }
 
+    @Transactional
     public void deleteByReceiptID(int receiptID) {
         Receipt receipt = findByReceiptId(receiptID);
         if (receipt.getTrailer() != null && receipt.getTrailer().getTrailerState() != TrailerState.EXPECTED) {
-            throw new StandProductException("ReceiptException.TrailerNotInExceptStatue", "Can't remove the receipt as the trailer attached is not in Expected status");
+            throw TrailerException.NOT_RIGHT_STATE;
         }
         if (receipt.getReceiptLineList() != null && receipt.getReceiptLineList().size() > 0) {
             for(ReceiptLine receiptLine : receipt.getReceiptLineList()) {
                 if (receiptLine.getReceivedQuantity() > 0) {
-                    throw new StandProductException("ReceiptException.ReceiptAlreadyStarted", "Can't remove the receipt line as it is already started receiving");
+                    throw ReceiptException.INVALID_REMOVE_RECEIPT_STARTED;
                 }
             }
         }
         receiptRepository.deleteById(receiptID);
     }
 
+    @Transactional
     public Receipt createReceipt(String externalID,
                                  String number,
                                  String purchaseOrderNumber,
@@ -178,6 +182,7 @@ public class ReceiptService {
         return save(receipt);
     }
 
+    @Transactional
     public Receipt changeReceipt(Receipt receipt,
                                  String externalID,
                                  String purchaseOrderNumber,
@@ -185,7 +190,7 @@ public class ReceiptService {
 
         // If the receipt belongs to a trailer, make sure we havn't checked the trailer
         if (receipt.getTrailer() != null && receipt.getTrailer().getTrailerState() != TrailerState.EXPECTED) {
-            throw new StandProductException("ReceiptException.TrailerAlreadyCheckedIn", "Can not change the receipt when the trailer is already checked in");
+            throw ReceiptException.INVALID_MODIFY_TRAILER_CHECKEDIN;
         }
         receipt.setExternalID(externalID);
         receipt.setPurchaseOrderNumber(purchaseOrderNumber);
@@ -195,6 +200,7 @@ public class ReceiptService {
         return save(receipt);
     }
 
+    @Transactional
     public Inventory receiving(ReceiptLine receiptLine,
                           String locationString,
                           int quantity,

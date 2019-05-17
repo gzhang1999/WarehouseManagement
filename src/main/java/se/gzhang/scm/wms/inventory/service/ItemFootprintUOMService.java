@@ -21,10 +21,15 @@ package se.gzhang.scm.wms.inventory.service;
 import org.hibernate.mapping.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.UnitOfMeasure;
 import se.gzhang.scm.wms.common.service.UnitOfMeasureService;
 import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.exception.StandProductException;
+import se.gzhang.scm.wms.exception.common.UnitOfMeasureException;
+import se.gzhang.scm.wms.exception.inventory.ItemException;
+import se.gzhang.scm.wms.exception.inventory.ItemFootprintException;
+import se.gzhang.scm.wms.exception.inventory.ItemFootprintUOMException;
 import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.inventory.model.ItemFootprint;
 import se.gzhang.scm.wms.inventory.model.ItemFootprintUOM;
@@ -62,6 +67,8 @@ public class ItemFootprintUOMService {
     public List<ItemFootprintUOM> findByItemFootprintId(int footprintID){
         return itemFootprintService.findByItemFootprintId(footprintID).getItemFootprintUOMs();
     }
+
+    @Transactional
     public ItemFootprintUOM save(ItemFootprintUOM itemFootprintUOM) throws GenericException {
 
         List<ItemFootprintUOM> existItemFootprintUOMList = findByItemFootprintId(itemFootprintUOM.getItemFootprint().getId());
@@ -70,22 +77,19 @@ public class ItemFootprintUOMService {
         for(ItemFootprintUOM existItemFootprintUOM : existItemFootprintUOMList) {
             if (existItemFootprintUOM.getUnitOfMeasure().getName().equals(itemFootprintUOM.getUnitOfMeasure().getName()) &&
                     (itemFootprintUOM.getId() == null || existItemFootprintUOM.getId() !=  itemFootprintUOM.getId())) {
-                throw new StandProductException("ItemFootprintUOMException.UOMExists","The same UOM " + itemFootprintUOM.getUnitOfMeasure().getName() + " already exists in the footprint: " + itemFootprintUOM.getItemFootprint().getName());
+                throw ItemFootprintUOMException.ITEM_FOOTPRINT_UOM_EXISTS;
             }
         }
         // If the item footprint UOM to be change is a case UOM, mark this UOM as case
         // and release other UOMs from the item footprint as one footprint can only have
         // one case UOM. We will always use the case UOM to calculate the size of inventory
-        System.out.println(">> itemFootprintUOM.isCaseUOM()?" + itemFootprintUOM.isCaseUOM());
         if (itemFootprintUOM.isCaseUOM()) {
             // Check if there's other UOM in the same item footprint that is also case uom
             for(ItemFootprintUOM existItemFootprintUOM : existItemFootprintUOMList) {
-                System.out.println(">> existItemFootprintUOM: + " + existItemFootprintUOM.getUnitOfMeasure().getName() + ", existItemFootprintUOM.isCaseUOM()?" + existItemFootprintUOM.isCaseUOM());
                 if (existItemFootprintUOM.isCaseUOM() &&
                       (itemFootprintUOM.getId() == null || existItemFootprintUOM.getId() !=  itemFootprintUOM.getId())) {
                     // we found another footprint UOM from the same item footprint that also marked as
                     // case uom, let's change the flag to NON case UOM
-                    System.out.println(">>  existItemFootprintUOM.setCaseUOM(false)");
                     existItemFootprintUOM.setCaseUOM(false);
                     itemFootprintUOMRepository.save(existItemFootprintUOM);
                 }
@@ -113,14 +117,16 @@ public class ItemFootprintUOMService {
 
         return newItemFootprintUOM;
     }
+
+    @Transactional
     public void deleteByItemFootprintId(int id) {
         int itemFootprintID = itemFootprintUOMRepository.findById(id).getItemFootprint().getId();
 
         itemFootprintUOMRepository.deleteById(id);
-        itemFootprintUOMRepository.flush();
         resetStockUOM(itemFootprintID);
     }
 
+    @Transactional
     private void resetStockUOM(int itemFootprintID) {
         List<ItemFootprintUOM> existItemFootprintUOMList = findByItemFootprintId(itemFootprintID);
 
@@ -143,16 +149,13 @@ public class ItemFootprintUOMService {
                 existItemFootprintUOMList.get(i).setStockUOM(false);
                 itemFootprintUOMRepository.save(existItemFootprintUOMList.get(i));
             }
-            itemFootprintUOMRepository.flush();
         }
     }
 
-
+    @Transactional
     public List<ItemFootprintUOM> loadFromFile(String[] columnNameList, List<String> itemFootprintUOMs, String processID) {
 
-
         List<ItemFootprintUOM> itemFootprintUOMList = new ArrayList<>();
-
 
         for(String itemFootprintUOMString : itemFootprintUOMs) {
 
@@ -231,7 +234,7 @@ public class ItemFootprintUOMService {
 
         Item item = itemService.findByItemName(itemName);
         if (item == null) {
-            throw new StandProductException("ItemException.CannotFindItem","Can't find item by name " + itemName);
+            throw ItemException.NO_SUCH_ITEM;
         }
 
         Map<String, String> criteriaList = new HashMap<>();
@@ -239,13 +242,13 @@ public class ItemFootprintUOMService {
         criteriaList.put("name", itemFootprintName);
         List<ItemFootprint> itemFootprintList = itemFootprintService.findItemFootprints(criteriaList);
         if (itemFootprintList == null || itemFootprintList.size() != 1) {
-            throw new StandProductException("ItemFootprintException.CannotFindItemFootprint","Can't find item footprint by name " + itemFootprintName);
+            throw ItemFootprintException.NO_SUCH_ITEM_FOOTPRINT;
         }
         ItemFootprint itemFootprint = itemFootprintList.get(0);
 
         UnitOfMeasure unitOfMeasure = unitOfMeasureService.findByUOMName(uom);
         if (unitOfMeasure == null) {
-            throw new StandProductException("UnitOfMessageException.CannotFindUnitOfMessage","Can't find unit of measure by name " + uom);
+            throw UnitOfMeasureException.NO_SUCH_UOM;
         }
 
         ItemFootprintUOM itemFootprintUOM =  null;

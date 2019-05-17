@@ -38,7 +38,8 @@
                 <div class="card">
                     <div class="card-header">
                         <h5>
-                                <a class="badge badge-success float-right" th:href="@{/flowAddSalesOrder}" data-action="new" th:text="#{salesOrder.new}" >New Sales Order</a>
+                            <a class="badge badge-success float-right" th:href="@{/flowAddSalesOrder}"
+                               data-action="new" th:text="#{salesOrder.new}" >New Sales Order</a>
                         </h5>
                     </div>
                     <div class="card-body">
@@ -94,6 +95,7 @@
                                         <tr>
                                             <td th:text="#{salesOrder.id}">Sales Order ID</td>
                                             <td th:text="#{salesOrder.number}">Sales Order Number</td>
+                                            <td th:text="#{salesOrder.shippingMethod}">Sales Order Shipping Method</td>
                                             <td th:text="#{salesOrder.externalID}">Sales Order External ID</td>
                                             <td th:text="#{salesOrder.shipToCustomer}">Sales Order Ship To Customer ID</td>
                                             <td th:text="#{salesOrder.shipToCustomer.address.state}">Sales Order Ship To Address - State</td>
@@ -109,6 +111,8 @@
                                                 <a href='#' th:data-salesorderid="${salesOrder.id}" onclick='showSalesOrderDetial(event)' th:text="${salesOrder.id}"></a>
                                             </td>
                                             <td th:text="${salesOrder.number}"></td>
+                                            <td th:id="${'salesOrder-shippingMethod-' + salesOrder.id}" data-escapedisplay=true data-variable='shippingMethod'
+                                                th:text="${salesOrder.shippingMethod}"></td>
                                             <td th:text="${salesOrder.externalID}"></td>
                                             <td th:text="${salesOrder.shipToCustomer.name}"></td>
                                             <td th:text="${salesOrder.shipToCustomer.address.state}"></td>
@@ -162,6 +166,7 @@
                     "       <a href='#' data-salesorderid='" + salesOrder.id + "' onclick='showSalesOrderDetial(event)'>" + salesOrder.id + "</a>" +
                     "   </td>" +
                     "   <td>" + salesOrder.number + "   </td>" +
+                    "   <td id='salesOrder-shippingMethod-" + salesOrder.id + "' data-escapedisplay=true data-variable='shippingMethod'>" + salesOrder.shippingMethod + "   </td>" +
                     "   <td>" + salesOrder.externalID + "   </td>" +
                     "   <td>" + salesOrder.shipToCustomer.name + "   </td>" +
                     "   <td>" + salesOrder.shipToCustomer.address.state + "   </td>" +
@@ -376,11 +381,14 @@
                         "                   <th>" + $.i18n("pick.number") + "</th> " +
                         "                   <th>" + $.i18n("item") + "</th> " +
                         "                   <th>" + $.i18n("pick.quantity") + "</th> " +
+                        "                   <th>" + $.i18n("pick.pickedQuantity") + "</th> " +
                         "                   <th>" + $.i18n("pick.state") + "</th> " +
                         "                   <th>" + $.i18n("pick.sourceLocation") + "</th> " +
                         "                   <th>" + $.i18n("pick.sourceArea") + "</th> " +
                         "                   <th>" + $.i18n("pick.destinationLocation") + "</th> " +
                         "                   <th>" + $.i18n("pick.destinationArea") + "</th> " +
+                        "                   <th>" + $.i18n("pick.cartonNumber") + "</th> " +
+                        "                   <th>" + $.i18n("pick.cartonType") + "</th> " +
                         "                   <th></th> " +
                         "               </tr> " +
                         "           </thead> " +
@@ -394,6 +402,7 @@
                                     "    <td> " + pick.number + "</td> " +
                                     "    <td> " + salesOrderLine.item.name + "</td> " +
                                     "    <td> " + pick.quantity + "</td> " +
+                                    "    <td> " + pick.pickedQuantity + "</td> " +
                                     "    <td id='pick-state-" + pick.id + "' data-escapedisplay=true data-variable='pickState'>" +
                                             pick.pickState +
                                     "    </td> " +
@@ -401,9 +410,17 @@
                                     "    <td> " + (pick.sourceLocation.area == undefined ? "" : pick.sourceLocation.area.name) + "</td> " +
                                     "    <td> " + (pick.destinationLocation.name == undefined ? "" : pick.destinationLocation.name) + "</td> " +
                                     "    <td> " + (pick.destinationLocation.area == undefined ? "" : pick.destinationLocation.area.name) + "</td> " +
-                                    "    <td> " +
-                                    "       <button class='btn btn-danger' type='button' data-pickid='" + pick.id + "' onclick='cancelPick(event)'>" + $.i18n("cancel")+ "</button>"+
-                                    "    </td> " +
+                                    "    <td> " + (pick.carton.number == undefined ? "" : pick.carton.number) + "</td> " +
+                                    "    <td> " + (pick.carton.type == undefined ? "" : pick.carton.type.name) + "</td> " +
+                                    "    <td> ";
+                    if (pick.quantity == pick.pickedQuantity || pick.pickState == "CANCELLED" ||
+                            pick.pickState == "COMPLETED" ||pick.pickState == "PICKED") {
+                        picksHtml    += "       <button disabled class='btn btn-danger' type='button' data-pickid='" + pick.id + "' onclick='cancelPick(event)'>" + $.i18n("cancel")+ "</button>";
+                    }
+                    else {
+                        picksHtml    += "       <button class='btn btn-danger' type='button' data-pickid='" + pick.id + "' onclick='cancelPick(event)'>" + $.i18n("cancel")+ "</button>";
+                    }
+                    picksHtml    += "    </td> " +
                                     "</tr> ";
                 });
             });
@@ -483,7 +500,7 @@
                     refreshMainGrid();
                 }
                 else{
-                    displayFailMessage(res.data, res.message);
+                    displayFailMessage(res.message, res.errorCode);
                 }
             });
     }
@@ -502,14 +519,13 @@
                     displaySuccessMessage( "Sales Order " + res.data.number + " allocated!", "sd.SalesOrder.Allocated");
                 }
                 else{
-                    displayFailMessage(res.data, res.message);
+                    displayFailMessage(res.message, res.errorCode);
                 }
             });
     }
 
     var refreshMainGrid = function() {
         $("#sales_order_query").submit();
-
     }
 
     var cancelShipmentLine = function(event) {
@@ -519,14 +535,14 @@
 
         $.ajax({url : url})
          .done(function(res) {
-
+             console.log(JSON.stringify(res));
              if (res.status == 0) {
                  displaySuccessMessage("Shipment Line " + res.data.number + " cancelled!", "sd.ShipmentLine.Cancelled");
                  refreshOutboundInformation(res.data.salesOrderLine.salesOrder.id);
              }
              else {
 
-                 displayFailMessage(res.data, res.message);
+                 displayFailMessage(res.message, res.errorCode);
 
              }
         });
@@ -545,7 +561,7 @@
                     refreshOutboundInformation(res.data.shipmentLine.salesOrderLine.salesOrder.id);
                 }
                 else{
-                    displayFailMessage(res.data, res.message);
+                    displayFailMessage(res.message, res.errorCode);
 
                 }
             });
@@ -563,7 +579,7 @@
                     refreshOutboundInformation(res.data.shipmentLine.salesOrderLine.salesOrder.id);
                 }
                 else{
-                    displayFailMessage(res.data, res.message);
+                    displayFailMessage(res.message, res.errorCode);
 
                 }
             });

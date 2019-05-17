@@ -20,6 +20,7 @@ package se.gzhang.scm.wms.common.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Customer;
 import se.gzhang.scm.wms.common.repository.CustomerRepository;
 
@@ -44,9 +45,8 @@ public class CustomerService {
         return customerRepository.findByName(name);
     }
 
+    @Transactional
     public Customer save(Customer customer){
-        Customer newCustomer = customerRepository.save(customer);
-        customerRepository.flush();
-        return newCustomer;
+        return customerRepository.save(customer);
     }
 }

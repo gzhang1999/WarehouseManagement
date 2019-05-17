@@ -21,6 +21,7 @@ package se.gzhang.scm.wms.inbound.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Supplier;
 import se.gzhang.scm.wms.common.model.Trailer;
 import se.gzhang.scm.wms.common.model.TrailerState;
@@ -61,11 +62,10 @@ public class PutawayPolicyService {
         return putawayPolicyRepository.findById(id);
     }
 
-
+    @Transactional
     public PutawayPolicy save(PutawayPolicy putawayPolicy) {
-        PutawayPolicy newPutawayPolicy = putawayPolicyRepository.save(putawayPolicy);
-        putawayPolicyRepository.flush();
-        return newPutawayPolicy;
+        return putawayPolicyRepository.save(putawayPolicy);
+
     }
 
 
@@ -113,6 +113,7 @@ public class PutawayPolicyService {
         return putawayPolicyList;
     }
 
+    @Transactional
     public void deleteByPutawayPolicyID(int putawayPolicyID) {
         putawayPolicyRepository.deleteById(putawayPolicyID);
     }
@@ -295,7 +296,6 @@ public class PutawayPolicyService {
     private Location getSingleDestinationLocation(PutawayPolicy putawayPolicy, Inventory inventory) {
 
         List<Location> suitableLocationList = findLocationsByPutawayPolicy(putawayPolicy);
-        System.out.println("Get " + suitableLocationList.size() + " location for current inventory");
 
         // validate the locations by weight and size
         List<Location> validateLocation = getValidPutawayLocation(suitableLocationList, putawayPolicy, inventory);

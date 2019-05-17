@@ -25,6 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.authorization.model.Role;
 import se.gzhang.scm.wms.authorization.model.User;
 import se.gzhang.scm.wms.authorization.repository.RoleRepository;
@@ -89,9 +90,11 @@ public class RoleService {
     }
 
 
+    @Transactional
     public void grantMenuAccess(int roleID, MenuItem menuItem) {
         grantMenuAccess(findByRoleId(roleID), menuItem);
     }
+    @Transactional
     public void grantMenuAccess(Role role, MenuItem menuItem) {
         // Only add the menu item to the role when
         // the role had no access to the menu before
@@ -101,10 +104,11 @@ public class RoleService {
         }
     }
 
+    @Transactional
     public void removeMenuAccess(int roleID, MenuItem menuItem) {
         removeMenuAccess(findByRoleId(roleID), menuItem);
-
     }
+    @Transactional
     public void removeMenuAccess(Role role, MenuItem menuItem) {
         // Only add the menu item to the role when
         // the role had no access to the menu before
@@ -124,19 +128,13 @@ public class RoleService {
 
     public Role save(Role role) {
         Role newRole = roleRepository.save(role);
-        roleRepository.flush();
-        System.out.println("Saved role with id: " + newRole.getId());
         return newRole;
 
     }
 
 
     public List<Role> findRoles(Map<String, String> criteriaList) {
-        System.out.println("query role by >>> ");
-        for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
-            System.out.println("key: " + entry.getKey() + " / value: " + entry.getValue());
 
-        }
         return roleRepository.findAll(new Specification<Role>() {
                     @Override
                     public Predicate toPredicate(Root<Role> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {

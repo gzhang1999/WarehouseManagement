@@ -22,7 +22,7 @@ import se.gzhang.scm.wms.exception.StandProductException;
 
 public class ShortAllocationException extends StandProductException {
 
-    public static final ShortAllocationException NO_SUCH_SHORT_ALLOCATION_EXCEPTION = new ShortAllocationException(ShortAllocationExceptionType.NO_SUCH_SHORT_ALLOCATION);
+    public static final ShortAllocationException NO_SUCH_SHORT_ALLOCATION = new ShortAllocationException(ShortAllocationExceptionType.NO_SUCH_SHORT_ALLOCATION);
 
     public ShortAllocationException(ShortAllocationExceptionType shortAllocationExceptionType) {
         super("ShortAllocationException." + shortAllocationExceptionType.name(), shortAllocationExceptionType.getDescription());

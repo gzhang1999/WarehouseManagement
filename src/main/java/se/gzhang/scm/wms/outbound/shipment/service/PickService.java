@@ -29,6 +29,8 @@ import se.gzhang.scm.wms.exception.Outbound.PickException;
 import se.gzhang.scm.wms.exception.StandProductException;
 import se.gzhang.scm.wms.framework.controls.service.UniversalIdentifierService;
 import se.gzhang.scm.wms.inventory.model.Inventory;
+import se.gzhang.scm.wms.inventory.model.ItemFootprint;
+import se.gzhang.scm.wms.inventory.model.ItemFootprintUOM;
 import se.gzhang.scm.wms.inventory.service.InventoryService;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.Location;
@@ -67,10 +69,9 @@ public class PickService {
         return pickRepository.findByNumber(number);
     }
 
+    @Transactional
     public Pick save(Pick pick) {
-        Pick newPick = pickRepository.save(pick);
-        pickRepository.flush();
-        return newPick;
+        return pickRepository.save(pick);
     }
 
     public List<Pick> findPicks(Map<String, String> criteriaList) {
@@ -192,6 +193,12 @@ public class PickService {
         // make sure the pick is not cancelled nor completed
         if (pick.getPickState() != PickState.CANCELLED &&
                 pick.getPickState() != PickState.COMPLETED) {
+
+            // Make sure we didn't over picked
+            if (pick.getQuantity() < (pick.getPickedQuantity() + confirmedQuantity)) {
+                throw PickException.OVER_PICK_PROHIBIT;
+            }
+
             pick.setPickedQuantity(pick.getPickedQuantity() + confirmedQuantity);
             if (pick.getPickedQuantity() == pick.getQuantity()) {
                 pick.setPickState(PickState.PICKED);
@@ -201,8 +208,52 @@ public class PickService {
             }
             save(pick);
 
-            // move inventory to the pick's destination
 
+            // move inventory to the pick's destination
+            inventoryService.pickInventory(pick, confirmedQuantity);
+
+            // update the allocation result to reflect that
+            // we are no long reserve the quantity, but already picked
+            // the quantity
+            allocationResultService.confirmPick(pick, confirmedQuantity);
         }
+    }
+
+    @Transactional
+    public void completePick(Pick pick) {
+        pick.setPickState(PickState.COMPLETED);
+        save(pick);
+    }
+
+    // get the estimated size of the pick work
+    public double getEstimatedSize(Pick pick) {
+        List<Inventory> availableInventory = inventoryService.getAvailableInventoryForPick(pick);
+        // Let's just get the footprint code of the first
+        // available inventory. In case of mixing footprint in the same location
+        // we don't know which one the picker will actually pick so we
+        // just estimate
+        if (availableInventory.size() == 0) {
+            return 0;
+        }
+        ItemFootprint itemFootprint = availableInventory.get(0).getItemFootprint();
+        ItemFootprintUOM stockUOM = itemFootprint.getStockItemFootprintUOM();
+        return pick.getQuantity() * stockUOM.getLength() * stockUOM.getWidth() * stockUOM.getHeight();
+    }
+
+    public Pick splitPick(Pick originalPick, int splitQuantity) {
+        if (originalPick.getPickState() != PickState.NEW) {
+            throw PickException.SPLIT_NOT_ALLOWED_NOT_RIGHT_STATE;
+        }
+        try {
+            Pick newPick = originalPick.clone();
+            originalPick.setQuantity(originalPick.getQuantity() - splitQuantity);
+            newPick.setQuantity(splitQuantity);
+            newPick.setId(null);
+            return newPick;
+        }
+        catch(CloneNotSupportedException ex) {
+            throw PickException.SPLIT_NOT_ALLOWED;
+        }
+
     }
 }

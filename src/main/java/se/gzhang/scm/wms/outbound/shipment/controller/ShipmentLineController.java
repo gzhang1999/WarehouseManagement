@@ -45,7 +45,7 @@ public class ShipmentLineController {
 
         ShipmentLine shipmentLine = shipmentLineService.findByShipmentLineId(shipmentLineID);
         if (shipmentLine == null) {
-            return WebServiceResponseWrapper.raiseError(ShipmentException.NO_SUCH_SHIPMENT_LINE_EXCEPTION);
+            return WebServiceResponseWrapper.raiseError(ShipmentException.NO_SUCH_SHIPMENT_LINE);
         }
         try {
             shipmentLineService.cancelShipmentLine(shipmentLine);

@@ -78,7 +78,7 @@ public class ShipmentController {
 
         Shipment shipment = shipmentService.findByShipmentId(shipmentID);
         if (shipment == null) {
-            return WebServiceResponseWrapper.raiseError(ShipmentException.NO_SUCH_SHIPMENT_EXCEPTION);
+            return WebServiceResponseWrapper.raiseError(ShipmentException.NO_SUCH_SHIPMENT);
         }
         return new WebServiceResponseWrapper<Shipment>(0, "", shipment);
     }
@@ -90,7 +90,7 @@ public class ShipmentController {
 
         Shipment shipment = shipmentService.findByShipmentId(shipmentID);
         if (shipment == null) {
-            return WebServiceResponseWrapper.raiseError(ShipmentException.NO_SUCH_SHIPMENT_EXCEPTION);
+            return WebServiceResponseWrapper.raiseError(ShipmentException.NO_SUCH_SHIPMENT);
         }
         shipmentService.allocateShipment(shipment);
         return new WebServiceResponseWrapper<Shipment>(0, "", shipment);
@@ -102,7 +102,7 @@ public class ShipmentController {
 
         Shipment shipment = shipmentService.findByShipmentId(shipmentID);
         if (shipment == null) {
-            return WebServiceResponseWrapper.raiseError(ShipmentException.NO_SUCH_SHIPMENT_EXCEPTION);
+            return WebServiceResponseWrapper.raiseError(ShipmentException.NO_SUCH_SHIPMENT);
         }
         try {
             shipmentService.cancelShipment(shipment);

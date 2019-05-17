@@ -79,10 +79,6 @@ public class ReportTriggerPointService {
 
 
     public List<ReportTriggerPoint> findReportTriggerPoint(Map<String, String> criteriaList) {
-        System.out.println("Find ReportTriggerPoint by :");
-        for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
-            System.out.println(entry.getKey() + " : " + entry.getValue());
-        }
         return reportTriggerPointRepository.findAll(new Specification<ReportTriggerPoint>() {
             @Override
             public Predicate toPredicate(Root<ReportTriggerPoint> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {

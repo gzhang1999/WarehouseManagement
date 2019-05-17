@@ -22,8 +22,8 @@ import se.gzhang.scm.wms.exception.StandProductException;
 
 public class ShipmentException extends StandProductException {
 
-    public static final ShipmentException NO_SUCH_SHIPMENT_EXCEPTION = new ShipmentException(ShipmentExceptionType.NO_SUCH_SHIPMENT);
-    public static final ShipmentException NO_SUCH_SHIPMENT_LINE_EXCEPTION = new ShipmentException(ShipmentExceptionType.NO_SUCH_SHIPMENT_LINE);
+    public static final ShipmentException NO_SUCH_SHIPMENT = new ShipmentException(ShipmentExceptionType.NO_SUCH_SHIPMENT);
+    public static final ShipmentException NO_SUCH_SHIPMENT_LINE = new ShipmentException(ShipmentExceptionType.NO_SUCH_SHIPMENT_LINE);
 
     public ShipmentException(ShipmentExceptionType shipmentExceptionType) {
         super("ShipmentException." + shipmentExceptionType.name(), shipmentExceptionType.getDescription());

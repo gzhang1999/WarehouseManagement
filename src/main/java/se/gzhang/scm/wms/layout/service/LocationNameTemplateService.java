@@ -21,6 +21,7 @@ package se.gzhang.scm.wms.layout.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.layout.model.LocationNameTemplate;
 import se.gzhang.scm.wms.layout.repository.LocationNameTemplateRepository;
 
@@ -39,6 +40,7 @@ public class LocationNameTemplateService {
 
     }
 
+    @Transactional
     public void deleteByLocationNameTemplateID(int id){
         locationNameTemplateRepository.deleteById(id);
     }
@@ -66,9 +68,8 @@ public class LocationNameTemplateService {
 
     }
 
+    @Transactional
     public LocationNameTemplate save(LocationNameTemplate locationNameTemplate) {
-        LocationNameTemplate newTemplate = locationNameTemplateRepository.save(locationNameTemplate);
-        locationNameTemplateRepository.flush();
-        return newTemplate;
+        return locationNameTemplateRepository.save(locationNameTemplate);
     }
 }

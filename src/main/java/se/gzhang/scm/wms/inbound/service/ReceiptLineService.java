@@ -21,6 +21,7 @@ package se.gzhang.scm.wms.inbound.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Supplier;
 import se.gzhang.scm.wms.common.model.Trailer;
 import se.gzhang.scm.wms.inbound.model.Receipt;
@@ -54,11 +55,10 @@ public class ReceiptLineService {
 
     }
 
-
+    @Transactional
     public ReceiptLine save(ReceiptLine receiptLine) {
-        ReceiptLine newReceiptLine = receiptLineRepository.save(receiptLine);
-        receiptLineRepository.flush();
-        return newReceiptLine;
+        return receiptLineRepository.save(receiptLine);
+
     }
 
 
@@ -130,6 +130,7 @@ public class ReceiptLineService {
         });
     }
 
+    @Transactional
     public void deleteByReceiptLineID(int receiptLineID) {
         receiptLineRepository.deleteById(receiptLineID);
     }

@@ -37,6 +37,7 @@ import se.gzhang.scm.wms.layout.service.WarehouseService;
 import se.gzhang.scm.wms.outbound.order.model.AddSalesOrderFlowModel;
 import se.gzhang.scm.wms.outbound.order.model.SalesOrder;
 import se.gzhang.scm.wms.outbound.order.model.SalesOrderLine;
+import se.gzhang.scm.wms.outbound.shipment.model.ShippingMethod;
 
 import javax.servlet.http.HttpSession;
 import java.lang.reflect.Field;
@@ -125,6 +126,15 @@ public class AddSalesOrderFlowHandler {
                         Customer shipToCustomer = customerService.findByCustomerId(Integer.parseInt(fieldValue.toString()));
                         if (shipToCustomer != null) {
                             field.set(salesOrder, shipToCustomer);
+                        }
+                    }
+                }
+                else if ("shippingMethod".equals(fieldName)) {
+                    if (fieldValue != null &&
+                            !fieldValue.toString().isEmpty()) {
+                        ShippingMethod shippingMethod = ShippingMethod.valueOf(fieldValue.toString());
+                        if (shippingMethod != null) {
+                            field.set(salesOrder, shippingMethod);
                         }
                     }
                 }

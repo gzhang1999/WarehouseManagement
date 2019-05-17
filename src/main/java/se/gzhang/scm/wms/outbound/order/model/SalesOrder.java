@@ -21,6 +21,7 @@ package se.gzhang.scm.wms.outbound.order.model;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import se.gzhang.scm.wms.common.model.Customer;
 import se.gzhang.scm.wms.layout.model.Warehouse;
+import se.gzhang.scm.wms.outbound.shipment.model.ShippingMethod;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -55,6 +56,9 @@ public class SalesOrder implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
+
+    @Column(name = "shipping_method")
+    private ShippingMethod shippingMethod;
 
     @OneToMany(
             mappedBy = "salesOrder",
@@ -138,5 +142,13 @@ public class SalesOrder implements Serializable {
 
     public void setSalesOrderLines(List<SalesOrderLine> salesOrderLines) {
         this.salesOrderLines = salesOrderLines;
+    }
+
+    public ShippingMethod getShippingMethod() {
+        return shippingMethod;
+    }
+
+    public void setShippingMethod(ShippingMethod shippingMethod) {
+        this.shippingMethod = shippingMethod;
     }
 }

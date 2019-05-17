@@ -20,6 +20,7 @@ package se.gzhang.scm.wms.common.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Client;
 import se.gzhang.scm.wms.common.model.UnitOfMeasure;
 import se.gzhang.scm.wms.common.repository.ClientRepository;
@@ -46,9 +47,8 @@ public class UnitOfMeasureService {
         return unitOfMeasureRepository.findByName(name);
     }
 
+    @Transactional
     public UnitOfMeasure save(UnitOfMeasure unitOfMeasure) {
-        UnitOfMeasure newUnitOfMeasure= unitOfMeasureRepository.save(unitOfMeasure);
-        unitOfMeasureRepository.flush();
-        return newUnitOfMeasure;
+        return unitOfMeasureRepository.save(unitOfMeasure);
     }
 }

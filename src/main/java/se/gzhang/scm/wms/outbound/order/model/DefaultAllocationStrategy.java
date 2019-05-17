@@ -25,6 +25,7 @@ import se.gzhang.scm.wms.inventory.service.InventoryService;
 import se.gzhang.scm.wms.layout.model.Location;
 import se.gzhang.scm.wms.outbound.order.service.AllocationStrategyService;
 import se.gzhang.scm.wms.outbound.shipment.model.AllocationResult;
+import se.gzhang.scm.wms.outbound.shipment.model.Pick;
 import se.gzhang.scm.wms.outbound.shipment.model.ShipmentLine;
 import se.gzhang.scm.wms.outbound.shipment.service.AllocationResultService;
 import se.gzhang.scm.wms.outbound.shipment.service.PickService;
@@ -57,7 +58,8 @@ public abstract class DefaultAllocationStrategy implements AllocationStrategy {
     protected void allocateInventory(ShipmentLine shipmentLine, Location location, int allocatedQuantity) {
         allocationResultService.allocateInventoryFromLocation(shipmentLine, location, allocatedQuantity);
         // create a pick from the location
-        pickService.generatePickFromShipmentLineAllocation(shipmentLine, location, allocatedQuantity);
+        Pick pick = pickService.generatePickFromShipmentLineAllocation(shipmentLine, location, allocatedQuantity);
+        shipmentLine.addPick(pick);
 
     }
 

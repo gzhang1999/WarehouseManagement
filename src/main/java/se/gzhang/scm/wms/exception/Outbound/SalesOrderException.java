@@ -22,7 +22,7 @@ import se.gzhang.scm.wms.exception.StandProductException;
 
 public class SalesOrderException extends StandProductException {
 
-    public static final SalesOrderException NO_SUCH_SALESORDER_EXCEPTION = new SalesOrderException(SalesOrderExceptionType.NO_SUCH_SALESORDER);
+    public static final SalesOrderException NO_SUCH_SALESORDER = new SalesOrderException(SalesOrderExceptionType.NO_SUCH_SALESORDER);
 
     public SalesOrderException(SalesOrderExceptionType salesOrderExceptionType) {
         super("SalesOrderException." + salesOrderExceptionType.name(), salesOrderExceptionType.getDescription());

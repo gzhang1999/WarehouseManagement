@@ -21,6 +21,7 @@ package se.gzhang.scm.wms.layout.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.layout.model.AreaGroup;
 import se.gzhang.scm.wms.layout.model.LocationGroup;
 import se.gzhang.scm.wms.layout.repository.AreaGroupRepository;
@@ -51,6 +52,8 @@ public class LocationGroupService {
 
         return locationGroupRepository.findAll();
     }
+
+    @Transactional
     public void deleteLocationGroupByLocationGroupId(int id) {
         locationGroupRepository.deleteById(id);
     }
@@ -79,9 +82,8 @@ public class LocationGroupService {
 
     }
 
+    @Transactional
     public LocationGroup save(LocationGroup locationGroup) {
-        LocationGroup newLocationGroup = locationGroupRepository.save(locationGroup);
-        locationGroupRepository.flush();
-        return newLocationGroup;
+        return locationGroupRepository.save(locationGroup);
     }
 }

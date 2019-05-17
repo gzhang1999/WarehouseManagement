@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<!--
+* CoreUI - Free Bootstrap Admin Template
+* @version v2.0.0
+* @link https://coreui.io
+* Copyright (c) 2018 creativeLabs Łukasz Holeczek
+* Licensed under MIT (https://coreui.io/license)
+-->
+
+<!--
+* gzhang - Warehouse Management System
+* @version v0.0.1
+* @link
+* Copyright (c) 2018 Gary Zhang
+* Licensed under MIT (https://github.com/gzhang1999/WarehouseManagement/blob/master/LICENSE)
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragment/header :: common-head">
+</head>
+<body class="app header-fixed sidebar-fixed aside-menu-fixed sidebar-lg-show">
+
+<div th:replace="fragment/topNav :: headerNav">
+</div>
+<div class="app-body">
+
+
+    <div th:replace="fragment/leftNav :: sidebar">
+    </div>
+    <main class="main">
+        <!-- Breadcrumb-->
+
+        <ol th:replace="fragment/breadcrumb :: breadcrumb"></ol>
+
+        <div class="container-fluid">
+            <div class="animated fadeIn">
+                <div class="card">
+
+                    <form method="post" enctype="multipart/form-data"  id="cartonTypeForm">
+
+                        <div class="card-header" >
+                            <h5>
+                                <span th:text="#{cartonType.new}"></span>
+                                <a class="badge badge-success float-right" th:href="@{'~' + ${flowExecutionUrl} + '&_eventId_home'}" th:text="#{flow.return.home}" >Return Hom</a>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row"
+                                 th:if="${flowRequestContext.messageContext.allMessages != null and not #lists.isEmpty(flowRequestContext.messageContext.allMessages)}"
+                                 th:each="message : ${flowRequestContext.messageContext.allMessages}">
+                                <span th:class="'mx-3 ' + ${message.severity}" th:text="${message.text}"></span>
+                            </div>
+                            <div class="row my-2">
+                                <div class="form-group col-md-3">
+                                    <label for="cartonTypeID" class="col-form-label mx-4" th:text="#{cartonType.id}">Carton Type ID:</label>
+                                    <input type="text" class="form-control" id="cartonTypeID" name="id" th:value="${cartonTypeFlowModel.cartonType.id}"
+                                           disabled>
+                                </div>
+                            </div>
+                            <div class="row my-2">
+                                <div class="form-group col-md-3">
+                                    <label for="cartonTypeName" class="col-form-label mx-4" th:text="#{cartonType.name}">Carton Type Name:</label>
+                                    <input type="text" class="form-control" id="cartonTypeName" name="name"
+                                        th:readonly="${cartonTypeFlowModel.modify==true}" th:value="${cartonTypeFlowModel.cartonType.name}">
+                                </div>
+                                <div class="form-group col-md-7">
+                                    <label for="cartonTypeDescription" class="col-form-label mx-4" th:text="#{cartonType.description}">Carton Type Description:</label>
+                                    <input type="text" class="form-control" id="cartonTypeDescription" name="description"
+                                           th:readonly="${cartonTypeFlowModel.modify==true}" th:value="${cartonTypeFlowModel.cartonType.description}">
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <label for="cartonTypeEnabled" class="col-form-label mx-4" th:text="#{cartonType.enabled}">Carton Type Enabled:</label>
+                                    <input type="checkbox" class="form-control" id="cartonTypeEnabled" name="enabled"
+                                    th:checked="${cartonTypeFlowModel.cartonType.enabled}">
+                                </div>
+                            </div>
+                            <div class="row my-2">
+                                <div class="form-group col-md-3">
+                                    <label for="cartonTypeLength" class="col-form-label mx-4" th:text="#{cartonType.length}">Carton Type Length:</label>
+                                    <input type="text" class="form-control" id="cartonTypeLength" name="length"
+                                           th:value="${cartonTypeFlowModel.cartonType.length}">
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label for="cartonTypeWidth" class="col-form-label mx-4" th:text="#{cartonType.width}">Carton Type Width:</label>
+                                    <input type="text" class="form-control" id="cartonTypeWidth" name="width"
+                                           th:value="${cartonTypeFlowModel.cartonType.width}">
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label for="cartonTypeHeight" class="col-form-label mx-4" th:text="#{cartonType.height}">Carton Type Height:</label>
+                                    <input type="text" class="form-control" id="cartonTypeHeight" name="height"
+                                           th:value="${cartonTypeFlowModel.cartonType.height}">
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label for="cartonTypeFillRate" class="col-form-label mx-4" th:text="#{cartonType.fillRate}">Carton Type Fill Rate:</label>
+                                    <input type="text" class="form-control" id="cartonTypeFillRate" name="fillRate"
+                                           th:value="${cartonTypeFlowModel.cartonType.fillRate}">
+                                </div>
+                            </div>
+                            <div class="row my-2">
+                                <div class="form-group col-md-3">
+                                    <label for="cartonTypeWeight" class="col-form-label mx-4" th:text="#{cartonType.weight}">Carton Type Weight:</label>
+                                    <input type="text" class="form-control" id="cartonTypeWeight" name="weight"
+                                           th:value="${cartonTypeFlowModel.cartonType.weight}">
+                                </div>
+                                <div class="form-group col-md-3">
+                                    <label for="cartonTypeWeightCapacity" class="col-form-label mx-4" th:text="#{cartonType.weightCapacity}">Carton Type Weight Capacity:</label>
+                                    <input type="text" class="form-control" id="cartonTypeWeightCapacity" name="weightCapacity"
+                                           th:value="${cartonTypeFlowModel.cartonType.weightCapacity}">
+                                </div>
+                            </div>
+                            <div class="row my-2">
+                                <div class="form-group col-md-3">
+                                    <label for="cartonTypeCost" class="col-form-label mx-4" th:text="#{cartonType.cost}">Carton Type Cost:</label>
+                                    <input type="text" class="form-control" id="cartonTypeCost" name="cost"
+                                           th:value="${cartonTypeFlowModel.cartonType.cost}">
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-sm btn-primary" name="_eventId_confirmCartonType" th:text="#{step.flow.cartonType.saveAndConfirmCartonType}">
+                                Next</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <aside th:replace="fragment/asidemenu :: aside-menu"></aside>
+</div>
+<footer th:replace="fragment/footer :: app-footer"></footer>
+
+</body>
+</html>

@@ -21,6 +21,7 @@ package se.gzhang.scm.wms.layout.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.AreaGroup;
 import se.gzhang.scm.wms.layout.model.AreaType;
@@ -51,6 +52,7 @@ public class AreaGroupService {
 
         return areaGroupRepository.findAll();
     }
+    @Transactional
     public void deleteAreaGroupByAreaGroupId(int id) {
         areaGroupRepository.deleteById(id);
     }
@@ -79,9 +81,8 @@ public class AreaGroupService {
 
     }
 
+    @Transactional
     public AreaGroup save(AreaGroup areaGroup) {
-        AreaGroup newAreaGroup = areaGroupRepository.save(areaGroup);
-        areaGroupRepository.flush();
-        return newAreaGroup;
+        return areaGroupRepository.save(areaGroup);
     }
 }

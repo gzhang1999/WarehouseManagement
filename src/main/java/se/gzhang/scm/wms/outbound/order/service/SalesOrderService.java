@@ -80,7 +80,7 @@ public class SalesOrderService {
         return salesOrderRepository.findByExternalID(externalID);
     }
 
-
+    @Transactional
     public SalesOrder save(SalesOrder salesOrder) {
         // If the external ID is empty, we will use order number
         // as the external ID
@@ -92,9 +92,7 @@ public class SalesOrderService {
                 }
             }
         }
-        SalesOrder newSalesOrder = salesOrderRepository.save(salesOrder);
-        salesOrderRepository.flush();
-        return newSalesOrder;
+        return salesOrderRepository.save(salesOrder);
     }
 
 
@@ -150,6 +148,7 @@ public class SalesOrderService {
         });
     }
 
+    @Transactional
     public void deleteBySalesOrderID(int salesOrderID) {
         SalesOrder salesOrder = findBySalesOrderId(salesOrderID);
 
@@ -169,6 +168,8 @@ public class SalesOrderService {
 
         return save(salesOrder);
     }
+
+    @Transactional
     public SalesOrder changeSalesOrder(int salesOrderID,
                                        String number,
                                        String externalID,

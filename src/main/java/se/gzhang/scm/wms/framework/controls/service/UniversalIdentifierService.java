@@ -21,8 +21,10 @@ package se.gzhang.scm.wms.framework.controls.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.exception.StandProductException;
+import se.gzhang.scm.wms.exception.controls.UniversalIdentifierException;
 import se.gzhang.scm.wms.framework.controls.model.UniversalIdentifier;
 import se.gzhang.scm.wms.framework.controls.repository.UniversalIdentifierRepository;
 
@@ -40,17 +42,16 @@ public class UniversalIdentifierService {
     @Autowired
     UniversalIdentifierRepository universalIdentifierRepository;
 
-
+    @Transactional
     public UniversalIdentifier save(UniversalIdentifier universalIdentifier) {
-        UniversalIdentifier newUniversalIdentifier = universalIdentifierRepository.save(universalIdentifier);
-        universalIdentifierRepository.flush();
-        return newUniversalIdentifier;
+        return universalIdentifierRepository.save(universalIdentifier);
+
     }
 
+    @Transactional
     public UniversalIdentifier deleteUniversalIdentifierById(Integer universalIdentifierId) {
         UniversalIdentifier universalIdentifier = findById(universalIdentifierId);
         universalIdentifierRepository.deleteById(universalIdentifierId);
-        universalIdentifierRepository.flush();
         return universalIdentifier;
     }
 
@@ -58,13 +59,14 @@ public class UniversalIdentifierService {
         return universalIdentifierRepository.findById(id).orElse(null);
     }
 
+    @Transactional
     public String getNextNumber(String variable) {
         UniversalIdentifier universalIdentifier = universalIdentifierRepository.findByVariable(variable);
         // Check if we already reaches the maximum number allowed
         int maxNumber = (int)Math.pow(10, universalIdentifier.getLength());
         int nextNumber = universalIdentifier.getCurrentNumber() + 1;
         if (nextNumber > maxNumber && !universalIdentifier.getRollover()) {
-            throw new StandProductException("UniversalIDException.MaxNumberReached", variable + " already reached the maximum number allowed and not supposed to be rolled over");
+            throw UniversalIdentifierException.MAX_NUMBER_REACHED;
         }
         else if (nextNumber > maxNumber) {
             // next number is bigger than the maximum number allowed but
@@ -100,6 +102,7 @@ public class UniversalIdentifierService {
         return universalIdentifier;
     }
 
+    @Transactional
     public UniversalIdentifier createUniversalIdentifier(String variable,
                                                          Boolean rollover,
                                                          String prefix,
@@ -117,6 +120,7 @@ public class UniversalIdentifierService {
         return save(universalIdentifier);
 
     }
+    @Transactional
     public UniversalIdentifier editUniversalIdentifier(Integer id,
                                                        String variable,
                                                        Boolean rollover,
@@ -136,6 +140,7 @@ public class UniversalIdentifierService {
         return save(universalIdentifier);
 
     }
+    @Transactional
     public UniversalIdentifier deleteUniversalIdentifier(Integer id) {
 
         return deleteUniversalIdentifierById(id);

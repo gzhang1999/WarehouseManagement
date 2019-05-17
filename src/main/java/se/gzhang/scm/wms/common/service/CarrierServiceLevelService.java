@@ -20,6 +20,7 @@ package se.gzhang.scm.wms.common.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Carrier;
 import se.gzhang.scm.wms.common.model.CarrierServiceLevel;
 import se.gzhang.scm.wms.common.repository.CarrierRepository;
@@ -48,14 +49,12 @@ public class CarrierServiceLevelService {
 
     }
 
-
-
+    @Transactional
     public CarrierServiceLevel save(CarrierServiceLevel carrierServiceLevel) {
-        CarrierServiceLevel newCarrierServiceLevel = carrierServiceLevelRepository.save(carrierServiceLevel);
-        carrierServiceLevelRepository.flush();
-        return newCarrierServiceLevel;
+        return carrierServiceLevelRepository.save(carrierServiceLevel);
     }
 
+    @Transactional
     public void deleteByCarrierServiceLevelID(int carrierServiceLevelID) {
         carrierServiceLevelRepository.deleteById(carrierServiceLevelID);
 

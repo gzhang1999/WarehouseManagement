@@ -21,6 +21,7 @@ package se.gzhang.scm.wms.reporting.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.authorization.model.User;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.AreaType;
@@ -68,10 +69,6 @@ public class ReportArchiveService {
 
 
     public List<ReportArchive> findReportArchive(Map<String, String> criteriaList) {
-        System.out.println("Find ReportArchive by :");
-        for(Map.Entry<String, String> entry : criteriaList.entrySet()) {
-            System.out.println(entry.getKey() + " : " + entry.getValue());
-        }
         return reportArchiveRepository.findAll(new Specification<ReportArchive>() {
             @Override
             public Predicate toPredicate(Root<ReportArchive> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
@@ -122,10 +119,9 @@ public class ReportArchiveService {
         });
     }
 
+    @Transactional
     public ReportArchive save(ReportArchive reportArchive){
-        ReportArchive newReportArchive = reportArchiveRepository.save(reportArchive);
-        reportArchiveRepository.flush();
-        return newReportArchive;
+        return reportArchiveRepository.save(reportArchive);
     }
 
 

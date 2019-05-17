@@ -21,6 +21,8 @@ package se.gzhang.scm.wms.layout.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import se.gzhang.scm.wms.exception.layout.AreaException;
 import se.gzhang.scm.wms.layout.model.Area;
 import se.gzhang.scm.wms.layout.model.AreaType;
 import se.gzhang.scm.wms.layout.model.Building;
@@ -49,6 +51,8 @@ public class AreaService {
 
         return areaRepository.findAll();
     }
+
+    @Transactional
     public void deleteAreaByAreaId(int id) {
         areaRepository.deleteById(id);
     }
@@ -88,10 +92,9 @@ public class AreaService {
         return findArea(receivingStageAreaCriteria);
     }
 
+    @Transactional
     public Area save(Area area) {
-        Area newArea = areaRepository.save(area);
-        areaRepository.flush();
-        return newArea;
+        return areaRepository.save(area);
     }
 
     public List<Area> getShipppingStageAreas() {
@@ -99,5 +102,23 @@ public class AreaService {
         criteriaList.put("areaType", AreaType.OUTBOUND_STAGE.name());
         return findArea(criteriaList);
     }
+
+    public Area getShipedInventoryArea() {
+        Map<String, String> criteriaList = new HashMap<>();
+        criteriaList.put("areaType", AreaType.SHIPPED.name());
+        List<Area> shippedInventoryArea = findArea(criteriaList);
+        if (shippedInventoryArea.size() == 0) {
+            throw AreaException.NO_SHIPPED_AREA_CONFIG;
+        }
+        else if (shippedInventoryArea.size() > 1) {
+            throw AreaException.MULTIPLE_SHIPPED_AREA_CONFIG;
+        }
+        else {
+            return shippedInventoryArea.get(0);
+        }
+
+    }
+
+
 
 }

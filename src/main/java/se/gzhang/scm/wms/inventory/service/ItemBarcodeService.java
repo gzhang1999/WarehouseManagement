@@ -21,8 +21,11 @@ package se.gzhang.scm.wms.inventory.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.exception.StandProductException;
+import se.gzhang.scm.wms.exception.inventory.ItemBarcodeTypeException;
+import se.gzhang.scm.wms.exception.inventory.ItemException;
 import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.inventory.model.ItemBarcode;
 import se.gzhang.scm.wms.inventory.model.ItemBarcodeType;
@@ -63,6 +66,7 @@ public class ItemBarcodeService {
         return itemBarcodeRepository.findByBarcode(barcode);
     }
 
+    @Transactional
     public void deleteByItemBarcodeId(int id) {
         itemBarcodeRepository.deleteById(id);
     }
@@ -106,13 +110,13 @@ public class ItemBarcodeService {
         });
     }
 
+    @Transactional
     public ItemBarcode save(ItemBarcode itemBarcode) {
 
-        ItemBarcode newItemBarcode = itemBarcodeRepository.save(itemBarcode);
-        itemBarcodeRepository.flush();
-        return newItemBarcode;
+        return itemBarcodeRepository.save(itemBarcode);
     }
 
+    @Transactional
     public List<ItemBarcode> loadFromFile(String[] columnNameList, List<String> itemBarcodes, String processID) {
 
 
@@ -140,6 +144,7 @@ public class ItemBarcodeService {
         return itemBarcodeList;
     }
 
+    @Transactional
     private ItemBarcode setupItemBarcode(String[] columnNameList, String[] itemBarcodeAttributeList)
             throws GenericException {
 
@@ -162,11 +167,11 @@ public class ItemBarcodeService {
 
         Item item = itemService.findByItemName(itemName);
         if (item == null) {
-            throw new StandProductException("ItemException.CannotFindItem","Can't find item by name " + itemName);
+            throw ItemException.NO_SUCH_ITEM;
         }
         ItemBarcodeType itemBarcodeType = itemBarcodeTypeService.findByItemBarcodeTypeName(barcodeType);
         if (itemBarcodeType == null) {
-            throw new StandProductException("ItemBarcodeTypeException.CannotFindItemBarcodeType","Can't find item barcode by type " + barcodeType);
+            throw ItemBarcodeTypeException.NO_SUCH_ITEM_BARCODE_TYPE;
         }
 
         Map<String, String> criteriaList = new HashMap<>();

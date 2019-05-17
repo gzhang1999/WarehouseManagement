@@ -20,6 +20,7 @@ package se.gzhang.scm.wms.inventory.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.authorization.model.User;
 import se.gzhang.scm.wms.configuration.service.PolicyService;
 import se.gzhang.scm.wms.inventory.model.Inventory;
@@ -52,11 +53,10 @@ public class InventoryStatusService {
         return inventoryStatusRepository.findByName(inventoryStatusName);
     }
 
+    @Transactional
     public InventoryStatus save(InventoryStatus inventoryStatus) {
 
-        InventoryStatus newInventoryStatus = inventoryStatusRepository.save(inventoryStatus);
-        inventoryStatusRepository.flush();
-        return newInventoryStatus;
+        return inventoryStatusRepository.save(inventoryStatus);
     }
 
    public InventoryStatus getDefaultInventoryStatus() {

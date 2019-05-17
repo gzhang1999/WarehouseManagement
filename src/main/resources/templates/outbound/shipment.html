@@ -215,6 +215,7 @@
                 tr.addClass('shown');
 
                 table.columns.adjust();
+                escapeDisplays();
             });
 
         }
@@ -325,11 +326,14 @@
                         "                   <th>" + $.i18n("pick.id") + "</th> " +
                         "                   <th>" + $.i18n("pick.number") + "</th> " +
                         "                   <th>" + $.i18n("pick.quantity") + "</th> " +
+                        "                   <th>" + $.i18n("pick.pickedQuantity") + "</th> " +
                         "                   <th>" + $.i18n("pick.state") + "</th> " +
                         "                   <th>" + $.i18n("pick.sourceLocation") + "</th> " +
                         "                   <th>" + $.i18n("pick.sourceArea") + "</th> " +
                         "                   <th>" + $.i18n("pick.destinationLocation") + "</th> " +
                         "                   <th>" + $.i18n("pick.destinationArea") + "</th> " +
+                        "                   <th>" + $.i18n("pick.cartonNumber") + "</th> " +
+                        "                   <th>" + $.i18n("pick.cartonType") + "</th> " +
                         "                   <th></th> " +
                        "               </tr> " +
                        "           </thead> " +
@@ -341,6 +345,7 @@
                                     "    <td> " + pick.id + "</td> " +
                                     "    <td> " + pick.number + "</td> " +
                                     "    <td> " + pick.quantity + "</td> " +
+                                    "    <td> " + pick.pickedQuantity + "</td> " +
                                     "    <td id='pick-state-" + pick.id + "' data-escapedisplay=true data-variable='pickState'>" +
                                             pick.pickState +
                                     "    </td> " +
@@ -348,10 +353,18 @@
                                     "    <td> " + (pick.sourceLocation.area == undefined ? "" : pick.sourceLocation.area.name) + "</td> " +
                                     "    <td> " + (pick.destinationLocation.name == undefined ? "" : pick.destinationLocation.name) + "</td> " +
                                     "    <td> " + (pick.destinationLocation.area == undefined ? "" : pick.destinationLocation.area.name) + "</td> " +
-                                    "    <td> " +
-                                    "       <button class='btn btn-danger' type='button' data-pickid='" + pick.id + "' onclick='cancelPick(event)'>" + $.i18n("cancel")+ "</button>"+
-                                    "    </td> " +
-                               "</tr> ";
+                                    "    <td> " + (pick.carton.number == undefined ? "" : pick.carton.number) + "</td> " +
+                                    "    <td> " + (pick.carton.type == undefined ? "" : pick.carton.type.name) + "</td> " +
+                                    "    <td> ";
+                if (pick.quantity == pick.pickedQuantity || pick.pickState == "CANCELLED" ||
+                        pick.pickState == "COMPLETED" ||pick.pickState == "PICKED") {
+                    picksHtml    += "       <button disabled class='btn btn-danger' type='button' data-pickid='" + pick.id + "' onclick='cancelPick(event)'>" + $.i18n("cancel")+ "</button>";
+                }
+                else {
+                    picksHtml    += "       <button class='btn btn-danger' type='button' data-pickid='" + pick.id + "' onclick='cancelPick(event)'>" + $.i18n("cancel")+ "</button>";
+                }
+                picksHtml    += "    </td> " +
+                           "</tr> ";
             });
         });
         pickHtml    += "          </tbody> " +

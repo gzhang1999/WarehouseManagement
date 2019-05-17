@@ -70,6 +70,12 @@
                                                    th:value="${addSalesOrderFlowModel.salesOrder.externalID != null ? addSalesOrderFlowModel.salesOrder.externalID : ''}"
                                                    th:disable="${addSalesOrderFlowModel.salesOrder.id != null ? true : false}">
                                         </div>
+                                        <div class="form-group mx-4">
+                                            <label for="salesOrderShippingMethod" class="col-form-label mx-4" th:text="#{salesOrder.shippingMethod}">
+                                                Sales Order Shipping Method:</label>
+                                            <select class="form-control" id="salesOrderShippingMethod" name="shippingMethod"
+                                                    data-variable="shippingMethod" ></select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

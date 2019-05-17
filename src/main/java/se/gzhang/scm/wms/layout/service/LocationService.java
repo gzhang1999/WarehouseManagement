@@ -26,6 +26,7 @@ import se.gzhang.scm.wms.common.model.Velocity;
 import se.gzhang.scm.wms.common.service.VelocityService;
 import se.gzhang.scm.wms.exception.GenericException;
 import se.gzhang.scm.wms.exception.StandProductException;
+import se.gzhang.scm.wms.exception.layout.AreaException;
 import se.gzhang.scm.wms.inventory.model.Inventory;
 import se.gzhang.scm.wms.inventory.service.InventoryService;
 import se.gzhang.scm.wms.layout.model.*;
@@ -62,6 +63,8 @@ public class LocationService {
     public Location findByLocationName(String name) {
         return locationRepository.findByName(name);
     }
+
+    @Transactional
     public void deleteByLocationId(int id) {
         locationRepository.deleteById(id);
     }
@@ -134,11 +137,9 @@ public class LocationService {
         });
     }
 
+    @Transactional
     public Location save(Location location) {
-
-        Location newLocation = locationRepository.save(location);
-        locationRepository.flush();
-        return newLocation;
+        return locationRepository.save(location);
     }
 
     public List<Location> loadFromFile(String[] columnNameList, List<String> locations, String processID) {
@@ -177,6 +178,22 @@ public class LocationService {
         return areaService.findByAreaName(areaName);
     }
 
+    // We will create a fake location for shipped inventory
+    // for parcel, we will have one fake location for each parcel package
+    // for shipment without trailer, we will have one fake location for each shipment
+    // for shipment with trailer, we will have one fake location for each trailer
+    public Location createFakeLocationForShippedInventory(String name) {
+        if (findByLocationName(name) != null) {
+            return findByLocationName(name);
+        }
+        Area shippedInventoryArea = areaService.getShipedInventoryArea();
+        Location shippedInventoryLocation = new Location();
+        shippedInventoryLocation.setArea(shippedInventoryArea);
+        shippedInventoryLocation.setName(name);
+        return save(shippedInventoryLocation);
+
+    }
+
     private Location setupLocation(String[] columnNameList, String[] locationAttributeList, Map<String, Area> areaMap)
         throws GenericException {
 
@@ -198,7 +215,7 @@ public class LocationService {
                 else {
                     area = getAreaByName(locationAttribute);
                     if (area == null) {
-                        throw new StandProductException("AreaException.CannotFindArea", "can't find area with code: " + locationAttribute);
+                        throw AreaException.NO_SUCH_AREA;
                     }
                     areaMap.put(locationAttribute, area);
                 }
@@ -282,6 +299,7 @@ public class LocationService {
     }
 
     // Allocate the location to the inventory as a destination
+    @Transactional
     public void allocateLocation(Location location, Inventory inventory) {
         inventory.setDestinationLocation(location);
         inventoryService.save(inventory);
@@ -299,6 +317,7 @@ public class LocationService {
     }
 
     // de-allocate(release) the location from the inventory
+    @Transactional
     public void deallocateLocation(Location location, Inventory inventory) {
         inventory.setDestinationLocation(null);
         inventoryService.save(inventory);

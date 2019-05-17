@@ -81,7 +81,7 @@ public class PickController {
         Pick pick = pickService.findByPickId(pickID);
         if (pick == null) {
             // return WebServiceResponseWrapper.raiseError("PickException.CannotFindPick", "Can't find the pick by id: " + pickID);
-            return WebServiceResponseWrapper.raiseError(PickException.NO_SUCH_PICK_EXCEPTION);
+            return WebServiceResponseWrapper.raiseError(PickException.NO_SUCH_PICK);
         }
         return new WebServiceResponseWrapper<Pick>(0, "", pick);
     }
@@ -93,7 +93,7 @@ public class PickController {
         Pick pick = pickService.findByPickId(pickID);
         if (pick == null) {
             // return WebServiceResponseWrapper.raiseError("PickException.CannotFindPick", "Can't find the pick by id: " + pickID);
-            return WebServiceResponseWrapper.raiseError(PickException.NO_SUCH_PICK_EXCEPTION);
+            return WebServiceResponseWrapper.raiseError(PickException.NO_SUCH_PICK);
         }
         try {
             pickService.cancelPick(pick);
@@ -111,7 +111,7 @@ public class PickController {
         Pick pick = pickService.findByPickId(pickID);
         if (pick == null) {
             // return WebServiceResponseWrapper.raiseError("PickException.CannotFindPick", "Can't find the pick by id: " + pickID);
-            return WebServiceResponseWrapper.raiseError(PickException.NO_SUCH_PICK_EXCEPTION);
+            return WebServiceResponseWrapper.raiseError(PickException.NO_SUCH_PICK);
         }
         pickService.confirmPick(pick, confirmedQuantity);
         return new WebServiceResponseWrapper<Pick>(0, "", pick);

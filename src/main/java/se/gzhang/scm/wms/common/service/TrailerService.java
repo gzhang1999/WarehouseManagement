@@ -22,13 +22,16 @@ import net.sf.jasperreports.engine.JRException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Carrier;
 import se.gzhang.scm.wms.common.model.Trailer;
 import se.gzhang.scm.wms.common.model.TrailerState;
 import se.gzhang.scm.wms.common.model.TrailerType;
 import se.gzhang.scm.wms.common.repository.TrailerRepository;
 import se.gzhang.scm.wms.exception.GenericException;
+import se.gzhang.scm.wms.exception.Inbound.ReceiptException;
 import se.gzhang.scm.wms.exception.StandProductException;
+import se.gzhang.scm.wms.exception.common.TrailerException;
 import se.gzhang.scm.wms.inbound.model.Receipt;
 import se.gzhang.scm.wms.layout.model.AreaType;
 import se.gzhang.scm.wms.layout.model.Location;
@@ -106,8 +109,7 @@ public class TrailerService {
         return trailerRepository.findByTrailerNumber(number);
     }
 
-
-
+    @Transactional
     public Trailer save(Trailer trailer) {
         // If the trailer doesn't have state yet, let's always
         // assume it is in 'Expected' status
@@ -115,9 +117,7 @@ public class TrailerService {
             // Trailer always start with expected status.
             trailer.setTrailerState(TrailerState.EXPECTED);
         }
-        Trailer newTrailer = trailerRepository.save(trailer);
-        trailerRepository.flush();
-        return newTrailer;
+        return trailerRepository.save(trailer);
     }
 
 
@@ -195,40 +195,48 @@ public class TrailerService {
         });
     }
 
+    @Transactional
     public void deleteByTrailerID(int trailerID) {
         Trailer trailer = findByTrailerId(trailerID);
         if (trailer.getTrailerState() != TrailerState.EXPECTED) {
-            throw new StandProductException("ReceiptException.TrailerNotInExpectedStatus", "Can't remove the receipt as the trailer attached is not in Expected status");
+            throw ReceiptException.TRAILER_NOT_VALID_STATE;
         }
         trailerRepository.deleteById(trailerID);
     }
 
+    @Transactional
     public Trailer voidByTrailerID(int trailerID) {
         Trailer trailer = findByTrailerId(trailerID);
         if (trailer.getTrailerState() != TrailerState.EXPECTED) {
-            throw new StandProductException("ReceiptException.TrailerNotInExpectedStatus", "Can't remove the receipt as the trailer attached is not in Expected status");
+            throw ReceiptException.TRAILER_NOT_VALID_STATE;
         }
         return setTrailerState(trailer, TrailerState.VOID);
     }
 
+    @Transactional
     public Trailer checkInTrailer(int trailerID) {
         return checkInTrailer(findByTrailerId(trailerID));
     }
+    @Transactional
     public Trailer closeTrailer(int trailerID) {
         return closeTrailer(findByTrailerId(trailerID));
     }
+    @Transactional
     public Trailer dispatchTrailer(int trailerID) {
         return dispatchTrailer(findByTrailerId(trailerID));
     }
 
+    @Transactional
     public Trailer checkInTrailer(Trailer trailer) {
         trailer.setCheckedInDate(new Date());
         return setTrailerState(trailer, TrailerState.CHECKED_IN);
     }
+    @Transactional
     public Trailer closeTrailer(Trailer trailer) {
         trailer.setClosedDate(new Date());
         return setTrailerState(trailer, TrailerState.CLOSED);
     }
+    @Transactional
     public Trailer dispatchTrailer(Trailer trailer) {
         trailer.setDispatchedDate(new Date());
         return setTrailerState(trailer, TrailerState.DISPATCHED);
@@ -237,9 +245,10 @@ public class TrailerService {
     // The trailer is only allowed to be moved to
     // 1. Yard for parking
     // 2. Dock for processing
+    @Transactional
     public Trailer moveTrailer(Trailer trailer, Location location) {
         if (!isLocationValidForParking(location)) {
-            throw new StandProductException("ReceiptException.LocationNotForTrailer", "Can't move trailer to this location as it is not designed for trailer parking");
+            throw TrailerException.INVALID_LOCATION_FOR_TRAILER;
         }
         trailer.setLocation(location);
         return save(trailer);

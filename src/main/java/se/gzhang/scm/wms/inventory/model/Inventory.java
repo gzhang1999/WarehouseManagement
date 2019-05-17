@@ -21,6 +21,7 @@ package se.gzhang.scm.wms.inventory.model;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import se.gzhang.scm.wms.inbound.model.ReceiptLine;
 import se.gzhang.scm.wms.layout.model.Location;
+import se.gzhang.scm.wms.outbound.shipment.model.Pick;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -29,7 +30,7 @@ import java.util.Date;
 @Entity
 @Table(name = "inventory")
 @JsonSerialize(using = InventorySerializer.class)
-public class Inventory implements Serializable {
+public class Inventory implements Serializable, Cloneable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "inventory_id")
@@ -75,6 +76,11 @@ public class Inventory implements Serializable {
     @Column(name = "fifo_date")
     private Date FIFODate;
 
+    // only will be set when the inventory is picked
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pick_id")
+    private Pick pick;
+
     // Temporary location used when running mock putaway
     // The value is calculated on a fly and will be moved to
     // the destinationLocaiton field after user's confirm
@@ -98,6 +104,16 @@ public class Inventory implements Serializable {
         }
         return false;
     }
+
+    @Override
+    public Inventory clone() throws CloneNotSupportedException{
+        Inventory inventory = (Inventory)super.clone();
+        // clear the id so we can actually get a new inventor record
+        inventory.setId(null);
+        return inventory;
+    }
+
+
 
     public Integer getId() {
         return id;
@@ -185,5 +201,13 @@ public class Inventory implements Serializable {
 
     public void setFIFODate(Date FIFODate) {
         this.FIFODate = FIFODate;
+    }
+
+    public Pick getPick() {
+        return pick;
+    }
+
+    public void setPick(Pick pick) {
+        this.pick = pick;
     }
 }

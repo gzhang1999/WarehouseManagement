@@ -22,6 +22,7 @@ import org.hibernate.jdbc.Work;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Supplier;
 import se.gzhang.scm.wms.common.model.Trailer;
 import se.gzhang.scm.wms.inbound.model.PutawayPolicy;
@@ -58,18 +59,17 @@ public class WorkInstructionService {
         return workInstructionRepository.findById(id);
     }
 
-
+    @Transactional
     public WorkInstruction save(WorkInstruction workInstruction) {
-        WorkInstruction newWorkInstruction = workInstructionRepository.save(workInstruction);
-        workInstructionRepository.flush();
-        return newWorkInstruction;
+        return workInstructionRepository.save(workInstruction);
     }
 
-
+    @Transactional
     public void deleteByWorkInstructionID(int workInstructionID) {
         workInstructionRepository.deleteById(workInstructionID);
     }
 
+    @Transactional
     public WorkInstruction generatePutawayWorkInstruction(Inventory inventory, Location destinationLocation) {
         WorkInstruction workInstruction = new WorkInstruction();
         workInstruction.setInventory(inventory);
@@ -82,6 +82,7 @@ public class WorkInstructionService {
         return save(workInstruction);
     }
 
+    @Transactional
     public WorkInstruction completeWorkInstruction(WorkInstruction workInstruction) {
         switch (workInstruction.getWorkInstructionType()) {
             case PUTAWAY:
@@ -100,6 +101,7 @@ public class WorkInstructionService {
     }
 
     // Finish the putaway work, move inventory to the destination
+    @Transactional
     private WorkInstruction completePutaway(WorkInstruction workInstruction) {
         inventoryService.moveInventory(workInstruction.getInventory(), workInstruction.getDestinationLocation());
         workInstruction.setWorkInstructionStatus(WorkInstructionStatus.COMPLETE);
@@ -107,10 +109,12 @@ public class WorkInstructionService {
 
 
     }
+    @Transactional
     public WorkInstruction completePick(WorkInstruction workInstruction) {
         return workInstruction;
 
     }
+    @Transactional
     public WorkInstruction completeReplenishment(WorkInstruction workInstruction) {
         return  workInstruction;
 

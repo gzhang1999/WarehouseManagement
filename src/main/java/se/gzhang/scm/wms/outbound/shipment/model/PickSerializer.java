@@ -81,6 +81,24 @@ public class PickSerializer extends StdSerializer<Pick> {
         }
         jgen.writeEndObject();
 
+        jgen.writeFieldName("carton");
+        jgen.writeStartObject();
+        if (pick.getCarton() != null) {
+            jgen.writeNumberField("id", pick.getCarton().getId());
+            jgen.writeStringField("number", pick.getCarton().getNumber());
+            jgen.writeFieldName("type");
+            jgen.writeStartObject();
+            if (pick.getCarton().getCartonType() != null) {
+                jgen.writeNumberField("id", pick.getCarton().getCartonType().getId());
+                jgen.writeStringField("name", pick.getCarton().getCartonType().getName());
+                jgen.writeNumberField("length", pick.getCarton().getCartonType().getLength());
+                jgen.writeNumberField("width", pick.getCarton().getCartonType().getWidth());
+                jgen.writeNumberField("height", pick.getCarton().getCartonType().getHeight());
+                jgen.writeNumberField("fillRate", pick.getCarton().getCartonType().getFillRate());
+            }
+            jgen.writeEndObject();
+        }
+        jgen.writeEndObject();
 
         jgen.writeFieldName("shipmentLine");
         jgen.writeStartObject();
@@ -123,6 +141,9 @@ public class PickSerializer extends StdSerializer<Pick> {
                     jgen.writeNumberField("id", pick.getShipmentLine().getSalesOrderLine().getSalesOrder().getId());
                     jgen.writeStringField("number", pick.getShipmentLine().getSalesOrderLine().getSalesOrder().getNumber());
                     jgen.writeStringField("externalID", pick.getShipmentLine().getSalesOrderLine().getSalesOrder().getExternalID());
+                    jgen.writeStringField("shippingMethod",
+                            (pick.getShipmentLine().getSalesOrderLine().getSalesOrder().getShippingMethod() == null ?
+                                    "" : pick.getShipmentLine().getSalesOrderLine().getSalesOrder().getShippingMethod().name()));
                 }
                 jgen.writeEndObject();
             }

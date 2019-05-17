@@ -20,6 +20,7 @@ package se.gzhang.scm.wms.layout.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.layout.model.LocationNameTemplateItem;
 import se.gzhang.scm.wms.layout.repository.LocationNameTemplateItemRepository;
 import java.util.List;
@@ -45,6 +46,7 @@ public class LocationNameTemplateItemService {
         return locationNameTemplateItemRepository.findAll();
     }
 
+    @Transactional
     public void deleteLocationTemplateItemById(int id) {
         locationNameTemplateItemRepository.deleteById(id);
     }

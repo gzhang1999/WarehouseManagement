@@ -108,6 +108,8 @@
                                             <td th:text="#{pick.sourceArea}">Source Area</td>
                                             <td th:text="#{pick.destinationLocation}">Destination Location</td>
                                             <td th:text="#{pick.destinationArea}">Source Area</td>
+                                            <td th:text="#{pick.cartonNumber}">Carton Number</td>
+                                            <td th:text="#{pick.cartonType}">Carton Type</td>
                                             <td th:text="#{salesOrder.number}">Sales Order Number</td>
                                             <td th:text="#{salesOrder.externalID}">Sales Order External ID</td>
                                             <td th:text="#{salesOrder.line.number}">Sales Order Line Number</td>
@@ -133,6 +135,8 @@
                                             <td th:text="${pick.sourceLocation?.area.name}"></td>
                                             <td th:text="${pick.destinationLocation?.name}"></td>
                                             <td th:text="${pick.destinationLocation?.area.name}"></td>
+                                            <td th:text="${pick.carton?.number}"></td>
+                                            <td th:text="${pick.carton?.type.name}"></td>
                                             <td th:text="${pick.shipmentLine?.salesOrderLine.salesOrder.number}"></td>
                                             <td th:text="${pick.shipmentLine?.salesOrderLine.salesOrder.externalID}"></td>
                                             <td th:text="${pick.shipmentLine?.salesOrderLine.number}"></td>
@@ -192,6 +196,8 @@
                         "    <td> " + (pick.sourceLocation.area == undefined ? "" : pick.sourceLocation.area.name) + "</td> " +
                         "    <td> " + (pick.destinationLocation.name == undefined ? "" : pick.destinationLocation.name) + "</td> " +
                         "    <td> " + (pick.destinationLocation.area == undefined ? "" : pick.destinationLocation.area.name) + "</td> " +
+                        "    <td> " + (pick.carton.number == undefined ? "" : pick.carton.number) + "</td> " +
+                        "    <td> " + (pick.carton.type == undefined ? "" : pick.carton.type.name) + "</td> " +
                         "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.salesOrder.number) + "</td> " +
                         "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.salesOrder.externalID) + "</td> " +
                         "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.number) + "</td> " +
@@ -208,11 +214,15 @@
                         "    <td> " + pick.quantity + "</td> " +
                         "    <td> " + pick.pickedQuantity + "</td> " +
                         "    <td> <input type='text' id='pickQuantity_" + pick.id + "' value='" + (pick.quantity - pick.pickedQuantity) + "' ></td> " +
-                        "    <td> " + pick.pickState + "</td> " +
+                        "    <td id='pick-state-" + pick.id + "' data-escapedisplay=true data-variable='pickState'>" +
+                              pick.pickState +
+                        "    </td> " +
                         "    <td> " + (pick.sourceLocation.name == undefined ? "" : pick.sourceLocation.name) + "</td> " +
                         "    <td> " + (pick.sourceLocation.area == undefined ? "" : pick.sourceLocation.area.name) + "</td> " +
                         "    <td> " + (pick.destinationLocation.name == undefined ? "" : pick.destinationLocation.name) + "</td> " +
                         "    <td> " + (pick.destinationLocation.area == undefined ? "" : pick.destinationLocation.area.name) + "</td> " +
+                        "    <td> " + (pick.carton.number == undefined ? "" : pick.carton.number) + "</td> " +
+                        "    <td> " + (pick.carton.type == undefined ? "" : pick.carton.type.name) + "</td> " +
                         "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.salesOrder.number) + "</td> " +
                         "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.salesOrder.externalID) + "</td> " +
                         "    <td> " + (pick.shipmentLine == undefined ? "" : pick.shipmentLine.salesOrderLine.number) + "</td> " +
@@ -224,6 +234,7 @@
             });
             var html = $(htmlData.trim().replace(/\s+/g, " ").replace(/\<\/tr\> \<tr/g, '</tr><tr'));
             table.rows.add(html).draw();
+            escapeDisplays();
         }
     }
 

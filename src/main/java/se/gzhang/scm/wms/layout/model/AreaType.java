@@ -31,7 +31,8 @@ public enum AreaType implements EnumWithDescription<String> {
     PRODUCTION_LINE_IN_STAGE("Production Line Inbound Stage"),
     PRODUCTION_LINE_OUT_STAGE("Production Line Outbound Stage"),
     YARD("Yard"),
-    DOCKDOOR("Dock Door");
+    DOCKDOOR("Dock Door"),
+    SHIPPED("Inventory that already shipped");
 
     private String description;
 

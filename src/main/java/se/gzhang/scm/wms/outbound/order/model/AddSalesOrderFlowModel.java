@@ -45,6 +45,7 @@ public class AddSalesOrderFlowModel implements Serializable {
         this.salesOrder.setShipToCustomer(salesOrder.getShipToCustomer());
         this.salesOrder.setBillToCustomer(salesOrder.getBillToCustomer());
         this.salesOrder.setWarehouse(salesOrder.getWarehouse());
+        this.salesOrder.setShippingMethod(salesOrder.getShippingMethod());
     }
 
     public SalesOrder getSalesOrder() {

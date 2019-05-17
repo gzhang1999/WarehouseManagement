@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import se.gzhang.scm.wms.exception.Outbound.AllocationResultException;
 import se.gzhang.scm.wms.inventory.model.InventoryStatus;
 import se.gzhang.scm.wms.inventory.model.Item;
 import se.gzhang.scm.wms.layout.model.Area;
@@ -31,6 +32,7 @@ import se.gzhang.scm.wms.outbound.shipment.repository.AllocationResultRepository
 
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,9 +53,7 @@ public class AllocationResultService {
 
     @Transactional
     public AllocationResult save(AllocationResult allocationResult) {
-        AllocationResult newAllocationResult = allocationResultRepository.save(allocationResult);
-        allocationResultRepository.flush();
-        return newAllocationResult;
+        return allocationResultRepository.save(allocationResult);
     }
 
     public List<AllocationResult> findAllocationResults(Map<String, String> criteriaList) {
@@ -95,6 +95,23 @@ public class AllocationResultService {
         });
     }
 
+    private AllocationResult findAllocationResultByPick(Pick pick) {
+        Map<String, String> criteriaList = new HashMap<>();
+        criteriaList.put("area", pick.getSourceLocation().getArea().getName());
+        criteriaList.put("location", pick.getSourceLocation().getName());
+        criteriaList.put("item", pick.getItem().getName());
+        criteriaList.put("inventoryStatus", pick.getInventoryStatus().getName());
+
+        // with the criteria, it is supposed to only return 1 match record
+        List<AllocationResult> allocationResultList = findAllocationResults(criteriaList);
+        if (allocationResultList.size() >= 1) {
+            return allocationResultList.get(0);
+        }
+        else {
+            return null;
+        }
+    }
+
     @Transactional
     public AllocationResult allocateInventoryFromLocation(ShipmentLine shipmentLine, Location location, int allocatedQuantity) {
         AllocationResult allocationResult = new AllocationResult();
@@ -108,7 +125,6 @@ public class AllocationResultService {
     @Transactional
     public void removeAllocationResult(AllocationResult allocationResult) {
         allocationResultRepository.delete(allocationResult);
-
     }
 
     @Transactional
@@ -120,6 +136,16 @@ public class AllocationResultService {
         else {
             removeAllocationResult(allocationResult);
         }
+    }
+
+    // after we confirm a pick, update the allocation result on the location
+    @Transactional
+    public void confirmPick(Pick pick, int confirmedQuantity) {
+        AllocationResult allocationResult = findAllocationResultByPick(pick);
+        if (allocationResult == null) {
+            throw AllocationResultException.NO_SUCH_ALLOCATION_RESULT;
+        }
+        deallocateInventoryFromLocation(allocationResult, confirmedQuantity);
     }
 
 

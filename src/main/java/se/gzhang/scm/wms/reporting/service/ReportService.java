@@ -27,6 +27,7 @@ import net.sf.jasperreports.export.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.authorization.service.UserService;
 import se.gzhang.scm.wms.reporting.model.Report;
 import se.gzhang.scm.wms.reporting.model.ReportArchive;
@@ -212,6 +213,7 @@ public class ReportService {
     // archiveFileInfo: String array that always contains only 2 elements.
     //           1. Archive file full path including the file name
     //           2. Archive file name
+    @Transactional
     private ReportArchive archiveReport(Report report, Map<String, Object> reportParameters, String[] archiveFileInfo) {
         ReportArchive reportArchive = new ReportArchive();
         reportArchive.setFilePath(archiveFileInfo[0]);

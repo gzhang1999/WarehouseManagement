@@ -21,6 +21,7 @@ package se.gzhang.scm.wms.common.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Carrier;
 import se.gzhang.scm.wms.common.repository.CarrierRepository;
 import javax.persistence.criteria.*;
@@ -47,12 +48,9 @@ public class CarrierService {
         return carrierRepository.findByName(name);
     }
 
-
-
+    @Transactional
     public Carrier save(Carrier carrier) {
-        Carrier newCarrier = carrierRepository.save(carrier);
-        carrierRepository.flush();
-        return newCarrier;
+        return carrierRepository.save(carrier);
     }
 
 
@@ -76,6 +74,7 @@ public class CarrierService {
         });
     }
 
+    @Transactional
     public void deleteByCarrierID(int carrierID) {
         carrierRepository.deleteById(carrierID);
     }

@@ -22,6 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import se.gzhang.scm.wms.exception.inventory.InventoryException;
+import se.gzhang.scm.wms.exception.inventory.ItemFootprintException;
+import se.gzhang.scm.wms.exception.layout.LocationException;
 import se.gzhang.scm.wms.inventory.model.Inventory;
 import se.gzhang.scm.wms.inventory.model.ItemFootprint;
 import se.gzhang.scm.wms.inventory.model.ItemFootprintUOM;
@@ -75,7 +78,7 @@ public class InventoryController {
 
         Inventory inventory = inventoryService.findByInventoryID(inventoryID);
         if (inventory == null) {
-            return WebServiceResponseWrapper.raiseError("InventoryException.CannotFindInventory", "Can't find the inventory by id: " + inventoryID);
+            return WebServiceResponseWrapper.raiseError(InventoryException.NO_SUCH_INVENTORY);
         }
         return new WebServiceResponseWrapper<Inventory>(0, "", inventory);
     }
@@ -93,11 +96,11 @@ public class InventoryController {
 
         ItemFootprint itemFootprint = itemFootprintService.findByItemFootprintId(itemFootprintID);
         if (itemFootprint == null) {
-            return WebServiceResponseWrapper.raiseError("ItemFootprintException.CannotFindItemFootprint", "Can't find the item footprint by id: " + itemFootprintID);
+            return WebServiceResponseWrapper.raiseError(ItemFootprintException.NO_SUCH_ITEM_FOOTPRINT);
         }
         Location location = locationService.findByLocationId(locationID);
         if (location == null) {
-            return WebServiceResponseWrapper.raiseError("LocationException.CannotFindLocation", "Can't find the location by id: " + locationID);
+            return WebServiceResponseWrapper.raiseError(LocationException.NO_SUCH_LOCATION);
         }
 
         Inventory inventory = inventoryService.addInventory(location, itemFootprint,
@@ -119,12 +122,12 @@ public class InventoryController {
 
         Inventory inventory = inventoryService.findByInventoryID(inventoryID);
         if (inventory == null) {
-            return WebServiceResponseWrapper.raiseError("InventoryException.CannotFindInventory", "Can't find the inventory by id: " + inventoryID);
+            return WebServiceResponseWrapper.raiseError(InventoryException.NO_SUCH_INVENTORY);
         }
 
         ItemFootprint itemFootprint = itemFootprintService.findByItemFootprintId(itemFootprintID);
         if (itemFootprint == null) {
-            return WebServiceResponseWrapper.raiseError("ItemFootprintException.CannotFindItemFootprint", "Can't find the item footprint by id: " + itemFootprintID);
+            return WebServiceResponseWrapper.raiseError(ItemFootprintException.NO_SUCH_ITEM_FOOTPRINT);
         }
 
         int unitQuantity = quantity;
@@ -148,7 +151,7 @@ public class InventoryController {
 
         Inventory inventory = inventoryService.findByInventoryID(inventoryID);
         if (inventory == null) {
-            return WebServiceResponseWrapper.raiseError("InventoryException.CannotFindInventory", "Can't find the inventory by id: " + inventoryID);
+            return WebServiceResponseWrapper.raiseError(InventoryException.NO_SUCH_INVENTORY);
         }
 
         System.out.println("## 1. Delete inventory: " + inventory.getId());

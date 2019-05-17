@@ -20,6 +20,7 @@ package se.gzhang.scm.wms.common.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Client;
 import se.gzhang.scm.wms.common.repository.ClientRepository;
 
@@ -44,6 +45,7 @@ public class ClientService {
         return clientRepository.findByName(name);
     }
 
+    @Transactional
     public Client getDefaultClient() {
         Client client = findByClientName("DEFAULT");
         if (client == null) {
@@ -54,9 +56,8 @@ public class ClientService {
         return client;
     }
 
+    @Transactional
     public Client save(Client client) {
-        Client newClient = clientRepository.save(client);
-        clientRepository.flush();
-        return newClient;
+        return clientRepository.save(client);
     }
 }

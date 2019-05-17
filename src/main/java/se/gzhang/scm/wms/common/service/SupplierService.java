@@ -21,6 +21,7 @@ package se.gzhang.scm.wms.common.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import se.gzhang.scm.wms.common.model.Carrier;
 import se.gzhang.scm.wms.common.model.Supplier;
 import se.gzhang.scm.wms.common.repository.CarrierRepository;
@@ -53,12 +54,10 @@ public class SupplierService {
         return supplierRepository.findByName(name);
     }
 
-
-
+    @Transactional
     public Supplier save(Supplier supplier) {
-        Supplier newSupplier = supplierRepository.save(supplier);
-        supplierRepository.flush();
-        return newSupplier;
+        return supplierRepository.save(supplier);
+
     }
 
 
@@ -82,6 +81,7 @@ public class SupplierService {
         });
     }
 
+    @Transactional
     public void deleteBySupplierID(int supplierID) {
         supplierRepository.deleteById(supplierID);
     }

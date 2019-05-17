@@ -65,16 +65,14 @@ public class SalesOrderLineService {
         return salesOrderLineRepository.findByExternalID(externalID);
     }
 
-
+    @Transactional
     public SalesOrderLine save(SalesOrderLine salesOrderLine) {
         // If the external ID is empty, we will use order number
         // as the external ID
         if (salesOrderLine.getExternalID().isEmpty()) {
             salesOrderLine.setExternalID(salesOrderLine.getSalesOrder().getNumber() + "-" + salesOrderLine.getLineNumber());
         }
-        SalesOrderLine newSalesOrderLine = salesOrderLineRepository.save(salesOrderLine);
-        salesOrderLineRepository.flush();
-        return newSalesOrderLine;
+        return salesOrderLineRepository.save(salesOrderLine);
     }
 
 }

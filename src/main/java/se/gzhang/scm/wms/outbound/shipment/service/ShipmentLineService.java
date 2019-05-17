@@ -115,9 +115,7 @@ public class ShipmentLineService {
 
     @Transactional
     public ShipmentLine save(ShipmentLine shipmentLine) {
-        ShipmentLine newShipmentLine = shipmentLineRepository.save(shipmentLine);
-        shipmentLineRepository.flush();
-        return newShipmentLine;
+        return shipmentLineRepository.save(shipmentLine);
     }
     @Transactional
     public void removeShipmentLine(ShipmentLine shipmentLine) {

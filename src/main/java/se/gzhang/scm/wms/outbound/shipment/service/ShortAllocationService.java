@@ -53,9 +53,7 @@ public class ShortAllocationService {
 
     @Transactional
     public ShortAllocation save(ShortAllocation shortAllocation) {
-        ShortAllocation newShortAllocation = shortAllocationRepository.save(shortAllocation);
-        shortAllocationRepository.flush();
-        return newShortAllocation;
+        return shortAllocationRepository.save(shortAllocation);
     }
 
     @Transactional

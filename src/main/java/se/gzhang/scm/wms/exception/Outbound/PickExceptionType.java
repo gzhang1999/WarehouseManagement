@@ -22,7 +22,11 @@ import se.gzhang.scm.wms.common.model.EnumWithDescription;
 
 public enum PickExceptionType implements EnumWithDescription<String> {
     NO_SUCH_PICK("Can not find the pick"),
-    NOT_VALID_STATE_FOR_CANCELLATION("Pick is in a state that is not for cancellation");
+    NOT_VALID_STATE_FOR_CANCELLATION("Pick is in a state that is not for cancellation"),
+    OVER_PICK_PROHIBIT("Over Pick is not allowed"),
+    NOT_SUFFICIENT_QUANTITY("There's not enough quantity left in the location to be picked"),
+    SPLIT_NOT_ALLOWED("Can't split the pick - internal error"),
+    SPLIT_NOT_ALLOWED_NOT_RIGHT_STATE("Can't split the pick - pick is not in right state");
 
     private String description;
 
