@@ -203,5 +203,6 @@
   "message.sd.SalesOrder.Allocated": "销售订单分配成功",
   "message.sd.ShipmentLine.Cancelled": "销售订单取消成功",
   "message.sd.Pick.Cancelled": "拣货任务取消成功",
-  "message.sd.ShortAllocation.Cancelled": "缺货任务取消成功"
+  "message.sd.ShortAllocation.Cancelled": "缺货任务取消成功",
+  "message.sd.CartonException.NO_SUCH_CARTON": "拣选箱号无效"
 }

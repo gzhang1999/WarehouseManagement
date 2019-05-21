@@ -19,6 +19,7 @@
 package se.gzhang.scm.wms.outbound.shipment.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import se.gzhang.scm.wms.authorization.model.User;
 import se.gzhang.scm.wms.inventory.model.Inventory;
 import se.gzhang.scm.wms.inventory.model.InventoryStatus;
 import se.gzhang.scm.wms.inventory.model.Item;
@@ -63,6 +64,9 @@ public class Pick implements Serializable {
     @Column(name = "cancelled_date")
     private Date cancelledDate;
 
+    @Column(name = "picked_date")
+    private Date pickedDate;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="shipment_line_id")
     private ShipmentLine shipmentLine;
@@ -76,6 +80,10 @@ public class Pick implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="carton_id")
     private Carton carton;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id")
+    private User pickedUser;
 
     @Transient
     private CartonType cartonType;
@@ -186,5 +194,21 @@ public class Pick implements Serializable {
 
     public void setCartonType(CartonType cartonType) {
         this.cartonType = cartonType;
+    }
+
+    public Date getPickedDate() {
+        return pickedDate;
+    }
+
+    public void setPickedDate(Date pickedDate) {
+        this.pickedDate = pickedDate;
+    }
+
+    public User getPickedUser() {
+        return pickedUser;
+    }
+
+    public void setPickedUser(User pickedUser) {
+        this.pickedUser = pickedUser;
     }
 }
